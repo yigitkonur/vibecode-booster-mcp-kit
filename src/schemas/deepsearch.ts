@@ -11,23 +11,54 @@ export const deepSearchParamsShape = {
     .string()
     .min(1)
     .describe(
-      `The comprehensive research request. To get the best results, structure your input using the following template, providing as much detail as possible.
+      `Use \`deep_research\` if you need comprehensive answer for any question. To get best results, you must deliver ALL of them:
 
-**Template for Optimal Results:**
+**Background Context:**
+- Provide complete background of your situation
+- Include all relevant technical details, configurations, and environment specifics
+- Mention what you were trying to accomplish originally
+- Detail any previous attempts or solutions you've tried
+
+**Current Issue Description:**
+- Explain exactly what problem you're facing now
+- Include error messages, logs, or symptoms (word-for-word)
+- Describe when the issue started occurring
+- Note any patterns or triggers you've observed
+
+**Evidence & Details:**
+- Share all relevant code snippets, configuration files, or settings
+- Include version numbers, dependencies, and system specifications
+- Provide step-by-step reproduction steps
+- Mention any workarounds or temporary fixes you've discovered
+
+**What You Want to Accomplish:**
+- Clearly state your end goal or desired outcome
+- Explain why this specific solution approach matters
+- Include any constraints, requirements, or limitations you're working within
+
+**Specific Questions:**
+Break your main question into multiple focused sub-questions such as:
+- What is the root cause of [specific symptom]?
+- How can I configure [specific component] to achieve [desired behavior]?
+- What are the best practices for [specific scenario] in [your context]?
+- Are there alternative approaches to [your current method]?
+- What debugging steps should I follow to isolate [specific issue]?
+
+**Template Structure:**
 \`\`\`
-BACKGROUND: [Provide the complete story and context. What were you trying to achieve? What have you tried so far?]
-CURRENT ISSUE: [Describe the exact problem you're facing. Include symptoms and when it started.]
-EVIDENCE: [Share all technical details, error messages, logs, code snippets, version numbers, and reproduction steps.]
-GOAL: [Clearly state what success looks like. What is your desired outcome and what are your constraints?]
+BACKGROUND: [Complete story from the beginning]
+CURRENT ISSUE: [Exact problem with all symptoms]
+EVIDENCE: [All technical details, errors, logs]
+GOAL: [What success looks like]
 QUESTIONS:
-1. [What is the root cause of... ?]
-2. [How can I configure X to achieve Y?]
-3. [What are the best practices for Z in my context?]
-4. [What are alternative approaches to my current method?]
-5. [What are the next debugging steps I should take?]
+1. [Root cause question]
+2. [Solution approach question]  
+3. [Best practices question]
+4. [Alternative methods question]
+5. [Debugging/troubleshooting question]
 \`\`\`
 
-Think of this as explaining your entire situation to an expert who just walked into the room — provide every detail to get the best possible solution.`
+Think of this as explaining your entire situation to an expert who just walked into the room — share every frustration, detail, and piece of evidence like you're having a thorough conversation with someone who can actually solve your problem and call this tool by using that template!`
     ),
 
   // --- Quality & Effort Control ---
@@ -59,36 +90,35 @@ Think of this as explaining your entire situation to an expert who just walked i
     .number()
     .int()
     .optional()
-    .default(5)
+    .default(3)
     .describe(
-      "The number of parallel agents using a 'divide and conquer' strategy. **Default: 5** for maximum research breadth. This is powerful but costly. If you need to significantly reduce cost, setting `team_size` to 1 is the most effective way."
+      "The number of parallel agents using a 'divide and conquer' strategy. **Default: 3** for maximum research breadth. This is powerful but costly. If you need to significantly reduce cost, setting `team_size` to 1 is the most effective way."
     ),
 
   // --- Source & Behavior Control ---
   no_direct_answer: z
     .boolean()
     .optional()
-    .default(false)
+    .default(true)
     .describe(
-      "**Default: false**. If you suspect the agent's internal knowledge is outdated and require a fresh web search for every detail, set this to `true`."
+      "**Default: true**. If you suspect the agent's internal knowledge is outdated and require a fresh web search for every detail, set this to `true`."
     ),
   structured_output: z
     .object({})
     .passthrough()
     .optional()
     .describe(
-      'Forces the final answer into a specific JSON format. Use this when you need reliable, machine-readable data instead of a narrative Markdown answer.'
+      'Forces the final answer into a specific JSON format. Use this when you need reliable, machine-readable data instead of a narrative Markdown answer. Do NOT use it if not mandatory.'
     ),
   max_returned_urls: z
     .number()
     .int()
     .optional()
-    .default(10)
+    .default(100)
     .describe(
-      '**Default: 10**. The maximum number of source URLs to include as citations in the final answer.'
+      '**Default: 100**. The maximum number of source URLs to include as citations in the final answer.'
     ),
   search_provider: z
-    .enum(['arxiv'])
     .optional()
     .describe(
       "EXPERIMENTAL: Focuses the search on a specific source. Set to 'arxiv' for technical or scientific research questions to prioritize academic papers."
@@ -99,13 +129,13 @@ Think of this as explaining your entire situation to an expert who just walked i
     .array(z.string())
     .optional()
     .describe(
-      "A list of preferred domains to prioritize during research. Use this to guide the agent toward trusted sources. Example: ['wikipedia.org', 'jina.ai']"
+      "A list of preferred domains to prioritize during research. Use this to guide the agent toward trusted sources ONLY IF NEEDED. Do NOT use it and make agent free to choose its own site and do not limit its creativity. Example: ['site1.com', 'site2.com']"
     ),
   exclude_hostnames: z
     .array(z.string())
     .optional()
     .describe(
-      "A list of blocked domains to completely ignore. Use this to filter out known low-quality or irrelevant sites. Example: ['spam.com', 'ad-network.net']"
+      "A list of blocked domains to completely ignore. Use this to filter out known low-quality or irrelevant sites. Example: ['lorem.com', 'ipsum.com']"
     ),
   only_hostnames: z
     .array(z.string())
@@ -118,14 +148,14 @@ Think of this as explaining your entire situation to an expert who just walked i
     .regex(/^[a-z]{2}$/)
     .optional()
     .describe(
-      'A two-letter language code (ISO 639-1) to force search queries into a specific language, useful for finding region-specific information.'
+      'A two-letter language code (ISO 639-1) to force search queries into a specific language, useful for finding region-specific information. For top quality, do not modify this and keep agent free.'
     ),
   language_code: z
     .string()
     .regex(/^[a-z]{2}$/)
     .optional()
     .describe(
-      'A two-letter language code (ISO 639-1) to force the language of the final answer and all intermediate reasoning steps.'
+      'A two-letter language code (ISO 639-1) to force the language of the final answer and all intermediate reasoning steps. For top quality, do not modify this and keep agent free.'
     ),
 };
 
