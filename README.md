@@ -12,31 +12,28 @@ When coding with LLMs, bug solving skills can sometimes stay pretty limited. The
 
 It's not magic, just a well-defined template. Your LLM fills that template properly, and JINA deep research does a good job. So your coding agent (Claude Code, Cursor, or whatever you use) never gets stuck.
 
-## 🚀 Setup
+## 🚀 Installation
+
+### Claude Code (Recommended)
 
 ```bash
-npm install && npm run build
-cp .env.example .env
-echo "JINA_API_KEY=your_api_key" >> .env
-npm test
+claude mcp add deep-research --env JINA_API_KEY=your_api_key -- npx -y deep-research-bug-fix-mcp
 ```
 
-## 🔌 Claude Code Integration
+### Other MCP Clients
 
-Add to `.mcp.json`:
+| Client | Config file & location | Installation |
+|--|--|--|
+| **Cline** | `~/.cline_mcp_settings.json` | ```json "mcpServers": { "deep-research": { "command": "npx", "args": ["-y","deep-research-bug-fix-mcp"], "env": { "JINA_API_KEY": "your_api_key" } } } ```
+| **Cursor** | `~/.cursor/mcp.json` or `.cursor/mcp.json` | Same JSON as Cline |
+| **Codex CLI** | `~/.codex/config.toml` | ```toml [mcp_servers.deep-research] command = "npx" args = ["-y","deep-research-bug-fix-mcp"] env = { JINA_API_KEY = "your_api_key" } ```
+| **Windsurf** | `~/.codeium/windsurf/mcp_config.json` | Same JSON as Cline/Cursor |
 
-```json
-{
-  "mcpServers": {
-    "deep-research": {
-      "command": "node",
-      "args": ["/absolute/path/to/deep-research-bug-fix-mcp/dist/index.js"],
-      "env": {
-        "JINA_API_KEY": "your_api_key"
-      }
-    }
-  }
-}
+### Manual Setup
+
+```bash
+npm install -g deep-research-bug-fix-mcp
+echo "JINA_API_KEY=your_api_key" >> .env
 ```
 
 ## 🎯 The Template Structure

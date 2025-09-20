@@ -42,10 +42,7 @@
     "format:fix": "biome format --write src tests",
     "check": "biome check src tests",
     "check:fix": "biome check --fix src tests",
-    "ci": "npm run check && npm run test && npm run build",
-    "docker:build": "docker build -t jina-deepsearch-mcp .",
-    "docker:run": "docker run --env-file .env jina-deepsearch-mcp",
-    "docker:test": "docker run --rm jina-deepsearch-mcp npm run test:mcp"
+    "ci": "npm run check && npm run test && npm run build"
   },
   "keywords": [
     "mcp",
