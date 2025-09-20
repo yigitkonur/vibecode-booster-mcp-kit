@@ -1,184 +1,125 @@
 #!/usr/bin/env node
 
-/**
- * JINA DeepSearch MCP Server
- *
- * This is the main entry point for the JINA DeepSearch MCP server.
- * Features ultra-simple integration with direct API calls and clear timeout guidance.
- */
-
-// Core MCP SDK imports
-import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
-
-// Environment variables support
 import * as dotenv from 'dotenv';
-
-// Import tool definitions and implementations
-import { toolDefinitions } from './tool-definitions';
 import { performResearch } from './tools/research-tool';
-
-// Import Zod schemas and intelligent defaults
-import { deepSearchParamsSchema, optimizeParameters } from './schemas/deepsearch';
-
-// Import utilities and configuration
+import { deepSearchParamsSchema, deepSearchParamsShape, deepSearchOutputSchema, deepSearchOutputShape } from './schemas/deepsearch';
 import { MCP_CONFIG } from './utils/constants';
-import { createTextResponse } from './utils/formatters';
+import { createSimpleError } from './utils/errors';
 
-// Load environment variables from .env file
 dotenv.config();
 
-/**
- * Create the MCP server instance
- *
- * TUTORIAL: The Server constructor takes two arguments:
- * 1. Server info: name and version for identification
- * 2. Capabilities: what features this server supports
- *
- * TODO: Update the server description comment with your service details
- */
-const server = new Server(
+const mcpServer = new McpServer(
   {
-    name: MCP_CONFIG.SERVER_NAME, // Your server's unique identifier
-    version: MCP_CONFIG.SERVER_VERSION, // Semantic version for your server
+    name: MCP_CONFIG.SERVER_NAME,
+    version: MCP_CONFIG.SERVER_VERSION,
+    description: MCP_CONFIG.DESCRIPTION,
+    icons: [{ src: MCP_CONFIG.ICONS.FAVICON, sizes: '32x32', mimeType: 'image/x-icon' }],
+    license: MCP_CONFIG.LICENSE,
+    author: `${MCP_CONFIG.AUTHOR.name} <${MCP_CONFIG.AUTHOR.email}>`,
   },
   {
     capabilities: {
-      tools: {}, // Enable tool support (required for all API integration servers)
-      // Optional capabilities you can enable:
-      // resources: {},    // For serving static resources
-      // prompts: {},      // For providing reusable prompts
-      // logging: {},      // For advanced logging features
+      tools: {},
     },
   }
 );
 
-/**
- * TUTORIAL: Tool Listing Handler
- *
- * This handler responds to requests for available tools. Claude Code calls this
- * to understand what functionality your server provides. It returns:
- * - Tool names: Unique identifiers for each tool
- * - Descriptions: Human-readable explanations of what each tool does
- * - Input schemas: JSON schemas defining required and optional parameters
- *
- * The toolDefinitions array is imported from tool-definitions.ts and contains
- * all the metadata about your tools in a centralized location.
- */
-server.setRequestHandler(ListToolsRequestSchema, async () => {
-  return {
-    tools: toolDefinitions.map((tool) => ({
-      name: tool.name, // Tool identifier (e.g., 'generate_text')
-      description: tool.description, // Human-readable description
-      inputSchema: tool.parameters, // JSON schema for parameters
-    })),
-  };
-});
+// Register research tool
+mcpServer.registerTool(
+  'deepsearch.research',
+  {
+    title: 'JINA DeepSearch Research',
+    description: 'AI-powered web research with citations. Long-running operation - use parameters to control cost.',
+    inputSchema: deepSearchParamsShape,
+    outputSchema: deepSearchOutputShape,
+  },
+  async (args, extra) => {
+    try {
+      const validatedParams = deepSearchParamsSchema.parse(args);
 
-/**
- * TUTORIAL: Tool Execution Handler
- *
- * This is the heart of your MCP server. It receives tool execution requests
- * from Claude Code and routes them to the appropriate tool implementation.
- *
- * Request Flow:
- * 1. Receive tool name and arguments from Claude Code
- * 2. Validate the tool name exists
- * 3. Validate required parameters are present
- * 4. Call the appropriate tool function
- * 5. Return formatted response or error
- *
- * Error Handling:
- * - Parameter validation errors
- * - API errors from your service
- * - Network errors
- * - Unknown tool errors
- */
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
-  const { name, arguments: args } = request.params;
+      // Simple logger function
+      const logger = async (level: 'info' | 'error' | 'debug', message: string, sessionId: string) => {
+        await mcpServer.server.sendLoggingMessage({ level, data: message }, sessionId);
+      };
 
-  try {
-    // JINA DeepSearch tool router
-    switch (name) {
-      case 'deepsearch_research': {
-        // Step 1: Apply intelligent defaults based on query complexity
-        const query = args?.query as string;
-        if (!query?.trim()) {
-          throw new Error('Query parameter is required');
-        }
+      const sessionId = extra?.sessionId || 'default';
+      const { content, structuredContent } = await performResearch(validatedParams, { sessionId, logger });
 
-        const optimizedParams = optimizeParameters(query, args || {});
-
-        // Step 2: Validate with Zod schema (provides detailed error messages)
-        const validatedParams = deepSearchParamsSchema.parse(optimizedParams);
-
-        // Step 3: Perform the research with validated parameters
-        const result = await performResearch(validatedParams);
-        return createTextResponse(result);
+      // Handle error responses
+      if (structuredContent && (structuredContent as any).error) {
+        // Extract only schema-compliant fields for error responses
+        const errorResponse = structuredContent as any;
+        return {
+          content: [{ type: 'text' as const, text: content }],
+          structuredContent: {
+            content: errorResponse.content,
+            metadata: errorResponse.metadata,
+          },
+          isError: true,
+        };
       }
 
-      // Handle unknown tools
-      default:
-        throw new Error(`Unknown tool: ${name}`);
-    }
-  } catch (error) {
-    // Enhanced error handling with Zod-specific messages
-    if (error instanceof Error) {
-      // Zod validation errors contain helpful guidance
-      return createTextResponse(`Error: ${error.message}`, true);
-    }
-    return createTextResponse('Error: Unknown error occurred', true);
-  }
-});
+      // Transform response to output schema
+      const jinaResponse = structuredContent as any;
+      const transformedOutput = {
+        content,
+        metadata: {
+          id: jinaResponse.id || 'unknown',
+          model: jinaResponse.model || 'jina-deepsearch-v1',
+          created: jinaResponse.created || Date.now(),
+          finish_reason: jinaResponse.choices?.[0]?.finish_reason || 'unknown',
+        },
+        usage: jinaResponse.usage ? {
+          prompt_tokens: jinaResponse.usage.prompt_tokens || 0,
+          completion_tokens: jinaResponse.usage.completion_tokens || 0,
+          total_tokens: jinaResponse.usage.total_tokens || 0,
+        } : undefined,
+        sources: (jinaResponse.visitedURLs || jinaResponse.readURLs) ? {
+          visited_urls: jinaResponse.visitedURLs || [],
+          read_urls: jinaResponse.readURLs || [],
+          total_sources: (jinaResponse.visitedURLs?.length || 0) + (jinaResponse.readURLs?.length || 0),
+        } : undefined,
+        research_quality: {
+          reasoning_effort: validatedParams.reasoning_effort,
+          team_size: validatedParams.team_size,
+          confidence_score: undefined,
+        },
+      };
 
-/**
- * TUTORIAL: Server Startup Function
- *
- * This function initializes the transport layer and starts the server.
- * For MCP servers used with Claude Code, stdio transport is standard.
- *
- * Transport Types:
- * - StdioServerTransport: Communicates via stdin/stdout (standard for Claude Code)
- * - SSEServerTransport: Server-sent events for web-based clients
- * - Custom transports: Can be implemented for specific use cases
- */
+      const validatedOutput = deepSearchOutputSchema.parse(transformedOutput);
+
+      return {
+        content: [{ type: 'text' as const, text: content }],
+        structuredContent: validatedOutput,
+      };
+    } catch (error) {
+      const simpleError = createSimpleError(error);
+
+      return {
+        content: [{ type: 'text' as const, text: `Error: ${simpleError.message}` }],
+        structuredContent: { error: true, code: simpleError.code, message: simpleError.message },
+        isError: true,
+      };
+    }
+  }
+);
+
 async function main(): Promise<void> {
   const transport = new StdioServerTransport();
-  await server.connect(transport);
+  await mcpServer.connect(transport);
 
-  // Optional debug logging (controlled by MCP_DEBUG environment variable)
   if (process.env['MCP_DEBUG']) {
     console.error('JINA MCP server running on stdio');
   }
 }
 
-/**
- * TUTORIAL: Graceful Shutdown Handler
- *
- * Handle SIGINT (Ctrl+C) gracefully by:
- * 1. Closing server connections properly
- * 2. Cleaning up any open resources
- * 3. Exiting with success code
- *
- * This prevents connection leaks and ensures clean shutdown.
- */
 process.on('SIGINT', async () => {
-  await server.close();
+  await mcpServer.close();
   process.exit(0);
 });
 
-/**
- * TUTORIAL: Server Entry Point
- *
- * Only start the server if this file is run directly (not imported).
- * This allows the file to be imported for testing without starting the server.
- *
- * Error Handling:
- * - Catch startup errors and exit with error code
- * - Log errors for debugging
- * - Prevent hanging processes
- */
 if (require.main === module) {
   main().catch((error) => {
     console.error('Server error:', error);
