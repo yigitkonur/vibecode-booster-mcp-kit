@@ -1,37 +1,38 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-07-09/server.schema.json",
-  "name": "io.github.yigitkonur/jina-deepsearch",
-  "description": "JINA DeepSearch MCP Server for comprehensive AI-powered web research with Claude Code integration.",
-  "version": "1.0.0",
+  "name": "io.github.yigitkonur/deep-research-bug-fix",
+  "description": "MCP for deep-dive bug research - structured template approach for better debugging context with LLMs",
+  "version": "1.1.2",
   "packages": [
     {
       "registry_type": "npm",
       "registry_base_url": "https://registry.npmjs.org",
-      "identifier": "jina-deepsearch-mcp",
-      "version": "1.0.0",
+      "identifier": "deep-research-bug-fix-mcp",
+      "version": "1.1.2",
       "transport": {
         "type": "stdio"
       }
     }
   ],
   "metadata": {
-    "homepage": "https://github.com/yigitkonur/jina-deepsearch-mcp",
-    "repository": "https://github.com/yigitkonur/jina-deepsearch-mcp",
+    "homepage": "https://github.com/yigitkonur/deep-research-bug-fix-mcp",
+    "repository": "https://github.com/yigitkonur/deep-research-bug-fix-mcp",
     "license": "MIT",
     "author": "Yiğit Konur <yigit35@gmail.com>",
     "tags": [
+      "mcp",
+      "debug",
       "research",
-      "ai-research",
-      "web-research",
-      "jina",
-      "deepsearch",
+      "bug-fix",
       "claude-code",
-      "search-api",
-      "automation"
+      "debugging",
+      "llm-tools",
+      "structured-debugging",
+      "development-tools"
     ],
     "categories": [
-      "research",
-      "ai",
+      "debugging",
+      "development",
       "productivity"
     ]
   }

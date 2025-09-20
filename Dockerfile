@@ -31,8 +31,9 @@ COPY package*.json ./
 RUN npm ci --omit=dev --frozen-lockfile && \
     npm cache clean --force
 
-# Copy built application
+# Copy built application and .env example
 COPY --from=builder /app/dist ./dist
+COPY .env.example ./
 
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
@@ -46,5 +47,5 @@ USER nodejs
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node -e "process.exit(0)" || exit 1
 
-# Start the MCP server via stdio transport
+# Start the Deep Research Bug Fix MCP server
 CMD ["node", "dist/index.js"]
