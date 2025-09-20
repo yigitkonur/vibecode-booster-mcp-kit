@@ -119,9 +119,10 @@ Think of this as explaining your entire situation to an expert who just walked i
       '**Default: 100**. The maximum number of source URLs to include as citations in the final answer.'
     ),
   search_provider: z
+    .string()
     .optional()
     .describe(
-      "EXPERIMENTAL: Focuses the search on a specific source. Set to 'arxiv' for technical or scientific research questions to prioritize academic papers."
+      "EXPERIMENTAL: Focuses the search on a specific source for technical or scientific research questions."
     ),
 
   // --- Domain & Language Control ---
