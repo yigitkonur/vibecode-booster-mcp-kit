@@ -1,18 +1,18 @@
 {
-  "name": "jina-deepsearch-mcp",
+  "name": "deep-research-bug-fix-mcp",
   "version": "1.1.0",
-  "description": "JINA DeepSearch MCP Server - Ultra-simple, production-ready integration for comprehensive web research via Claude Code",
+  "description": "MCP for deep-dive bug research - structured template approach for better debugging context with LLMs",
   "main": "dist/index.js",
   "bin": {
-    "jina-deepsearch-mcp": "dist/index.js"
+    "deep-research-bug-fix-mcp": "dist/index.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yigitkonur/jina-deepsearch-mcp.git"
+    "url": "https://github.com/yigitkonur/deep-research-bug-fix-mcp.git"
   },
-  "homepage": "https://github.com/yigitkonur/jina-deepsearch-mcp#readme",
+  "homepage": "https://github.com/yigitkonur/deep-research-bug-fix-mcp#readme",
   "bugs": {
-    "url": "https://github.com/yigitkonur/jina-deepsearch-mcp/issues"
+    "url": "https://github.com/yigitkonur/deep-research-bug-fix-mcp/issues"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -48,19 +48,18 @@
     "docker:test": "docker run --rm jina-deepsearch-mcp npm run test:mcp"
   },
   "keywords": [
-    "jina",
-    "deepsearch",
     "mcp",
+    "debug",
     "research",
-    "ai-research",
-    "web-research",
+    "bug-fix",
     "claude-code",
     "model-context-protocol",
-    "jina-ai",
-    "search-api",
-    "research-tool",
+    "deep-research",
+    "debugging",
+    "llm-tools",
     "ai-agent",
-    "automation"
+    "structured-debugging",
+    "development-tools"
   ],
   "author": "Yiğit Konur <yigit35@gmail.com>",
   "license": "MIT",
