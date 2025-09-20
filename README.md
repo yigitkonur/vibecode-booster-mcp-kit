@@ -1,40 +1,45 @@
-# Deep Research Bug Fix MCP
+# 🔍 Deep Research Bug Fix MCP
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CI](https://github.com/yigitkonur/deep-research-bug-fix-mcp/workflows/CI/badge.svg)](https://github.com/yigitkonur/deep-research-bug-fix-mcp/actions)
 
-**The ultimate debugging companion for Claude Code** — an AI-powered research tool designed specifically for developers who need comprehensive context collection and intelligent problem-solving assistance.
+> **Your debugging sherlock holmes on steroids** 🕵️‍♂️
+> When bugs get weird and your Stack Overflow fu fails you, this AI research beast has your back.
 
-## 🎯 Why This Tool Exists
+## 🤔 What the heck is this?
 
-When you're stuck on a bug and your usual debugging approaches aren't working, this MCP server becomes your expert pair programming partner. It's designed to:
+You know that feeling when you're staring at a bug for 3 hours, and all you can think is *"this should work, why doesn't it work, WHAT IS HAPPENING?"* 😭
 
-- **Collect comprehensive context** about your problem
-- **Build a complete story** of what you're trying to achieve
-- **Research solutions** using structured templates that lead to better results
-- **Provide detailed analysis** with citations and multiple approaches
+Well, meet your new debugging buddy. This isn't just another "search the internet" tool. This is a **structured problem-solving machine** that transforms your frustrated "it's broken!!!1!" into a coherent investigation that actually gets results.
 
-## 🚀 Quick Start
+Think of it as having a senior developer peer over your shoulder, except this one:
+- Never judges your code 😌
+- Actually reads the error messages 📖
+- Knows about that weird edge case from 2019 🧠
+- Won't steal your snacks 🍪
+
+## 🚀 Quick Setup (5 minutes, I promise)
 
 ```bash
-# Setup
-npm install
-cp .env.example .env
-echo "JINA_API_KEY=your_api_key" >> .env
+# The usual dance
+npm install && npm run build
 
-# Build and test
-npm run build
+# Drop your API key like it's hot
+cp .env.example .env
+echo "JINA_API_KEY=your_shiny_api_key" >> .env
+
+# Test that it's breathing
 npm test
 ```
 
-## 🔧 Claude Code Integration
+## 🔌 Claude Code Integration
 
-Add to your `.mcp.json`:
+Chuck this into your `.mcp.json`:
 
 ```json
 {
   "mcpServers": {
-    "deep-research": {
+    "debug-wizard": {
       "command": "node",
       "args": ["/absolute/path/to/deep-research-bug-fix-mcp/dist/index.js"],
       "env": {
@@ -45,203 +50,222 @@ Add to your `.mcp.json`:
 }
 ```
 
-## 🧠 The `deep_research` Tool
+*Pro tip: Use absolute paths unless you enjoy mysterious "command not found" errors* 🙃
 
-This isn't just another search tool — it's a **structured problem-solving assistant** that excels at:
+## 🧙‍♂️ The Magic Behind `deep_research`
 
-### Core Philosophy
-> *"When you face a bug and your internal analysis doesn't lead to a 100% certain solution, that's when you should definitely use this tool."*
+Here's where it gets spicy. Instead of throwing random search terms at Google and praying, this tool makes you think like a detective:
 
-### The Power of Context Collection
-
-The tool uses a **structured template approach** that transforms vague problems into actionable research:
+### 🎯 The Secret Sauce: Structure
 
 ```
-BACKGROUND: [Complete story and context - what were you trying to achieve?]
-CURRENT ISSUE: [Exact problem you're facing, including symptoms and timing]
-EVIDENCE: [Technical details, error messages, logs, code snippets, versions]
-GOAL: [What success looks like, desired outcome, constraints]
+BACKGROUND: [What were you building? What changed? Set the scene!]
+CURRENT ISSUE: [What's actually broken? Be specific, my friend]
+EVIDENCE: [Error messages, logs, versions, code snippets - ALL OF IT]
+GOAL: [What does victory look like? What are your constraints?]
 QUESTIONS:
-1. [What is the root cause of...?]
-2. [How can I configure X to achieve Y?]
-3. [What are the best practices for Z in my context?]
-4. [What are alternative approaches to my current method?]
-5. [What are the next debugging steps I should take?]
+1. [What's the root cause of this madness?]
+2. [How do I configure X without breaking Y?]
+3. [What would a senior dev do here?]
+4. [What are my escape routes if this doesn't work?]
+5. [What should I debug next?]
 ```
 
-### Why This Template Works
+### 💡 Why This Template Absolutely Slaps
 
-**For Claude Code users**, this structured approach:
-- ✅ **Eliminates ambiguity** — no more "it doesn't work" descriptions
-- ✅ **Builds complete context** — like explaining to an expert who just walked in
-- ✅ **Focuses research** — gets targeted solutions, not generic advice
-- ✅ **Provides actionable outcomes** — specific next steps and alternatives
+**Traditional debugging:**
+- Google error message 🔍
+- Copy random Stack Overflow answer 📋
+- Try it, break something else 💥
+- Repeat until deadline 😅
 
-## 📋 Usage Examples
+**With this tool:**
+- Force yourself to explain the full context 🧠
+- Get research that actually understands your situation 🎯
+- Multiple solution paths (because one size never fits all) 🛤️
+- Learn the *why* behind the fix 🤓
 
-### Example 1: TypeScript Build Error
+## 🎪 Real-World Bug Slaying Examples
+
+### 🚨 TypeScript Having a Meltdown
+
 ```typescript
-// In Claude Code, use the deep_research tool:
 deep_research_question: `
-BACKGROUND: Building a React TypeScript project that was working yesterday. Updated dependencies including @types/node from 18.x to 20.x and now getting build failures.
+BACKGROUND: Working on a React project, everything was smooth sailing until I updated some dependencies. Now TypeScript is throwing a tantrum about string methods.
 
-CURRENT ISSUE: TypeScript compilation fails with "Property 'replaceAll' does not exist on type 'string'" even though replaceAll should be available in modern JS.
+CURRENT ISSUE: Getting "Property 'replaceAll' does not exist on type 'string'" but like... it totally should exist in 2024, right?
 
 EVIDENCE:
 - Error: src/utils/formatter.ts(23,34): error TS2339: Property 'replaceAll' does not exist on type 'string'
-- TypeScript version: 4.9.5
+- TypeScript version: 4.9.5 (maybe this is the problem?)
 - tsconfig.json target: "ES2020"
 - Node version: 18.17.0
-- Code snippet: const cleaned = text.replaceAll(/[^\w\s]/g, '');
+- The offending line: const cleaned = text.replaceAll(/[^\w\s]/g, '');
 
-GOAL: Fix the build so deployment can proceed. Need to understand why replaceAll isn't recognized and get the cleanest solution.
+GOAL: Make this build work so I can deploy before my manager starts asking questions. Need the cleanest solution that won't break in production.
 
 QUESTIONS:
-1. What is the root cause of replaceAll not being recognized in TS 4.9.5?
-2. How should I configure TypeScript for proper string method support?
-3. What are the best practices for handling this across different environments?
-4. What are alternative approaches if replaceAll isn't available?
-5. Should I update TypeScript version or change the polyfill approach?
+1. Why is TypeScript being so dramatic about replaceAll?
+2. Should I update TypeScript or change my approach?
+3. What's the most bulletproof way to handle string replacement?
+4. How do I prevent this from happening again?
+5. Is there a polyfill I should know about?
 `
 ```
 
-### Example 2: Authentication Flow Bug
+### 🔐 OAuth Decided to Take a Break
+
 ```typescript
 deep_research_question: `
-BACKGROUND: Implementing OAuth2 flow in Next.js 14 app. Users can log in successfully, but session persistence is inconsistent. Some users get logged out randomly, others stay logged in indefinitely.
+BACKGROUND: Building a Next.js app with GitHub OAuth. Login works perfectly on my machine (of course), but users are getting randomly logged out. Some stay logged in forever, others can't stay logged in for 5 minutes.
 
-CURRENT ISSUE: Session cookies are being set but not consistently read across requests. Happens more on mobile browsers and in incognito mode.
+CURRENT ISSUE: Session persistence is playing hard to get. Mostly happens on mobile browsers and incognito mode, because of course it does.
 
 EVIDENCE:
-- Using next-auth v4.24.5 with GitHub provider
+- next-auth v4.24.5 with GitHub provider
 - Cookie settings: secure: true, httpOnly: true, sameSite: 'lax'
-- Error logs: "JWT session token signature verification failed"
-- Browser DevTools shows cookies present but session.user is undefined
-- Middleware.ts runs but req.nextauth.token is null randomly
+- Random error: "JWT session token signature verification failed"
+- DevTools shows cookies are there, but session.user is undefined
+- Middleware runs but req.nextauth.token randomly becomes null
 
-GOAL: Reliable session persistence across all browsers and devices. Users should stay logged in until explicit logout.
+GOAL: Sessions that actually persist across all browsers and devices. Users should stay logged in until they explicitly log out (or the heat death of the universe).
 
 QUESTIONS:
-1. What causes JWT signature verification to fail intermittently?
-2. How should I configure next-auth cookies for cross-browser compatibility?
-3. What are the best practices for session debugging in Next.js?
-4. What are alternative session storage approaches for this scenario?
-5. What debugging steps should I take to isolate mobile browser issues?
+1. Why do JWT signatures randomly fail?
+2. What cookie settings work best for cross-browser compatibility?
+3. How do I debug this without losing my sanity?
+4. Should I switch to a different session strategy?
+5. What mobile browser quirks am I missing?
 `
 ```
 
-### Example 3: Performance Investigation
+### 🐌 Mobile Performance Goes BRRRR (But Slowly)
+
 ```typescript
 deep_research_question: `
-BACKGROUND: React app loading slowly on mobile devices. Desktop performance is fine, but mobile users report 5-8 second load times. Lighthouse shows good scores on desktop but poor mobile performance.
+BACKGROUND: React app that screams on desktop but crawls on mobile. Users are complaining about 5-8 second load times, and my Lighthouse scores are making me cry.
 
-CURRENT ISSUE: Mobile Lighthouse shows "Largest Contentful Paint" at 4.2s and "First Input Delay" warnings. Bundle size seems reasonable at 234KB gzipped.
+CURRENT ISSUE: Mobile Lighthouse says "Largest Contentful Paint: 4.2s" which is basically saying "your users have time to make coffee while waiting."
 
 EVIDENCE:
-- Mobile Lighthouse score: 67/100
-- Desktop Lighthouse score: 94/100
-- Webpack bundle analyzer shows React Router taking 45KB
-- Network tab shows waterfall delays on mobile
-- Using React 18.2.0, Vite 4.4.0
-- Mobile test on iPhone 12, Android Pixel 6
+- Mobile Lighthouse: 67/100 (ouch)
+- Desktop Lighthouse: 94/100 (why can't you both be this good?)
+- Bundle size: 234KB gzipped (seems reasonable?)
+- React Router chunk: 45KB (suspicious...)
+- Testing on iPhone 12 and Pixel 6
+- Network waterfall shows delays I can't explain
 
-GOAL: Achieve mobile Lighthouse score above 90 and sub-2 second load times. Need to identify specific mobile bottlenecks.
+GOAL: Mobile Lighthouse >90 and load times <2 seconds. I want my app to feel snappy, not like it's running through molasses.
 
 QUESTIONS:
-1. What are the primary causes of mobile vs desktop performance gaps?
-2. How can I optimize React Router bundle size impact?
-3. What are the best practices for mobile React performance?
-4. What are alternative bundling strategies for mobile optimization?
-5. What debugging tools should I use for mobile-specific performance analysis?
+1. What makes mobile performance so different from desktop?
+2. Is React Router secretly a performance vampire?
+3. What's the mobile optimization playbook for React apps?
+4. Should I split my bundles differently?
+5. What tools will help me debug mobile-specific issues?
 `
 ```
 
-## ⚙️ Configuration Options
+## ⚙️ Configuration That Actually Matters
 
-### Essential Parameters
+### 🎛️ Essential Knobs to Turn
 
-- **`deep_research_question`** (required): Your structured problem description
-- **`reasoning_effort`**: "low" | "medium" | "high" (default: "high")
-  - **high**: Maximum thoroughness, best for complex bugs
-  - **medium**: Balanced speed/quality for most scenarios
-  - **low**: Quick research for simple questions
+- **`deep_research_question`** (required): Your beautifully structured problem story
+- **`reasoning_effort`**:
+  - `"high"` (default): Maximum detective mode, best for complex bugs 🔍
+  - `"medium"`: Good balance for most scenarios ⚖️
+  - `"low"`: Quick answers for simple stuff 🏃‍♂️
 
-### Advanced Control
+### 🔧 Advanced Settings for Power Users
 
-- **`team_size`**: 1-5 parallel agents (default: 5) — reduce for cost control
-- **`budget_tokens`**: Token limit (default: 10000) — increase for complex research
-- **`max_attempts`**: Self-correction loops (default: 3) — for refining answers
-- **`boost_hostnames`**: Prioritize specific domains (e.g., ["stackoverflow.com", "docs.microsoft.com"])
-- **`exclude_hostnames`**: Block low-quality sources
-- **`only_hostnames`**: Restrict to specific domains for focused research
+- **`team_size`**: 1-5 parallel AI agents (default: 5) — scale down if your wallet is crying 💸
+- **`budget_tokens`**: Token limit (default: 10000) — bump it up for really gnarly problems 🧮
+- **`boost_hostnames`**: Prioritize the good stuff (e.g., `["stackoverflow.com", "docs.microsoft.com"]`) 📚
+- **`exclude_hostnames`**: Block the sketchy sites that always have malware in their code examples 🚫
 
-## 🎨 Integration Benefits for Claude Code
+## 🎨 Why Claude Code Devs Love This Thing
 
-### Context-Driven Development
-This tool transforms how you approach debugging in Claude Code:
+### 🧠 It Changes How You Think About Bugs
 
-1. **Structured Problem Definition** — Forces you to clearly articulate the issue
-2. **Comprehensive Research** — Gathers information you might have missed
-3. **Multiple Solution Paths** — Provides alternatives and best practices
-4. **Cited Sources** — Links to documentation and examples for verification
-5. **Progressive Refinement** — Self-correcting research for better accuracy
+Instead of the usual "poke it with a stick until it works" approach:
 
-### Example Claude Code Workflow
-```typescript
-// 1. Hit a bug while coding
-// 2. Use deep_research tool with structured template
-// 3. Get comprehensive analysis with multiple approaches
-// 4. Apply solution with confidence, knowing alternatives exist
-// 5. Learn best practices for future similar issues
+1. **You're forced to articulate the problem clearly** — no more "it's broken"
+2. **You get comprehensive research** — not just the first Stack Overflow result
+3. **Multiple solution paths** — because Plan B is always good to have
+4. **Actual understanding** — learn why the fix works, not just what to copy-paste
+
+### 🔄 The New Debugging Flow
+
+```mermaid
+graph LR
+    A[Hit Bug 🐛] --> B[Use Structured Template 📝]
+    B --> C[Get Deep Research 🔍]
+    C --> D[Multiple Solutions 💡]
+    D --> E[Apply with Confidence ✅]
+    E --> F[Actually Understand Why 🧠]
 ```
 
-## 🔍 What Makes This Different
+## 🚀 What Makes This Different from "Just Google It"
 
-### Traditional Approach:
-- "Search for error message"
-- "Try random Stack Overflow answers"
-- "Hope it works"
+### 😤 The Old Way:
+- Panic and search error message
+- Try 47 different Stack Overflow answers
+- Break 3 other things
+- Eventually find solution buried in GitHub issue #2847
+- Still don't understand why it works
 
-### This Tool's Approach:
-- **Context Collection**: Full problem context with background
-- **Systematic Research**: Multiple sources, cross-referenced information
-- **Solution Synthesis**: Combines insights into actionable recommendations
-- **Best Practice Integration**: Not just fixes, but proper approaches
-- **Alternative Planning**: Multiple paths forward if primary solution fails
+### 😎 The New Way:
+- **Context Collection**: Full story with all the gory details
+- **Systematic Research**: Multiple sources, cross-referenced, fact-checked
+- **Solution Synthesis**: Not just fixes, but *good* fixes with explanations
+- **Best Practices**: Learn the right way, not just the working way
+- **Backup Plans**: Multiple approaches in case Murphy's Law strikes
 
-## 🛠 Development
+## 🛠 Development Commands
 
 ```bash
-npm run dev       # Development with watch mode
-npm test          # Run test suite
-npm run check     # Lint and format check
-npm run check:fix # Auto-fix formatting issues
-npm run build     # Production build
+npm run dev       # Development mode with hot reload
+npm test          # Run the test suite
+npm run check     # Lint and format (make it pretty)
+npm run check:fix # Auto-fix what can be fixed
+npm run build     # Production build that actually works
 ```
 
-## 📊 Performance
+## 📊 Performance Stats (Because We Measure Everything)
 
-- **Startup**: <1 second
-- **Memory**: ~40MB RSS
-- **Response Time**: ~1-2 seconds (depends on research complexity)
-- **Cost Control**: Token budgets and effort levels for cost management
+- **Startup**: <1 second (faster than your coffee machine)
+- **Memory**: ~40MB RSS (lighter than your Node.js project)
+- **Response Time**: ~1-2 seconds (patience, grasshopper)
+- **Cost Control**: Token budgets so you don't accidentally spend your salary
 
-## 🤝 Contributing
+## 🤝 Contributing (Join the Bug-Slaying Squad)
 
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Ensure all CI checks pass
-5. Submit a pull request
+1. Fork this bad boy
+2. Create a feature branch with a descriptive name
+3. Add tests (yes, really)
+4. Make sure CI is happy (green builds only)
+5. Submit a PR with a story about what you fixed
+
+## 🎯 Pro Tips for Maximum Bug-Slaying Efficiency
+
+1. **Use the template religiously** — I know it seems like a lot, but it works 📝
+2. **Include actual code snippets** — "somewhere in my auth file" isn't helpful 💻
+3. **Copy-paste those error messages** — every character matters 🔍
+4. **Mention versions** — dependency hell is real 📦
+5. **Define victory conditions** — know when you're done ✅
 
 ## 📄 License
 
-MIT License - see [LICENSE](LICENSE) file.
+MIT License - go wild, build cool stuff, just don't blame me if your code becomes sentient.
 
 ## 👨‍💻 Author
 
-Yiğit Konur - [@yigitkonur](https://github.com/yigitkonur)
+Built with ❤️ (and lots of coffee ☕) by [Yiğit Konur](https://github.com/yigitkonur)
 
 ---
 
-*"Think of this as explaining your entire situation to an expert who just walked into the room — provide every detail to get the best possible solution."*
+*"The best debugger was the AI we made along the way"* — Ancient Developer Proverb (probably)
+
+### 🎪 P.S.
+
+Still reading? You're either really thorough or really bored. Either way, go forth and squash those bugs! 🐛✨
