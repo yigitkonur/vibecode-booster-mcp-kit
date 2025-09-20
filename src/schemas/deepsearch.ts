@@ -122,7 +122,7 @@ Think of this as explaining your entire situation to an expert who just walked i
     .string()
     .optional()
     .describe(
-      "EXPERIMENTAL: Focuses the search on a specific source for technical or scientific research questions."
+      'EXPERIMENTAL: Focuses the search on a specific source for technical or scientific research questions.'
     ),
 
   // --- Domain & Language Control ---
