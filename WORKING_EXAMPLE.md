@@ -1,6 +1,6 @@
 # Working Template Example
 
-This directory contains a template that needs to be customized before it can be used. The template includes placeholder values like `{{SERVICE_NAME}}` that need to be replaced with actual values.
+This directory contains a template that needs to be customized before it can be used. The template includes placeholder values like `JINA` that need to be replaced with actual values.
 
 ## Quick Start: Create a Working Example
 
@@ -16,16 +16,16 @@ To create a working example from this template:
    ```bash
    # Replace service name placeholders
    find . -name "*.ts" -o -name "*.md" -o -name "*.json" | \
-     xargs sed -i '' 's/{{SERVICE_NAME}}/OpenAI/g'
+     xargs sed -i '' 's/JINA/OpenAI/g'
 
    find . -name "*.ts" -o -name "*.md" -o -name "*.json" | \
-     xargs sed -i '' 's/{{API_TOKEN_ENV_VAR}}/OPENAI_API_KEY/g'
+     xargs sed -i '' 's/JINA_API_KEY/OPENAI_API_KEY/g'
 
    find . -name "*.ts" -o -name "*.md" -o -name "*.json" | \
-     xargs sed -i '' 's/{{service-name}}/openai/g'
+     xargs sed -i '' 's/jina-deepsearch/openai/g'
 
    find . -name "*.ts" -o -name "*.md" -o -name "*.json" | \
-     xargs sed -i '' 's/{{service-domain}}/openai.com/g'
+     xargs sed -i '' 's/jina.ai/openai.com/g'
    ```
 
 3. **Install dependencies:**

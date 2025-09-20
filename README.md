@@ -63,10 +63,10 @@ Choose your target service and run the configuration script:
 ./scripts/configure-service.sh github GITHUB_TOKEN github.com
 
 # Option D: Manual replacement
-find . -name "*.ts" -o -name "*.md" | xargs sed -i '' 's/{{SERVICE_NAME}}/OpenAI/g'
-find . -name "*.ts" -o -name "*.md" | xargs sed -i '' 's/{{API_TOKEN_ENV_VAR}}/OPENAI_API_KEY/g'
-find . -name "*.ts" -o -name "*.md" | xargs sed -i '' 's/{{service-name}}/openai/g'
-find . -name "*.ts" -o -name "*.md" | xargs sed -i '' 's/{{service-domain}}/openai.com/g'
+find . -name "*.ts" -o -name "*.md" | xargs sed -i '' 's/JINA/OpenAI/g'
+find . -name "*.ts" -o -name "*.md" | xargs sed -i '' 's/JINA_API_KEY/OPENAI_API_KEY/g'
+find . -name "*.ts" -o -name "*.md" | xargs sed -i '' 's/jina-deepsearch/openai/g'
+find . -name "*.ts" -o -name "*.md" | xargs sed -i '' 's/jina.ai/openai.com/g'
 ```
 
 ### Step 3: Add Your API Key (30 seconds)

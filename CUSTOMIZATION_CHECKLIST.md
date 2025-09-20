@@ -22,10 +22,10 @@ Use this checklist to systematically customize the template for your specific th
 
 Search and replace the following throughout the codebase:
 
-- [ ] `{{SERVICE_NAME}}` → Your service name (PascalCase)
-- [ ] `{{API_TOKEN_ENV_VAR}}` → Your API token variable name
-- [ ] `{{service-name}}` → Your service name (kebab-case)
-- [ ] `{{service-domain}}` → Your service domain (e.g., "openai.com")
+- [ ] `JINA` → Your service name (PascalCase)
+- [ ] `JINA_API_KEY` → Your API token variable name
+- [ ] `jina-deepsearch` → Your service name (kebab-case)
+- [ ] `jina.ai` → Your service domain (e.g., "openai.com")
 
 **Files to update:**
 - [ ] `src/types/api-types.ts`
@@ -49,7 +49,7 @@ Search and replace the following throughout the codebase:
 
 ### 3.1 API Types
 In `src/types/api-types.ts`:
-- [ ] Replace `{{SERVICE_NAME}}ApiParams` with your API's parameters
+- [ ] Replace `JINAApiParams` with your API's parameters
 - [ ] Add authentication fields (token, api_key, etc.)
 - [ ] Include service-specific parameters
 - [ ] Define raw response interface

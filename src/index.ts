@@ -1,61 +1,32 @@
 #!/usr/bin/env node
 
 /**
- * TEMPLATE: MCP Server for Third-Party API Integration
+ * JINA DeepSearch MCP Server
  *
- * CUSTOMIZATION GUIDE:
- * 1. Replace {{SERVICE_NAME}} with your service name throughout
- * 2. Update tool imports to match your actual tool functions
- * 3. Modify the switch statement cases to match your tool names
- * 4. Update parameter validation for each tool
- * 5. Customize error handling if needed
- *
- * TUTORIAL: This is the main entry point for your MCP server
- *
- * MCP (Model Context Protocol) Architecture:
- * 1. **Server Creation**: Initialize server with name and capabilities
- * 2. **Tool Registration**: Register available tools and their schemas
- * 3. **Request Handling**: Handle tool execution requests from clients
- * 4. **Transport Layer**: Use stdio for communication with Claude Code
- * 5. **Error Handling**: Proper error responses for failed operations
- *
- * Key Concepts:
- * - **Tools**: Functions that Claude Code can call (like API endpoints)
- * - **Schemas**: JSON schemas that define tool parameters and validation
- * - **Transport**: How the server communicates (stdio, HTTP, etc.)
- * - **Handlers**: Functions that process different types of MCP requests
+ * This is the main entry point for the JINA DeepSearch MCP server.
+ * Features ultra-simple integration with direct API calls and clear timeout guidance.
  */
 
-// Core MCP SDK imports - these stay the same for all MCP servers
+// Core MCP SDK imports
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 
-// Environment variables support - essential for API keys and configuration
+// Environment variables support
 import * as dotenv from 'dotenv';
 
-// Import your tool definitions and implementations
-// TODO: Update these imports to match your actual tool structure
+// Import tool definitions and implementations
 import { toolDefinitions } from './tool-definitions';
+import { performResearch } from './tools/research-tool';
 
-// TODO: Replace these with your actual tool function imports
-// Examples for different service types:
-// - AI Services: import { generateText, createImage, transcribeAudio } from './tools/...';
-// - Data Services: import { searchData, createRecord, updateRecord } from './tools/...';
-// - Utility Services: import { convertFormat, validateData, processFile } from './tools/...';
-import { checkCredits } from './tools/credits-tool';
-import { scrapeInteractive } from './tools/interactive-scraper';
-import { scrapeJavascript } from './tools/js-scraper';
-import { scrapePremium } from './tools/premium-scraper';
-import { scrapeSimple } from './tools/simple-scraper';
+// Import Zod schemas and intelligent defaults
+import { deepSearchParamsSchema, optimizeParameters } from './schemas/deepsearch';
 
 // Import utilities and configuration
 import { MCP_CONFIG } from './utils/constants';
 import { createTextResponse } from './utils/formatters';
-import { validateRequiredParams } from './utils/validators';
 
 // Load environment variables from .env file
-// TUTORIAL: This should happen early in your application lifecycle
 dotenv.config();
 
 /**
@@ -69,12 +40,12 @@ dotenv.config();
  */
 const server = new Server(
   {
-    name: MCP_CONFIG.SERVER_NAME,        // Your server's unique identifier
-    version: MCP_CONFIG.SERVER_VERSION,  // Semantic version for your server
+    name: MCP_CONFIG.SERVER_NAME, // Your server's unique identifier
+    version: MCP_CONFIG.SERVER_VERSION, // Semantic version for your server
   },
   {
     capabilities: {
-      tools: {},  // Enable tool support (required for all API integration servers)
+      tools: {}, // Enable tool support (required for all API integration servers)
       // Optional capabilities you can enable:
       // resources: {},    // For serving static resources
       // prompts: {},      // For providing reusable prompts
@@ -98,9 +69,9 @@ const server = new Server(
 server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
     tools: toolDefinitions.map((tool) => ({
-      name: tool.name,           // Tool identifier (e.g., 'generate_text')
-      description: tool.description,  // Human-readable description
-      inputSchema: tool.parameters,   // JSON schema for parameters
+      name: tool.name, // Tool identifier (e.g., 'generate_text')
+      description: tool.description, // Human-readable description
+      inputSchema: tool.parameters, // JSON schema for parameters
     })),
   };
 });
@@ -128,64 +99,22 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
 
   try {
-    // TUTORIAL: Tool Router
-    // This switch statement routes tool calls to their implementations.
-    // Each case should:
-    // 1. Validate required parameters
-    // 2. Call the tool function with properly typed arguments
-    // 3. Return a formatted response
-    //
-    // TODO: Replace these cases with your actual tools
+    // JINA DeepSearch tool router
     switch (name) {
-      // Example: Service status/info tool (common for most APIs)
-      case 'check_credits': {
-        // No parameters needed for this tool
-        const result = await checkCredits();
-        return createTextResponse(JSON.stringify(result, null, 2));
-      }
+      case 'deepsearch_research': {
+        // Step 1: Apply intelligent defaults based on query complexity
+        const query = args?.query as string;
+        if (!query?.trim()) {
+          throw new Error('Query parameter is required');
+        }
 
-      // TODO: Replace these example tools with your service's actual tools
-      // Pattern for tools with required parameters:
-      case 'scrape_simple': {
-        validateRequiredParams(args, ['url']);  // Validate required params
-        const result = await scrapeSimple({
-          url: args!['url'] as string,
-          follow_redirects: args!['follow_redirects'] as boolean,
-        });
-        return createTextResponse(result);
-      }
+        const optimizedParams = optimizeParameters(query, args || {});
 
-      case 'scrape_premium': {
-        validateRequiredParams(args, ['url']);
-        const result = await scrapePremium({
-          url: args!['url'] as string,
-          country: args!['country'] as string,
-        });
-        return createTextResponse(result);
-      }
+        // Step 2: Validate with Zod schema (provides detailed error messages)
+        const validatedParams = deepSearchParamsSchema.parse(optimizedParams);
 
-      case 'scrape_javascript': {
-        validateRequiredParams(args, ['url']);
-        const result = await scrapeJavascript({
-          url: args!['url'] as string,
-          wait_ms: args!['wait_ms'] as number,
-          wait_for_selector: args!['wait_for_selector'] as string,
-          use_residential_proxy: args!['use_residential_proxy'] as boolean,
-        });
-        return createTextResponse(result);
-      }
-
-      // Example: Tool with complex parameter validation
-      case 'scrape_interactive': {
-        validateRequiredParams(args, ['url', 'actions']);
-        const result = await scrapeInteractive({
-          url: args!['url'] as string,
-          actions: args!['actions'] as Array<{
-            type: 'click' | 'fill' | 'wait';
-            selector?: string;
-            value?: string;
-          }>,
-        });
+        // Step 3: Perform the research with validated parameters
+        const result = await performResearch(validatedParams);
         return createTextResponse(result);
       }
 
@@ -194,13 +123,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         throw new Error(`Unknown tool: ${name}`);
     }
   } catch (error) {
-    // TUTORIAL: Error Response
-    // Always return properly formatted error responses
-    // The createTextResponse utility handles MCP response formatting
-    return createTextResponse(
-      `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      true  // Mark as error response
-    );
+    // Enhanced error handling with Zod-specific messages
+    if (error instanceof Error) {
+      // Zod validation errors contain helpful guidance
+      return createTextResponse(`Error: ${error.message}`, true);
+    }
+    return createTextResponse('Error: Unknown error occurred', true);
   }
 });
 
@@ -221,7 +149,7 @@ async function main(): Promise<void> {
 
   // Optional debug logging (controlled by MCP_DEBUG environment variable)
   if (process.env['MCP_DEBUG']) {
-    console.error('{{SERVICE_NAME}} MCP server running on stdio');
+    console.error('JINA MCP server running on stdio');
   }
 }
 

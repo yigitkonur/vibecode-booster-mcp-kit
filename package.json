@@ -1,42 +1,76 @@
 {
-  "name": "mcp-scrape-do",
+  "name": "jina-deepsearch-mcp",
   "version": "1.0.0",
-  "description": "Model Context Protocol server for Scrape.do API integration with comprehensive web scraping tools",
+  "description": "JINA DeepSearch MCP Server - Ultra-simple, production-ready integration for comprehensive web research via Claude Code",
   "main": "dist/index.js",
   "bin": {
-    "mcp-scrape-do": "dist/index.js"
+    "jina-deepsearch-mcp": "dist/index.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yigitkonur/jina-deepsearch-mcp.git"
+  },
+  "homepage": "https://github.com/yigitkonur/jina-deepsearch-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/yigitkonur/jina-deepsearch-mcp/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "preferGlobal": true,
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    ".env.example"
+  ],
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "tsc --watch",
     "test": "jest",
     "test:watch": "jest --watch",
+    "test:mcp": "npm run mcp:list && npm run mcp:test-call",
+    "mcp:list": "echo '{\"jsonrpc\": \"2.0\", \"id\": 1, \"method\": \"tools/list\"}' | node dist/index.js",
+    "mcp:test-call": "echo '{\"jsonrpc\": \"2.0\", \"id\": 1, \"method\": \"tools/call\", \"params\": {\"name\": \"deepsearch_research\", \"arguments\": {\"query\": \"test query\"}}}' | node dist/index.js",
     "clean": "rm -rf dist",
     "prestart": "npm run build",
+    "prepublishOnly": "npm run ci",
     "lint": "biome lint src tests",
     "lint:fix": "biome lint --fix src tests",
     "format": "biome format src tests",
     "format:fix": "biome format --write src tests",
     "check": "biome check src tests",
     "check:fix": "biome check --fix src tests",
-    "ci": "npm run check && npm run test && npm run build"
+    "ci": "npm run check && npm run test && npm run build",
+    "docker:build": "docker build -t jina-deepsearch-mcp .",
+    "docker:run": "docker run --env-file .env jina-deepsearch-mcp",
+    "docker:test": "docker run --rm jina-deepsearch-mcp npm run test:mcp"
   },
   "keywords": [
+    "jina",
+    "deepsearch",
     "mcp",
-    "scraping",
-    "web-scraping",
-    "automation",
+    "research",
+    "ai-research",
+    "web-research",
+    "claude-code",
     "model-context-protocol",
-    "scrape-do"
+    "jina-ai",
+    "search-api",
+    "research-tool",
+    "ai-agent",
+    "automation"
   ],
-  "author": "",
-  "license": "ISC",
+  "author": "Yiğit Konur <yigit35@gmail.com>",
+  "license": "MIT",
   "type": "commonjs",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.18.1",
     "axios": "^1.12.2",
-    "dotenv": "^17.2.2"
+    "dotenv": "^17.2.2",
+    "zod": "^3.25.76",
+    "zod-to-json-schema": "^3.24.6"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.4",

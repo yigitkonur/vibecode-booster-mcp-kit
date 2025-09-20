@@ -33,16 +33,16 @@ Replace template placeholders with your service details:
 
 ```bash
 # Service name (PascalCase)
-find . -name "*.ts" -o -name "*.md" | xargs sed -i '' 's/{{SERVICE_NAME}}/OpenAI/g'
+find . -name "*.ts" -o -name "*.md" | xargs sed -i '' 's/JINA/OpenAI/g'
 
 # API token environment variable
-find . -name "*.ts" -o -name "*.md" | xargs sed -i '' 's/{{API_TOKEN_ENV_VAR}}/OPENAI_API_KEY/g'
+find . -name "*.ts" -o -name "*.md" | xargs sed -i '' 's/JINA_API_KEY/OPENAI_API_KEY/g'
 
 # Service name (kebab-case)
-find . -name "*.ts" -o -name "*.md" | xargs sed -i '' 's/{{service-name}}/openai/g'
+find . -name "*.ts" -o -name "*.md" | xargs sed -i '' 's/jina-deepsearch/openai/g'
 
 # Service domain
-find . -name "*.ts" -o -name "*.md" | xargs sed -i '' 's/{{service-domain}}/openai.com/g'
+find . -name "*.ts" -o -name "*.md" | xargs sed -i '' 's/jina.ai/openai.com/g'
 ```
 
 ### 3. Environment Setup

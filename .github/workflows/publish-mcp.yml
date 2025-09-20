@@ -1,0 +1,94 @@
+name: Publish to MCP Registry
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g., v1.0.1)'
+        required: true
+        type: string
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # Required for GitHub OIDC authentication
+      contents: read   # Required to read repository contents
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build project
+        run: npm run build
+
+      - name: Update package version
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        run: |
+          # Extract version from git tag (remove 'v' prefix)
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "Setting version to: $VERSION"
+
+          # Update package.json version
+          npm version $VERSION --no-git-tag-version
+
+          # Update server.json version
+          sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$VERSION\"/" server.json
+
+      - name: Update package version (manual dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          # Extract version from input (remove 'v' prefix if present)
+          VERSION=${{ github.event.inputs.version }}
+          VERSION=${VERSION#v}
+          echo "Setting version to: $VERSION"
+
+          # Update package.json version
+          npm version $VERSION --no-git-tag-version
+
+          # Update server.json version
+          sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$VERSION\"/" server.json
+
+      - name: Setup NPM authentication
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+
+      - name: Publish to NPM
+        run: npm publish --access public
+
+      - name: Install MCP Publisher
+        run: npm install -g @modelcontextprotocol/registry-publisher
+
+      - name: Authenticate with MCP Registry (GitHub OIDC)
+        run: mcp-publisher login github-oidc
+
+      - name: Validate server.json
+        run: |
+          echo "Validating server.json..."
+          cat server.json
+          # Optional: Add JSON schema validation here if needed
+
+      - name: Publish to MCP Registry
+        run: mcp-publisher publish
+
+      - name: Verify publication
+        run: |
+          echo "✅ Successfully published to MCP Registry!"
+          echo "Server name: io.github.yigitkonur/jina-deepsearch"
+          echo "Version: $(grep '"version"' server.json | cut -d'"' -f4)"
+          echo "Package: jina-deepsearch-mcp"
