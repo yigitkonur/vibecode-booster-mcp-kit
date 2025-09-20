@@ -10,6 +10,6 @@ export function sanitizeContent(content: string): string {
 
   return content
     .replace(/<[^>]*>/g, '') // Remove HTML tags
-    .replace(/\s+/g, ' ')    // Normalize whitespace
+    .replace(/\s+/g, ' ') // Normalize whitespace
     .trim();
 }

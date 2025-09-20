@@ -2,15 +2,17 @@
  * Simple error handling for JINA API
  */
 
-export function createSimpleError(error: any): { message: string; code: string } {
+export function createSimpleError(error: unknown): { message: string; code: string } {
+  const err = error as { message?: string; response?: { status?: number }; code?: string };
+
   // Missing API key
-  if (error.message?.includes('JINA_API_KEY')) {
+  if (err.message?.includes('JINA_API_KEY')) {
     return { message: 'JINA_API_KEY environment variable required', code: 'AUTH_ERROR' };
   }
 
   // HTTP errors
-  if (error.response?.status) {
-    const status = error.response.status;
+  if (err.response?.status) {
+    const status = err.response.status;
     switch (status) {
       case 401:
         return { message: 'Invalid JINA API key', code: 'AUTH_ERROR' };
@@ -24,9 +26,9 @@ export function createSimpleError(error: any): { message: string; code: string }
   }
 
   // Network/timeout errors
-  if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+  if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
     return { message: 'Request timeout - try reducing parameters', code: 'TIMEOUT' };
   }
 
-  return { message: error.message || 'Unknown error occurred', code: 'UNKNOWN_ERROR' };
+  return { message: err.message || 'Unknown error occurred', code: 'UNKNOWN_ERROR' };
 }

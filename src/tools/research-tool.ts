@@ -1,5 +1,5 @@
-import { makeApiRequest } from '../services/scrape-client';
 import type { DeepSearchParams } from '../schemas/deepsearch';
+import { makeApiRequest } from '../services/scrape-client';
 import { createSimpleError } from '../utils/errors';
 import { sanitizeContent } from '../utils/response-validator';
 
@@ -17,7 +17,11 @@ export async function performResearch(
   try {
     // Simple progress logging
     if (sessionId && logger) {
-      await logger('info', `Starting research: "${params.query}" (30min max timeout)`, sessionId);
+      await logger(
+        'info',
+        `Starting research: "${params.deep_research_question}" (30min max timeout)`,
+        sessionId
+      );
     }
 
     const response = await makeApiRequest(params);
