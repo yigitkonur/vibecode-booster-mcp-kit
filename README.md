@@ -139,11 +139,3 @@ npm test          # Run tests
 npm run check     # Lint and format
 npm run build     # Production build
 ```
-
-## 💡 Tips
-
-1. **Use the template** - Your LLM will fill it properly 📝
-2. **Include code snippets** - Don't just mention file names 💻
-3. **Copy exact error messages** - Details matter 🔍
-4. **Mention versions** - Dependency issues are common 📦
-5. **Define success clearly** - Know when you're done ✅

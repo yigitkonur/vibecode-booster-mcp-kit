@@ -58,7 +58,7 @@ QUESTIONS:
 5. [Debugging/troubleshooting question]
 \`\`\`
 
-Think of this as explaining your entire situation to an expert who just walked into the room — share every frustration, detail, and piece of evidence like you're having a thorough conversation with someone who can actually solve your problem and call this tool by using that template!`
+Think of this as explaining your entire situation to an expert who just walked into the room — share every frustration, detail, and piece of evidence like you're having a thorough conversation with someone who can actually solve your problem and call this tool by using that template! Do not use 'boost_hostnames' if not mandatory!`
     ),
 
   // --- Quality & Effort Control ---
