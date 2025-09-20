@@ -1,0 +1,49 @@
+{
+  "name": "mcp-scrape-do",
+  "version": "1.0.0",
+  "description": "Model Context Protocol server for Scrape.do API integration with comprehensive web scraping tools",
+  "main": "dist/index.js",
+  "bin": {
+    "mcp-scrape-do": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "clean": "rm -rf dist",
+    "prestart": "npm run build",
+    "lint": "biome lint src tests",
+    "lint:fix": "biome lint --fix src tests",
+    "format": "biome format src tests",
+    "format:fix": "biome format --write src tests",
+    "check": "biome check src tests",
+    "check:fix": "biome check --fix src tests",
+    "ci": "npm run check && npm run test && npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "scraping",
+    "web-scraping",
+    "automation",
+    "model-context-protocol",
+    "scrape-do"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.18.1",
+    "axios": "^1.12.2",
+    "dotenv": "^17.2.2"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.4",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.5.2",
+    "jest": "^30.1.3",
+    "ts-jest": "^29.4.3",
+    "typescript": "^5.9.2"
+  }
+}
