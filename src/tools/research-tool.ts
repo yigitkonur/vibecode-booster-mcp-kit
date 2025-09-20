@@ -1,7 +1,6 @@
 import type { DeepSearchParams } from '../schemas/deepsearch';
 import { makeApiRequest } from '../services/scrape-client';
 import { createSimpleError } from '../utils/errors';
-import { sanitizeContent } from '../utils/response-validator';
 
 interface ResearchOptions {
   sessionId?: string;
@@ -34,11 +33,10 @@ export async function performResearch(
       }
     }
 
-    // Extract and sanitize content
+    // Extract content directly from JSON response
     const content = response.choices?.[0]?.message?.content || '';
-    const sanitizedContent = sanitizeContent(content);
 
-    return { content: sanitizedContent, structuredContent: response };
+    return { content, structuredContent: response };
   } catch (error) {
     const simpleError = createSimpleError(error);
 
