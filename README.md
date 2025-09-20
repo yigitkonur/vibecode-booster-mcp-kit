@@ -17,7 +17,7 @@ It's not magic, just a well-defined template. Your LLM fills that template prope
 ### Claude Code (Recommended)
 
 ```bash
-claude mcp add deep-research --env JINA_API_KEY=your_api_key -- npx -y deep-research-bug-fix-mcp
+claude mcp add deep-research --scope user --env JINA_API_KEY=your_api_key -- npx -y deep-research-bug-fix-mcp
 ```
 
 ### Other MCP Clients
