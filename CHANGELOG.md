@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/yigitkonur/deep-research-bug-fix-mcp/compare/v2.0.0...v2.0.1) (2025-09-23)
+
+
+### Bug Fixes
+
+* remove duplicate 'prepare' script from package.json ([01b10df](https://github.com/yigitkonur/deep-research-bug-fix-mcp/commit/01b10dffaf0a9d1d61094d9508b9657398bd4b9e))
+
 # [2.0.0](https://github.com/yigitkonur/deep-research-bug-fix-mcp/compare/v1.1.8...v2.0.0) (2025-09-20)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "deep-research-bug-fix-mcp",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "MCP for deep-dive bug research - structured template approach for better debugging context with LLMs",
   "main": "dist/index.js",
   "bin": {
