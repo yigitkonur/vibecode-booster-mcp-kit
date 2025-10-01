@@ -1,4 +1,4 @@
-import type { DeepSearchParams } from '../schemas/deepsearch';
+import type { GenericResearchParams } from '../schemas/deepresearch-generic';
 import { FileAttachmentService } from '../services/file-attachment';
 import { makeApiRequest } from '../services/scrape-client';
 import { createSimpleError } from '../utils/errors';
@@ -8,8 +8,8 @@ interface ResearchOptions {
   logger?: (level: 'info' | 'error' | 'debug', message: string, sessionId: string) => Promise<void>;
 }
 
-export async function performResearch(
-  params: DeepSearchParams,
+export async function performGenericResearch(
+  params: GenericResearchParams,
   options: ResearchOptions = {}
 ): Promise<{ content: string; structuredContent: object }> {
   const { sessionId, logger } = options;
@@ -19,13 +19,13 @@ export async function performResearch(
     if (sessionId && logger) {
       await logger(
         'info',
-        `Starting research: "${params.deep_research_question}" (30min max timeout)`,
+        `Starting generic research: "${params.research_question.substring(0, 100)}..." (30min max timeout)`,
         sessionId
       );
     }
 
     // Process file attachments if present
-    let enhancedQuestion = params.deep_research_question;
+    let enhancedQuestion = params.research_question;
     if (params.file_attachments && params.file_attachments.length > 0) {
       if (sessionId && logger) {
         await logger(
@@ -37,16 +37,22 @@ export async function performResearch(
 
       const fileService = new FileAttachmentService();
       const attachmentsMarkdown = await fileService.formatAttachments(params.file_attachments);
-      enhancedQuestion = params.deep_research_question + attachmentsMarkdown;
+      enhancedQuestion = params.research_question + attachmentsMarkdown;
     }
 
-    // Create modified params with enhanced question
-    const enhancedParams = {
-      ...params,
+    // Transform to DeepSearchParams format with maximum quality defaults
+    const apiParams = {
       deep_research_question: enhancedQuestion,
+      reasoning_effort: 'high' as const,
+      budget_tokens: 20000,
+      max_attempts: 3,
+      team_size: 5,
+      no_direct_answer: true,
+      max_returned_urls: 100,
     };
 
-    const response = await makeApiRequest(enhancedParams);
+    // biome-ignore lint/suspicious/noExplicitAny: API params are dynamically constructed from different schemas
+    const response = await makeApiRequest(apiParams as any);
 
     // Basic completion logging
     if (sessionId && logger) {

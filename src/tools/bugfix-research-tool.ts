@@ -1,4 +1,4 @@
-import type { DeepSearchParams } from '../schemas/deepsearch';
+import type { BugfixResearchParams } from '../schemas/deepresearch-bugfix';
 import { FileAttachmentService } from '../services/file-attachment';
 import { makeApiRequest } from '../services/scrape-client';
 import { createSimpleError } from '../utils/errors';
@@ -8,8 +8,8 @@ interface ResearchOptions {
   logger?: (level: 'info' | 'error' | 'debug', message: string, sessionId: string) => Promise<void>;
 }
 
-export async function performResearch(
-  params: DeepSearchParams,
+export async function performBugfixResearch(
+  params: BugfixResearchParams,
   options: ResearchOptions = {}
 ): Promise<{ content: string; structuredContent: object }> {
   const { sessionId, logger } = options;
@@ -19,7 +19,7 @@ export async function performResearch(
     if (sessionId && logger) {
       await logger(
         'info',
-        `Starting research: "${params.deep_research_question}" (30min max timeout)`,
+        `Starting bug fix research: "${params.deep_research_question.substring(0, 100)}..." (30min max timeout)`,
         sessionId
       );
     }
@@ -40,13 +40,18 @@ export async function performResearch(
       enhancedQuestion = params.deep_research_question + attachmentsMarkdown;
     }
 
-    // Create modified params with enhanced question
-    const enhancedParams = {
-      ...params,
+    // Set maximum quality defaults internally (not exposed to user)
+    const apiParams = {
       deep_research_question: enhancedQuestion,
+      reasoning_effort: 'high' as const,
+      budget_tokens: 20000,
+      max_attempts: 3,
+      team_size: 5,
+      no_direct_answer: true,
+      max_returned_urls: 100,
     };
 
-    const response = await makeApiRequest(enhancedParams);
+    const response = await makeApiRequest(apiParams);
 
     // Basic completion logging
     if (sessionId && logger) {
