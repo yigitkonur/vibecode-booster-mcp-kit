@@ -117,6 +117,79 @@ QUESTIONS:
 - **`boost_hostnames`**: Prioritize domains like `["stackoverflow.com", "docs.microsoft.com"]`
 - **`exclude_hostnames`**: Block unreliable sources
 
+## 📎 File Attachments
+
+Attach one or more files to provide code context for your research question. Files are read from disk and included with full content, line numbers, and syntax highlighting.
+
+### Usage Patterns
+
+**Single File:**
+```typescript
+file_attachments: [{
+  path: "src/services/payment.ts",
+  description: "Payment service with suspected memory leak"
+}]
+```
+
+**Multiple Files with Line Ranges:**
+```typescript
+file_attachments: [
+  {
+    path: "src/components/DataTable.tsx",
+    start_line: 45,
+    end_line: 120,
+    description: "Component lifecycle methods causing the issue"
+  },
+  {
+    path: "package.json",
+    description: "Dependencies for version checking"
+  }
+]
+```
+
+### Features
+- Automatic language detection and syntax highlighting
+- Smart truncation for large files (>600 lines)
+- Line numbers for easy reference
+- Graceful handling of missing files
+- Files appended as formatted markdown sections
+
+### Best Practices
+- Attach only relevant files to avoid token waste
+- Use line ranges to focus on specific problem areas
+- Include configuration files (package.json, tsconfig.json) when relevant
+- Add descriptions to guide the AI's attention
+- Order files by importance (most relevant first)
+
+### Example with File Attachment
+
+```typescript
+deep_research({
+  deep_research_question: `
+  BACKGROUND: React app with performance issues in data table component
+  CURRENT ISSUE: Memory leak causing browser to slow down after 5 minutes
+  EVIDENCE: Chrome DevTools shows increasing heap size
+  GOAL: Identify and fix memory leak
+  QUESTIONS:
+  1. What's causing the memory leak?
+  2. Which lifecycle hooks need cleanup?
+  3. Are there closure issues?
+  `,
+  file_attachments: [
+    {
+      path: "src/components/DataTable.tsx",
+      start_line: 1,
+      end_line: 200,
+      description: "Main component with suspected leak"
+    },
+    {
+      path: "src/hooks/useDataFetch.ts",
+      description: "Custom hook managing data fetching"
+    }
+  ]
+})
+```
+
 ## 🔄 How It Works
 
 ```
