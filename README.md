@@ -78,41 +78,6 @@ stop doing the slow grind. this kit makes your AI assistant **actually useful** 
 3. **scrapes what bots can't** - handles JS-rendered sites, saves credits  
 4. **validates before you push** - honest code review catches incomplete work  
 
-<details open>
-<summary><b>⚡ The Vibe Coder Workflow</b></summary>
-
-### traditional way (slow & painful):
-```mermaid
-graph LR
-    A[Hit Bug 🐛]:::problem --> B[Google for 20min]:::slow
-    B --> C[Read 5 SO threads]:::slow
-    C --> D[Try fix, breaks more]:::problem
-    D --> E[Repeat cycle]:::slow
-    E --> F[Finally works]:::success
-    
-    classDef problem fill:#ff6b6b,stroke:#c92a2a,color:#fff
-    classDef slow fill:#ffa94d,stroke:#fd7e14,color:#000
-    classDef success fill:#51cf66,stroke:#2f9e44,color:#fff
-```
-
-### with vibecode-booster (fast & smooth):
-```mermaid
-graph LR
-    A[Hit Bug 🐛]:::problem --> B[Call deepresearch_bugfix<br/>+ attach broken file]:::fast
-    B --> C[AI searches web<br/>reads your code]:::fast
-    C --> D[Get root cause<br/>+ ready-to-paste fix]:::fast
-    D --> E[Apply fix, works]:::success
-    E --> F[Validate with task validator]:::fast
-    F --> G[Push to prod]:::success
-    
-    classDef problem fill:#ff6b6b,stroke:#c92a2a,color:#fff
-    classDef fast fill:#4dabf7,stroke:#339af0,color:#fff
-    classDef success fill:#51cf66,stroke:#2f9e44,color:#fff
-```
-
-**time saved:** 20-30 minutes per stuck moment. that's hours saved per day. 🚀
-
-</details>
 
 ---
 
@@ -208,128 +173,21 @@ the three research tools (`deepresearch_bugfix`, `deepresearch_code_planning`, `
 <details open>
 <summary><b>3. 💸 Scrapedo Integration (Smart Credit Management)</b></summary>
 
-most websites block non-JS visitors or serve incomplete content to bots. kills basic scraping, leaves your agent blind.
-
-**Scrapedo's free tier solves this** with our **3-tier intelligent fallback**:
-
-<div align="center">
-<table>
-<tr>
-<th>Tier</th>
-<th>Cost</th>
-<th>When Used</th>
-<th>Success Rate</th>
-</tr>
-<tr>
-<td><b>1️⃣ Basic Proxy</b></td>
-<td>1 credit/URL</td>
-<td>First attempt, most sites</td>
-<td>~70% of sites</td>
-</tr>
-<tr>
-<td><b>2️⃣ JavaScript Rendering</b></td>
-<td>5 credits/URL</td>
-<td>Dynamic React/Vue sites</td>
-<td>~25% of sites</td>
-</tr>
-<tr>
-<td><b>3️⃣ Geo-Targeting</b></td>
-<td>5 credits/URL</td>
-<td>Region-restricted content</td>
-<td>~5% of sites</td>
-</tr>
-</table>
-</div>
-
-**the smart part:** auto-escalates only when needed. site works with basic? saves 80% of credits. **parallel requests** (up to 5 URLs) + **AI content extraction** with custom instructions = only relevant context, clean Markdown output.
-
-**example:** "extract only API reference for auth endpoints" instead of entire docs site.
-
-**why this slaps:** your agent reads docs sites, GitHub wikis, blog posts, SO threads that normally block bots—without wasting credits or tokens.
+The `scrape_links` tool handles bot-blocking sites with intelligent 3-tier fallback: basic proxy (1 credit) → JS rendering (5 credits) → geo-targeting (5 credits). Auto-escalates only when needed. Supports parallel requests (up to 5 URLs) + AI content extraction with custom instructions.
 
 </details>
 
 <details open>
 <summary><b>4. 🔍 SERPER Dev Integration (Agent Goes Full Researcher)</b></summary>
 
-the `search_multiple` tool connects your agent to Google Search via SERPER API.
-
-**no black-box BS.** agent creates its own research strategy:
-
-```mermaid
-graph LR
-    A[You: Why is X broken?]:::user --> B[Agent: Search 3 angles]:::search
-    B --> C["nextjs middleware loop"<br/>"next redirect bug"<br/>"middleware infinite redirect"]:::parallel
-    C --> D[Get top 30 results<br/>with snippets + URLs]:::results
-    D --> E[Scrape top 5<br/>most relevant]:::scrape
-    E --> F[Synthesize + cite sources]:::answer
-    F --> G[You: Here's the fix with proof]:::user
-    
-    classDef user fill:#7950f2,stroke:#6741d9,color:#fff
-    classDef search fill:#4dabf7,stroke:#339af0,color:#fff
-    classDef parallel fill:#ffd43b,stroke:#fab005,color:#000
-    classDef results fill:#51cf66,stroke:#2f9e44,color:#fff
-    classDef scrape fill:#ff6b6b,stroke:#c92a2a,color:#fff
-    classDef answer fill:#20c997,stroke:#12b886,color:#fff
-```
-
-**agent's capabilities:**
-- searches up to 100 keywords in parallel
-- gets top 10 results per keyword with snippets
-- follows up with `scrape_links` on promising results
-- synthesizes findings with citations
-
-**why this slaps:** agent isn't hallucinating from training data. it's **actively researching** current solutions to your current problem—just like you would, but 10x faster.
+The `search_multiple` tool connects to Google Search via SERPER API. Searches up to 100 keywords in parallel, gets top 10 results per keyword with snippets, and synthesizes findings with citations.
 
 </details>
 
 <details open>
 <summary><b>5. ✅ Task Completion Validator (Your Pre-Push Safety Net)</b></summary>
 
-the `validate_task_completion` tool is your **honest code reviewer** that doesn't play nice.
-
-**how it works:**
-
-<div align="center">
-<table>
-<tr>
-<th width="10%">Step</th>
-<th width="90%">What Happens</th>
-</tr>
-<tr>
-<td align="center"><b>1️⃣</b></td>
-<td>You describe what you built (PRD format with MUST/SHOULD/COULD priorities)</td>
-</tr>
-<tr>
-<td align="center"><b>2️⃣</b></td>
-<td>You claim completion % and list working vs. non-working features (honesty rewarded)</td>
-</tr>
-<tr>
-<td align="center"><b>3️⃣</b></td>
-<td>You attach: source files, test results, error logs, execution proof (curl outputs, test runs)</td>
-</tr>
-<tr>
-<td align="center"><b>4️⃣</b></td>
-<td>The model performs <b>forensic code analysis</b>: reads actual files from disk, scans for stubs/TODOs/missing error handling, verifies execution proofs, calculates real completion % vs claimed %, generates trust score (0.0-1.0), provides 500+ char fixes for critical issues</td>
-</tr>
-</table>
-</div>
-
-**the feedback loop:**
-- **attempt 1:** initial validation, helpful guidance  
-- **attempt 2:** stern warnings if still broken  
-- **attempt 3:** final ultimatum before merge  
-
-**what it catches:**
-- missing error handling on I/O operations
-- stub functions (pass, NotImplementedError, TODO)
-- code duplication (DRY violations)
-- false claims ("it works" but tests fail)
-- missing logging on critical paths
-
-**why this slaps:** most devs don't catch their own incomplete work until code review or QA. this gives **third-party LLM perspective** before you push. builds tight execution loop: **build → validate → fix → ship**.
-
-no more "works on my machine" surprises. 🚀
+The `validate_task_completion` tool performs forensic code analysis: reads files from disk, scans for stubs/TODOs/missing error handling, verifies execution proofs, calculates real completion % vs claimed %, generates trust score (0.0-1.0), and provides fixes for critical issues. Catches incomplete work before you push.
 
 </details>
 
