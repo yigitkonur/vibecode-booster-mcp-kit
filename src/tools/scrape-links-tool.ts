@@ -51,7 +51,7 @@ export async function performScrapeLinks(
         await logger('info', `[${i + 1}/${results.length}] Processing ${result.url}`, sessionId);
       }
       
-      if (result.statusCode === 200 || result.statusCode < 400) {
+      if (result.statusCode >= 200 && result.statusCode < 300) {
         successful++;
         totalCredits += result.credits;
 

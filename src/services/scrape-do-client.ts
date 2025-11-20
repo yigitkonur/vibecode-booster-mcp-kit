@@ -140,8 +140,8 @@ export class ScrapeDoClient {
           country: attempt.country,
         });
 
-        // Success - return immediately
-        if (result.statusCode === 200 || result.statusCode < 400) {
+        // Success (2xx status codes only) - return immediately
+        if (result.statusCode >= 200 && result.statusCode < 300) {
           if (attemptResults.length > 0) {
             console.error(`[Scrape.do] Success with ${attempt.description} after ${attemptResults.length} failed attempt(s)`);
           }
