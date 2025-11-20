@@ -29,13 +29,11 @@ import {
 } from './schemas/task-completion-validator';
 import {
   scrapeLinksParamsSchema,
-  scrapeLinksParamsShape,
-  scrapeLinksOutputShape,
+  scrapeLinksOutputSchema,
 } from './schemas/scrape-links';
 import {
   searchMultipleParamsSchema,
-  searchMultipleParamsShape,
-  searchMultipleOutputShape,
+  searchMultipleOutputSchema,
 } from './schemas/search-multiple';
 import { performBugfixResearch } from './tools/bugfix-research-tool';
 import { performCodePlanningResearch } from './tools/code-planning-research-tool';
@@ -432,8 +430,8 @@ mcpServer.registerTool(
   {
     title: scrapeLinksTool.title,
     description: scrapeLinksTool.description,
-    inputSchema: scrapeLinksParamsShape as any,
-    outputSchema: scrapeLinksOutputShape as any,
+    inputSchema: scrapeLinksParamsSchema.shape,
+    outputSchema: scrapeLinksOutputSchema.shape,
   },
   async (args, extra) => {
     try {
@@ -489,8 +487,8 @@ mcpServer.registerTool(
   {
     title: searchMultipleTool.title,
     description: searchMultipleTool.description,
-    inputSchema: searchMultipleParamsShape as any,
-    outputSchema: searchMultipleOutputShape as any,
+    inputSchema: searchMultipleParamsSchema.shape,
+    outputSchema: searchMultipleOutputSchema.shape,
   },
   async (args, extra) => {
     try {
