@@ -1,7 +1,7 @@
 /**
- * OpenRouter/Perplexity API response structure
+ * OpenRouter/Perplexity API response structure (OpenAI-compatible)
  */
-export interface JINAResponse {
+export interface ChatCompletionResponse {
   id?: string;
   model?: string;
   created?: number;
@@ -19,3 +19,6 @@ export interface JINAResponse {
   visitedURLs?: string[];
   readURLs?: string[];
 }
+
+// Legacy alias for backward compatibility
+export type JINAResponse = ChatCompletionResponse;

@@ -23,13 +23,20 @@ export async function makeApiRequest(params: DeepSearchParams): Promise<JINAResp
     timeout: API_CONFIG.TIMEOUT_MS,
   });
 
-  const { deep_research_question, ...restParams } = params;
+  const { deep_research_question, max_returned_urls, ...otherParams } = params;
   
+  // Build OpenRouter request with search_parameters
   const response = await openai.chat.completions.create({
     model: API_CONFIG.MODEL,
     messages: [{ role: 'user', content: deep_research_question }],
-    ...restParams,
-  });
+    search_parameters: {
+      mode: 'on',
+      max_search_results: max_returned_urls || 100,
+      return_citations: true,
+      sources: [{ type: 'web' }],
+    },
+    ...otherParams,
+  } as any);
 
   return response as unknown as JINAResponse;
 }

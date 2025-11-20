@@ -1,221 +1,192 @@
 /**
- * Bug fix deep research schema - simplified interface with maximum quality defaults
- * Exposes only essential parameters, sets optimal research quality internally
+ * Bug fix deep research schema - optimized for debugging
+ * Forces comprehensive bug reporting with all necessary context
  */
 
 import { z } from 'zod';
 
 export const bugfixResearchParamsShape = {
-  // --- Core Parameter (Required) ---
   deep_research_question: z
     .string()
     .min(1)
     .describe(
-      `Use \`deepresearch_bugfix\` if you need comprehensive answer for any question. To get best results, you must deliver ALL of them:
+      `Provide a complete bug investigation brief. The researcher has ZERO context — explain everything like filing a detailed bug report to a senior engineer who needs to reproduce and fix this.
 
-**Background Context:**
-- Provide complete background of your situation
-- Include all relevant technical details, configurations, and environment specifics
-- Mention what you were trying to accomplish originally
-- Detail any previous attempts or solutions you've tried
+**CONTEXT:**
+- What were you trying to accomplish?
+- Environment: OS, runtime versions (Node 18.x, Python 3.11, etc.), key dependencies
+- When did this start? (after update? new feature? always broken?)
+- Relevant setup or configuration
 
-**Current Issue Description:**
-- Explain exactly what problem you're facing now
-- Include error messages, logs, or symptoms (word-for-word)
-- Describe when the issue started occurring
-- Note any patterns or triggers you've observed
+**THE BUG:**
+- **Exact error messages** with full stack traces (copy-paste word-for-word, don't summarize)
+- **Unexpected behavior** described precisely (what you see vs what should happen)
+- **Reproduction steps** (numbered: 1. Do X, 2. Run Y, 3. Error appears)
+- Frequency: Does it happen always? Intermittently? Under specific conditions?
 
-**Evidence & Details:**
-- Share all relevant code snippets, configuration files, or settings
-- Include version numbers, dependencies, and system specifications
-- Provide step-by-step reproduction steps
-- Mention any workarounds or temporary fixes you've discovered
+**WHAT YOU'VE TRIED:**
+- Solutions attempted and their exact results
+- Workarounds discovered (even partial ones)
+- Related Stack Overflow threads or GitHub issues found
+- Configuration changes tested
 
-**What You Want to Accomplish:**
-- Clearly state your end goal or desired outcome
-- Explain why this specific solution approach matters
-- Include any constraints, requirements, or limitations you're working within
+**QUESTIONS:**
+1. What is the root cause of [specific error/behavior]?
+2. Why does [X] fail when [Y condition occurs]?
+3. What's the correct way to [accomplish goal] in [your context]?
+4. Are there known issues with [library@version] causing this?
+5. What debugging steps can isolate the problem further?
 
-**Specific Questions:**
-Break your main question into multiple focused sub-questions such as:
-- What is the root cause of [specific symptom]?
-- How can I configure [specific component] to achieve [desired behavior]?
-- What are the best practices for [specific scenario] in [your context]?
-- Are there alternative approaches to [your current method]?
-- What debugging steps should I follow to isolate [specific issue]?
-
-**Template Structure:**
+**TEMPLATE:**
 \`\`\`
-BACKGROUND: [Complete story from the beginning]
-CURRENT ISSUE: [Exact problem with all symptoms]
-EVIDENCE: [All technical details, errors, logs]
-GOAL: [What success looks like]
+CONTEXT:
+Building: [what you're working on]
+Stack: [framework, language, key libraries with versions]
+Environment: [OS, Node version, etc.]
+Started: [when bug appeared]
+
+THE BUG:
+When I [action], this happens:
+
+[PASTE FULL ERROR WITH STACK TRACE - don't truncate]
+
+Expected: [what should happen]
+Actual: [what happens instead]
+
+Reproduce:
+1. [exact step]
+2. [exact step]
+3. [error occurs]
+
+TRIED:
+- [Solution A]: [exact result]
+- [Solution B]: [exact result]
+- Found this thread: [URL] - didn't work because [reason]
+
 QUESTIONS:
-1. [Root cause question]
-2. [Solution approach question]
-3. [Best practices question]
-4. [Alternative methods question]
-5. [Debugging/troubleshooting question]
+1. What causes [specific error pattern in the stack trace]?
+2. Why does [X component] fail with [Y input]?
+3. How do I properly [accomplish the original goal]?
 \`\`\`
 
-Think of this as explaining your entire situation to an expert who just walked into the room — share every frustration, detail, and piece of evidence like you're having a thorough conversation with someone who can actually solve your problem!`
+Be exhaustive — share every detail, frustration, and piece of evidence. The more context, the faster the solution.`
     ),
 
-  // --- File Attachments ---
   file_attachments: z
     .array(
       z.object({
-        path: z.string().describe('Absolute or relative path to the file to attach'),
-        start_line: z
-          .number()
-          .int()
-          .positive()
-          .optional()
-          .describe(
-            'Optional starting line number (1-indexed, inclusive) for partial file content'
-          ),
-        end_line: z
-          .number()
-          .int()
-          .positive()
-          .optional()
-          .describe('Optional ending line number (1-indexed, inclusive) for partial file content'),
-        description: z
-          .string()
-          .optional()
-          .describe('Optional description providing context about this file or what to focus on'),
+        path: z.string().describe('File path (absolute or relative)'),
+        start_line: z.number().int().positive().optional().describe('Start line (1-indexed)'),
+        end_line: z.number().int().positive().optional().describe('End line (1-indexed)'),
+        description: z.string().optional().describe('What to focus on in this file'),
       })
     )
     .optional()
     .describe(
-      `Attach one or more files to provide code context for your research question. Files are read from disk and appended to your research question with full content, line numbers, and syntax highlighting.
+      `Attach files containing buggy code, config, dependencies, or related context.
 
-**Usage Patterns:**
-1. **Single File**: Attach one file with full content
-2. **Multiple Files**: Attach multiple related files for comprehensive context
-3. **Line Ranges**: Focus on specific sections using start_line and end_line
-4. **With Descriptions**: Add context about each file's relevance
+**MUST ATTACH:**
+- The exact file(s) where error occurs
+- Configuration files: package.json, tsconfig.json, .env.example, docker-compose.yml
+- Related files that interact with broken code
+- Test files showing the failure
 
 **Examples:**
-\`\`\`
-// Attach full file
-file_attachments: [{
-  path: "src/services/payment.ts",
-  description: "Payment service with suspected memory leak"
+\`\`\`javascript
+// Single file with line range
+[{
+  path: "src/api/users.ts",
+  start_line: 45,
+  end_line: 78,
+  description: "getUserById() function throwing the error"
 }]
 
-// Attach specific lines from multiple files
-file_attachments: [
-  {
-    path: "src/components/DataTable.tsx",
-    start_line: 45,
-    end_line: 120,
-    description: "Component lifecycle methods causing the issue"
-  },
-  {
-    path: "package.json",
-    description: "Dependencies for version checking"
-  }
-]
+// Multiple related files
+[{
+  path: "src/components/DataTable.tsx",
+  start_line: 120,
+  end_line: 150,
+  description: "useEffect causing infinite re-renders"
+}, {
+  path: "package.json",
+  description: "Check dependency versions"
+}, {
+  path: "tsconfig.json",
+  description: "TypeScript config for type errors"
+}]
 \`\`\`
 
-**Features:**
-- Automatic language detection and syntax highlighting
-- Smart truncation for large files (>600 lines)
-- Line numbers for easy reference
-- Graceful handling of missing files
-- Files appended as formatted markdown sections
-
-**Best Practices:**
-- Attach only relevant files to avoid token waste
-- Use line ranges to focus on specific problem areas
-- Include configuration files (package.json, tsconfig.json) when relevant
-- Add descriptions to guide the AI's attention
-- Order files by importance (most relevant first)`
+**Best practices:**
+- Use line ranges to focus on problem areas
+- Attach config files for environment issues
+- Include multiple files if they interact
+- Order by relevance (most important first)`
     ),
 };
 
 export const bugfixResearchParamsSchema = z.object(bugfixResearchParamsShape);
-
 export type BugfixResearchParams = z.infer<typeof bugfixResearchParamsSchema>;
 
-// Output schema for bug fix research
+// Output schema
 export const bugfixResearchOutputShape = {
   content: z
     .string()
     .describe(
-      'The final, comprehensive answer synthesized by the agent, formatted in Markdown with citations.'
+      'Comprehensive bug fix answer with root cause analysis, solutions, and workarounds. Markdown formatted with citations.'
     ),
   metadata: z
     .object({
-      id: z.string().describe('A unique identifier for this specific research task.'),
-      model: z.string().describe('The AI model used for the research process.'),
-      created: z.number().describe('The Unix timestamp of when the research task was initiated.'),
+      id: z.string().describe('Unique identifier for this research task'),
+      model: z.string().describe('AI model used for research'),
+      created: z.number().describe('Unix timestamp when research started'),
       finish_reason: z
         .string()
         .optional()
-        .describe('The reason the research process concluded (e.g., "stop", "budget_exhausted").'),
+        .describe('Why research concluded: "stop", "budget_exhausted", etc.'),
     })
-    .describe('Core metadata about the research request.'),
+    .describe('Research request metadata'),
   usage: z
     .object({
-      prompt_tokens: z
-        .number()
-        .int()
-        .describe('The number of tokens in the initial input question.'),
-      completion_tokens: z
-        .number()
-        .int()
-        .describe('The number of tokens in the final generated answer.'),
+      prompt_tokens: z.number().int().describe('Tokens in input question'),
+      completion_tokens: z.number().int().describe('Tokens in generated answer'),
       total_tokens: z
         .number()
         .int()
-        .describe(
-          'The total tokens consumed by the entire process, including all searches, page reads, and reasoning steps. This is the primary value used for billing.'
-        ),
+        .describe('Total tokens consumed (input + searches + reasoning + output). Used for billing.'),
     })
     .optional()
-    .describe('Token usage statistics for the entire operation.'),
+    .describe('Token usage statistics'),
   sources: z
     .object({
       visited_urls: z
         .array(z.string())
-        .describe(
-          'A comprehensive list of all URLs the agent considered potentially relevant during its search phase.'
-        ),
+        .describe('All URLs considered during search'),
       read_urls: z
         .array(z.string())
-        .describe(
-          'A subset of visited URLs. These are the pages the agent actually downloaded and read to construct the answer.'
-        ),
+        .describe('URLs actually read to construct answer'),
       total_sources: z
         .number()
         .int()
-        .describe(
-          'The total number of unique URLs found by the search engine before any filtering.'
-        ),
+        .describe('Total unique URLs found before filtering'),
     })
     .optional()
-    .describe('Information about the web sources consulted during the research.'),
+    .describe('Web sources consulted'),
   research_quality: z
     .object({
       reasoning_effort: z
         .enum(['low', 'medium', 'high'])
-        .describe('The reasoning effort level that was used for this research task.'),
-      team_size: z.number().int().describe('The number of parallel agents that were used.'),
+        .describe('Reasoning effort level used'),
+      team_size: z.number().int().describe('Number of parallel agents used'),
       confidence_score: z
         .number()
         .min(0)
         .max(1)
         .optional()
-        .describe(
-          "The agent's self-evaluated confidence level in the quality and completeness of its final answer."
-        ),
+        .describe("Agent's confidence in answer quality (0-1)"),
     })
     .optional()
-    .describe('Metrics reflecting the quality and effort of the research process.'),
+    .describe('Research quality metrics'),
 };
 
 export const bugfixResearchOutputSchema = z.object(bugfixResearchOutputShape);
-
 export type BugfixResearchOutput = z.infer<typeof bugfixResearchOutputSchema>;

@@ -20,13 +20,13 @@ export async function performCodePlanningResearch(
     if (sessionId && logger) {
       await logger(
         'info',
-        `Starting code planning research: "${params.code_planning_question.substring(0, 100)}..." (30min max timeout)`,
+        `Starting code planning research: "${params.deep_research_question.substring(0, 100)}..." (30min max timeout)`,
         sessionId
       );
     }
 
     // Process file attachments if present
-    let enhancedQuestion = params.code_planning_question;
+    let enhancedQuestion = params.deep_research_question;
     if (params.file_attachments && params.file_attachments.length > 0) {
       if (sessionId && logger) {
         await logger(
@@ -38,7 +38,7 @@ export async function performCodePlanningResearch(
 
       const fileService = new FileAttachmentService();
       const attachmentsMarkdown = await fileService.formatAttachments(params.file_attachments);
-      enhancedQuestion = params.code_planning_question + attachmentsMarkdown;
+      enhancedQuestion = params.deep_research_question + attachmentsMarkdown;
     }
 
     // Append compression instruction for optimal token usage with strict output limits

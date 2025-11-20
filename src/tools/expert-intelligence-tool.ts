@@ -1,4 +1,4 @@
-import type { GenericResearchParams } from '../schemas/deepresearch-generic';
+import type { ExpertIntelligenceResearchParams } from '../schemas/deepresearch-expert-intelligence';
 import { FileAttachmentService } from '../services/file-attachment';
 import { makeApiRequest } from '../services/scrape-client';
 import { RESEARCH_DEFAULTS } from '../utils/constants';
@@ -9,8 +9,8 @@ interface ResearchOptions {
   logger?: (level: 'info' | 'error' | 'debug', message: string, sessionId: string) => Promise<void>;
 }
 
-export async function performGenericResearch(
-  params: GenericResearchParams,
+export async function performExpertIntelligenceResearch(
+  params: ExpertIntelligenceResearchParams,
   options: ResearchOptions = {}
 ): Promise<{ content: string; structuredContent: object }> {
   const { sessionId, logger } = options;
@@ -20,13 +20,13 @@ export async function performGenericResearch(
     if (sessionId && logger) {
       await logger(
         'info',
-        `Starting generic research: "${params.research_question.substring(0, 100)}..." (30min max timeout)`,
+        `Starting expert intelligence research: "${params.deep_research_question.substring(0, 100)}..." (30min max timeout)`,
         sessionId
       );
     }
 
     // Process file attachments if present
-    let enhancedQuestion = params.research_question;
+    let enhancedQuestion = params.deep_research_question;
     if (params.file_attachments && params.file_attachments.length > 0) {
       if (sessionId && logger) {
         await logger(
@@ -38,7 +38,7 @@ export async function performGenericResearch(
 
       const fileService = new FileAttachmentService();
       const attachmentsMarkdown = await fileService.formatAttachments(params.file_attachments);
-      enhancedQuestion = params.research_question + attachmentsMarkdown;
+      enhancedQuestion = params.deep_research_question + attachmentsMarkdown;
     }
 
     // Append compression instruction for optimal token usage with strict output limits

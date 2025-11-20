@@ -8,32 +8,32 @@
 
 ## 🤔 What this is
 
-When coding with LLMs, bug solving skills can sometimes stay pretty limited. There's this template structure that asks for the situation exactly as it is, and it uses JINA for deep research. When the flow works like this and the template is solid, you get really good responses back and your coding efficiency shoots up big time.
+When coding with LLMs, bug solving skills can sometimes stay pretty limited. There's this template structure that asks for the situation exactly as it is, and it uses OpenRouter/Perplexity for deep research. When the flow works like this and the template is solid, you get really good responses back and your coding efficiency shoots up big time.
 
-It's not magic, just a well-defined template. Your LLM fills that template properly, and JINA deep research does a good job. So your coding agent (Claude Code, Cursor, or whatever you use) never gets stuck.
+It's not magic, just a well-defined template. Your LLM fills that template properly, and OpenRouter deep research does a good job. So your coding agent (Claude Code, Cursor, or whatever you use) never gets stuck.
 
 ## 🚀 Installation
 
 ### Claude Code (Recommended)
 
 ```bash
-claude mcp add deep-research --scope user --env JINA_API_KEY=your_api_key -- npx -y deep-research-bug-fix-mcp
+claude mcp add deep-research --scope user --env OPENROUTER_API_KEY=sk-or-v1-your-api-key -- npx -y deep-research-bug-fix-mcp
 ```
 
 ### Other MCP Clients
 
 | Client | Config file & location | Installation |
 |--|--|--|
-| **Cline** | `~/.cline_mcp_settings.json` | ```json "mcpServers": { "deep-research": { "command": "npx", "args": ["-y","deep-research-bug-fix-mcp"], "env": { "JINA_API_KEY": "your_api_key" } } } ```
+| **Cline** | `~/.cline_mcp_settings.json` | ```json "mcpServers": { "deep-research": { "command": "npx", "args": ["-y","deep-research-bug-fix-mcp"], "env": { "OPENROUTER_API_KEY": "sk-or-v1-your-api-key" } } } ```
 | **Cursor** | `~/.cursor/mcp.json` or `.cursor/mcp.json` | Same JSON as Cline |
-| **Codex CLI** | `~/.codex/config.toml` | ```toml [mcp_servers.deep-research] command = "npx" args = ["-y","deep-research-bug-fix-mcp"] env = { JINA_API_KEY = "your_api_key" } ```
+| **Codex CLI** | `~/.codex/config.toml` | ```toml [mcp_servers.deep-research] command = "npx" args = ["-y","deep-research-bug-fix-mcp"] env = { OPENROUTER_API_KEY = "sk-or-v1-your-api-key" } ```
 | **Windsurf** | `~/.codeium/windsurf/mcp_config.json` | Same JSON as Cline/Cursor |
 
 ### Manual Setup
 
 ```bash
 npm install -g deep-research-bug-fix-mcp
-echo "JINA_API_KEY=your_api_key" >> .env
+echo "OPENROUTER_API_KEY=sk-or-v1-your-api-key" >> .env
 ```
 
 ## 🎯 The Template Structure
@@ -202,7 +202,7 @@ The template forces you to:
 3. Include all relevant details
 4. Define what success looks like
 
-Then JINA research gives your LLM better information to work with.
+Then OpenRouter research gives your LLM better information to work with.
 
 ## 🛠 Development
 

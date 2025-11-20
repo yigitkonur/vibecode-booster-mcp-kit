@@ -16,14 +16,14 @@ import {
   codePlanningResearchParamsShape,
 } from './schemas/deepresearch-code-planning';
 import {
-  genericResearchOutputSchema,
-  genericResearchOutputShape,
-  genericResearchParamsSchema,
-  genericResearchParamsShape,
-} from './schemas/deepresearch-generic';
+  expertIntelligenceResearchOutputSchema,
+  expertIntelligenceResearchOutputShape,
+  expertIntelligenceResearchParamsSchema,
+  expertIntelligenceResearchParamsShape,
+} from './schemas/deepresearch-expert-intelligence';
 import { performBugfixResearch } from './tools/bugfix-research-tool';
 import { performCodePlanningResearch } from './tools/code-planning-research-tool';
-import { performGenericResearch } from './tools/generic-research-tool';
+import { performExpertIntelligenceResearch } from './tools/expert-intelligence-tool';
 import { API_CONFIG, MCP_CONFIG } from './utils/constants';
 import { createSimpleError } from './utils/errors';
 import { validateApiKey } from './utils/validators';
@@ -188,23 +188,23 @@ mcpServer.registerTool(
   }
 );
 
-// Register generic research tool
-const genericTool = getToolDefinition(toolsConfig, 'deepresearch_generic');
-if (!genericTool) {
-  throw new Error('deepresearch_generic tool definition not found in YAML config');
+// Register expert intelligence research tool
+const expertIntelligenceTool = getToolDefinition(toolsConfig, 'deepresearch_expert_intelligence');
+if (!expertIntelligenceTool) {
+  throw new Error('deepresearch_expert_intelligence tool definition not found in YAML config');
 }
 
 mcpServer.registerTool(
-  genericTool.name,
+  expertIntelligenceTool.name,
   {
-    title: genericTool.title,
-    description: genericTool.description,
-    inputSchema: genericResearchParamsShape,
-    outputSchema: genericResearchOutputShape,
+    title: expertIntelligenceTool.title,
+    description: expertIntelligenceTool.description,
+    inputSchema: expertIntelligenceResearchParamsShape,
+    outputSchema: expertIntelligenceResearchOutputShape,
   },
   async (args, extra) => {
     try {
-      const validatedParams = genericResearchParamsSchema.parse(args);
+      const validatedParams = expertIntelligenceResearchParamsSchema.parse(args);
 
       // Simple logger function
       const logger = async (
@@ -216,7 +216,7 @@ mcpServer.registerTool(
       };
 
       const sessionId = extra?.sessionId || 'default';
-      const { content, structuredContent } = await performGenericResearch(validatedParams, {
+      const { content, structuredContent } = await performExpertIntelligenceResearch(validatedParams, {
         sessionId,
         logger,
       });
@@ -288,7 +288,7 @@ mcpServer.registerTool(
         },
       };
 
-      const validatedOutput = genericResearchOutputSchema.parse(transformedOutput);
+      const validatedOutput = expertIntelligenceResearchOutputSchema.parse(transformedOutput);
 
       return {
         content: [{ type: 'text' as const, text: content }],
