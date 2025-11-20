@@ -3,17 +3,18 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CI](https://github.com/yigitkonur/deep-research-bug-fix-mcp/workflows/CI/badge.svg)](https://github.com/yigitkonur/deep-research-bug-fix-mcp/actions)
 
-> **MCP for AI-powered deep research** 🕵️‍♂️  
-> 3 specialized research tools: Bug Fixing, Code Planning, and Expert Intelligence
+> **MCP for AI-powered deep research and code validation** 🕵️‍♂️  
+> 4 specialized tools: Bug Fixing, Code Planning, Expert Intelligence, and Task Validation
 
 ## 🤔 What This Is
 
 An MCP server that provides AI-powered web research through OpenRouter, optimized for coding tasks. Uses structured templates to get better context and comprehensive answers for debugging, architecture planning, and technical research.
 
-**Three Specialized Tools:**
+**Four Specialized Tools:**
 1. **🐛 Bug Fix Research** - Deep-dive debugging with root cause analysis
 2. **🏗️ Code Planning** - Library discovery and architecture recommendations  
 3. **🧠 Expert Intelligence** - Comprehensive research on any topic
+4. **✅ Task Completion Validator** - Carmack-grade code validation before shipping
 
 Powered by **OpenRouter** with support for models like:
 - `x-ai/grok-4.1-fast` (recommended - with web search)

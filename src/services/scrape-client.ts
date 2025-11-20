@@ -14,6 +14,8 @@ export interface DeepSearchParams {
   team_size?: number;
   no_direct_answer?: boolean;
   max_returned_urls?: number;
+  response_format?: { type: 'json_object' | 'text' };
+  temperature?: number;
   [key: string]: unknown;
 }
 
@@ -29,6 +31,8 @@ export async function makeApiRequest(params: DeepSearchParams): Promise<OpenRout
     system_prompt, 
     max_returned_urls, 
     reasoning_effort,
+    response_format,
+    temperature,
     // Remove invalid OpenRouter params
     budget_tokens,
     max_attempts,
@@ -48,10 +52,10 @@ export async function makeApiRequest(params: DeepSearchParams): Promise<OpenRout
   // Note: xAI/Grok limits max_search_results to 30
   const maxSearchResults = Math.min(max_returned_urls || 100, 30);
   
-  const requestPayload = {
+  const requestPayload: any = {
     model: API_CONFIG.MODEL,
     messages,
-    temperature: 0.3,
+    temperature: temperature !== undefined ? temperature : 0.3,
     reasoning_effort: reasoning_effort || 'high',
     max_completion_tokens: 1000000,
     search_parameters: {
@@ -62,6 +66,11 @@ export async function makeApiRequest(params: DeepSearchParams): Promise<OpenRout
     },
     ...otherParams,
   };
+  
+  // Add response_format if specified (for JSON mode)
+  if (response_format) {
+    requestPayload.response_format = response_format;
+  }
 
   if (process.env.MCP_DEBUG === 'true') {
     console.error('[DEBUG] API Request:', JSON.stringify(requestPayload, null, 2));

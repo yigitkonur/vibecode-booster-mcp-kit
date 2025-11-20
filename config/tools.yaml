@@ -31,3 +31,14 @@ tools:
       **INCLUDE:** Precise topic with full context (why this matters, what decision it informs), 3-7 specific questions you need answered, your current understanding or assumptions (to fill gaps not repeat basics), desired depth level, any constraints or priorities, and use `file_attachments` if research relates to existing codebase or documents. The researcher knows nothing about your conversation — brief them like an expert who just joined.
       
       **USE:** Aggressively when you think "I'm not 100% confident," "is my understanding current?", "what are the trade-offs?", or when evaluating technologies, learning complex systems, understanding best practices, or researching any domain knowledge (technical or business) that doesn't fit the other two tools.
+
+  - name: validate_task_completion
+    title: Carmack-Grade Task Completion Validator
+    description: |
+      **WHEN:** Before shipping code to production, or when validating completion claims — use this to get forensic code analysis at John Carmack's Mars Rover standards where remote fixes are impossible.
+      
+      **WHAT:** Uncompromising line-by-line code inspection that validates completion claims against actual implementation. Analyzes error handling, logging, code quality, DRY/SOLID compliance, and compares claimed vs actual completion percentage. Returns detailed validation with specific fixes for all critical issues.
+      
+      **INCLUDE:** Original requirements (PRD format), claimed completion percentage, working/non-working features lists, implementation status mapping, file paths to analyze, execution proofs (command outputs, API responses, logs), and any critical code sections. The validator reads actual files from disk and performs forensic analysis.
+      
+      **USE:** When you need honest assessment of task completion, before production deployment, when debugging why "complete" code fails, or when validating if claimed percentages match reality. Critical for maintaining code quality and catching issues before they reach production.
