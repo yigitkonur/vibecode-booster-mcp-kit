@@ -30,15 +30,24 @@ export class ScrapeDoClient {
   async scrapeURL(request: ScrapeDoRequest, maxRetries: number = 3): Promise<ScrapeDoResponse> {
     const { url, mode = 'basic', timeout = 30, country } = request;
 
-    // Build query parameters
+    // Block premium/super mode - enterprise only
+    if (mode === 'premium') {
+      throw new Error('Premium/Super Proxy mode is not available in your plan. Use basic or javascript mode instead.');
+    }
+
+    // Build query parameters - only add params when needed
     const params = new URLSearchParams({
       url: url,
       token: this.apiKey,
       timeout: String(timeout * 1000),
-      render: mode === 'javascript' ? 'true' : 'false',
-      super: mode === 'premium' ? 'true' : 'false',
     });
 
+    // Only add render param for javascript mode
+    if (mode === 'javascript') {
+      params.append('render', 'true');
+    }
+
+    // Only add geoCode if specified
     if (country) {
       params.append('geoCode', country.toUpperCase());
     }
@@ -82,7 +91,7 @@ export class ScrapeDoClient {
         const content = await response.text();
         
         // Extract credits from headers
-        const credits = mode === 'javascript' ? 5 : mode === 'premium' ? 10 : 1;
+        const credits = mode === 'javascript' ? 5 : 1;
 
         return {
           content,
@@ -112,9 +121,61 @@ export class ScrapeDoClient {
     throw new Error('Unexpected retry loop exit');
   }
 
+  async scrapeURLWithFallback(url: string, request: Omit<ScrapeDoRequest, 'url' | 'mode'>): Promise<ScrapeDoResponse> {
+    const attempts: Array<{ mode: 'basic' | 'javascript'; country?: string; description: string }> = [
+      { mode: 'basic', description: 'basic mode' },
+      { mode: 'javascript', description: 'javascript rendering' },
+      { mode: 'javascript', country: 'us', description: 'javascript + US geo-targeting' },
+    ];
+
+    let lastError: Error | null = null;
+    const attemptResults: string[] = [];
+
+    for (const attempt of attempts) {
+      try {
+        const result = await this.scrapeURL({
+          url,
+          mode: attempt.mode,
+          timeout: request.timeout,
+          country: attempt.country,
+        });
+
+        // Success - return immediately
+        if (result.statusCode === 200 || result.statusCode < 400) {
+          if (attemptResults.length > 0) {
+            console.error(`[Scrape.do] Success with ${attempt.description} after ${attemptResults.length} failed attempt(s)`);
+          }
+          return result;
+        }
+
+        // 404 means content not found - no point trying other modes
+        if (result.statusCode === 404) {
+          return {
+            content: '404 - Page not found',
+            statusCode: 404,
+            credits: result.credits,
+          };
+        }
+
+        // Other non-200 status - try next fallback
+        attemptResults.push(`${attempt.description}: ${result.statusCode}`);
+        lastError = new Error(`Status ${result.statusCode}`);
+        console.error(`[Scrape.do] Failed with ${attempt.description} (status: ${result.statusCode}), trying next fallback...`);
+      } catch (error) {
+        attemptResults.push(`${attempt.description}: ${error instanceof Error ? error.message : String(error)}`);
+        lastError = error instanceof Error ? error : new Error(String(error));
+        console.error(`[Scrape.do] Error with ${attempt.description}: ${lastError.message}`);
+      }
+    }
+
+    // All attempts failed
+    throw new Error(`Failed to scrape ${url} after trying all fallback modes:\n${attemptResults.join('\n')}`);
+  }
+
   async scrapeMultipleURLs(urls: string[], request: Omit<ScrapeDoRequest, 'url'>): Promise<Array<ScrapeDoResponse & { url: string }>> {
+    // Always use intelligent fallback mechanism (basic → javascript → javascript+geo)
     const results = await Promise.allSettled(
-      urls.map(url => this.scrapeURL({ ...request, url }))
+      urls.map(url => this.scrapeURLWithFallback(url, request))
     );
 
     return results.map((result, index) => {

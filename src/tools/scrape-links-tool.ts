@@ -18,18 +18,18 @@ export async function performScrapeLinks(
 
   try {
     if (sessionId && logger) {
-      await logger('info', `Starting scrape: ${params.urls.length} URL(s), mode=${params.mode}, LLM=${params.use_llm}`, sessionId);
+      await logger('info', `Starting scrape: ${params.urls.length} URL(s) with auto-fallback, LLM=${params.use_llm}`, sessionId);
     }
 
     const client = new ScrapeDoClient();
     const markdownCleaner = new MarkdownCleaner();
     const llmProcessor = createLLMProcessor();
 
-    // Scrape all URLs
+    // Scrape all URLs with automatic fallback (basic → javascript → javascript+geo)
     const results = await client.scrapeMultipleURLs(params.urls, {
-      mode: params.mode,
+      mode: undefined, // Triggers automatic fallback
       timeout: params.timeout,
-      country: params.country,
+      country: undefined,
     });
 
     if (sessionId && logger) {

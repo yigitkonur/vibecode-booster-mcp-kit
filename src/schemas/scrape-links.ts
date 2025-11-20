@@ -8,22 +8,12 @@ export const scrapeLinksParamsShape = {
     .min(1, 'At least one URL is required')
     .max(5, 'Cannot exceed 5 URLs per request')
     .describe('URLs to scrape (1-5). Use array format even for single URLs'),
-  mode: z
-    .enum(['basic', 'premium', 'javascript'])
-    .default('basic')
-    .describe('Scraping mode: basic=fast datacenter proxies, premium=residential proxies, javascript=browser rendering'),
   timeout: z
     .number()
     .min(5)
     .max(120)
     .default(30)
     .describe('Timeout in seconds for each URL'),
-  country: z
-    .string()
-    .length(2)
-    .regex(/^[A-Z]{2}$/, 'Country code must be uppercase ISO 3166-1 alpha-2 format')
-    .optional()
-    .describe('Country code (US, GB, DE, etc) for premium mode'),
   use_llm: z
     .boolean()
     .default(isLLMEnabledByDefault())

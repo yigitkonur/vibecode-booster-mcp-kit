@@ -35,16 +35,19 @@ tools:
   - name: scrape_links
     title: Universal URL Content Scraper
     description: |
-      **Universal URL content extraction tool** with batch processing (1-5 URLs), intelligent fallback modes, and optional AI-powered content extraction. This is your primary tool for any web scraping task.
+      **Universal URL content extraction tool** with batch processing (1-5 URLs), intelligent automatic fallback, and optional AI-powered content extraction. This is your primary tool for any web scraping task.
       
-      **MODES:**
-      - **basic** (default): Fast datacenter proxies for static content (1 credit/URL)
-      - **javascript**: Headless browser for SPAs and dynamic sites (5 credits/URL)  
-      - **premium**: Residential proxies for geo-targeting and anti-bot bypass (10 credits/URL)
+      **AUTOMATIC FALLBACK:**
+      The system automatically tries progressively more capable modes until success:
+      1. **Basic mode**: Fast datacenter proxies (1 credit/URL)
+      2. **JavaScript rendering**: Headless browser for dynamic sites (5 credits/URL)
+      3. **JavaScript + US geo-targeting**: Final fallback for restricted content (5 credits/URL)
+      
+      Returns 404 immediately if content not found (no fallback needed). Only uses more capable modes when previous ones fail due to access/API errors.
       
       **AI EXTRACTION:** Set `use_llm=true` (default) with optional `what_to_extract` instructions to intelligently filter and clean content.
       
-      **USE:** After web searches to extract content from discovered URLs. Batch up to 5 URLs per call. Start with basic mode, upgrade to javascript for React/Vue/Angular sites, use premium only for geo-restricted content.
+      **USE:** After web searches to extract content from discovered URLs. Batch up to 5 URLs per call. No configuration needed - the system handles everything automatically.
 
   - name: search_multiple
     title: Batch Web Search
