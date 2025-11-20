@@ -19,8 +19,8 @@
 </p>
 
 <p align="center">
-  <img alt="web connected" src="https://img.shields.io/badge/🌐_web_connected-grok_4.1_with_search-2ED573.svg?style=for-the-badge">
-  <img alt="file attachment optimized" src="https://img.shields.io/badge/📎_smart_attachments-1M+_token_context-2ED573.svg?style=for-the-badge">
+  <img alt="web connected" src="https://img.shields.io/badge/🌐_web_connected-perplexity_sonar_with_search-2ED573.svg?style=for-the-badge">
+  <img alt="file attachment optimized" src="https://img.shields.io/badge/📎_smart_attachments-128k_token_context-2ED573.svg?style=for-the-badge">
 </p>
 
 <div align="center">
@@ -45,7 +45,7 @@
 <td align="center">
 <h3>🌐</h3>
 <b>Web-Connected</b><br/>
-<sub>Grok 4.1 with live search</sub>
+<sub>Perplexity Sonar with native web search</sub>
 </td>
 <td align="center">
 <h3>📎</h3>
@@ -74,7 +74,7 @@
 stop doing the slow grind. this kit makes your AI assistant **actually useful** when you're stuck:
 
 1. **searches first, answers second** - no more hallucinated solutions  
-2. **reads your code without token waste** - 1M+ context, optimized attachments  
+2. **reads your code without token waste** - 128k context, optimized attachments  
 3. **scrapes what bots can't** - handles JS-rendered sites, saves credits  
 4. **validates before you push** - honest code review catches incomplete work  
 
@@ -174,15 +174,15 @@ you're in flow. building fast. then you hit a wall:
 ## 💡 five reasons this kit slaps
 
 <details open>
-<summary><b>1. 🌐 Web-Connected Problem Solving (Grok 4.1 Goes Brrr)</b></summary>
+<summary><b>1. 🌐 Web-Connected Problem Solving (Perplexity Sonar Deep Research)</b></summary>
 
-powered by **xAI Grok 4.1 on OpenRouter** with web search parameters enabled. when you call research tools, Grok doesn't just hallucinate—it **actively searches the web** for current info:
+powered by **Perplexity Sonar Deep Research on OpenRouter** with native web search built-in. when you call research tools, Perplexity doesn't just hallucinate—it **actively searches the web** through autonomous multi-step queries for current info:
 - official documentation sites
 - GitHub issues & discussions  
 - Stack Overflow accepted answers
 - engineering blogs & postmortems
 
-**file attachment magic:** attach code files to research queries. the MCP reads them from disk and appends content as context—**without streaming entire files as output tokens**. critical optimization: Grok handles 1M+ token contexts, so you get comprehensive answers based on your actual codebase without burning through output budgets.
+**file attachment magic:** attach code files to research queries. the MCP reads them from disk and appends content as context—**without streaming entire files as output tokens**. critical optimization: Perplexity Sonar handles 128k token contexts, so you get comprehensive answers based on your actual codebase without burning through output budgets.
 
 **why this slaps:** most AI assistants work blind. this makes yours web-aware, finding real solutions from real devs who solved your exact problem.
 
@@ -199,7 +199,7 @@ the three research tools (`deepresearch_bugfix`, `deepresearch_code_planning`, `
 | :--- | :--- |
 | **different templates** | bug fixing needs root cause analysis. code planning needs library comparisons. expert intelligence needs multi-perspective synthesis. each tool has specialized system prompts guiding LLM thinking. |
 | **verbose explanations** | templates enforce detailed answers—not surface-level BS. you get "why this works," trade-offs, and "what experienced devs do." |
-| **file attachment context** | all three read your codebase files (with line ranges). attach package.json, broken component, related files. Grok's 1M+ token window makes this practical. |
+| **file attachment context** | all three read your codebase files (with line ranges). attach package.json, broken component, related files. Perplexity's 128k token window makes this practical. |
 
 **the result:** specific, actionable guidance accounting for your stack, constraints, and existing patterns. not generic "try this lol" advice.
 
@@ -310,7 +310,7 @@ the `validate_task_completion` tool is your **honest code reviewer** that doesn'
 </tr>
 <tr>
 <td align="center"><b>4️⃣</b></td>
-<td>Grok performs <b>forensic code analysis</b>: reads actual files from disk, scans for stubs/TODOs/missing error handling, verifies execution proofs, calculates real completion % vs claimed %, generates trust score (0.0-1.0), provides 500+ char fixes for critical issues</td>
+<td>The model performs <b>forensic code analysis</b>: reads actual files from disk, scans for stubs/TODOs/missing error handling, verifies execution proofs, calculates real completion % vs claimed %, generates trust score (0.0-1.0), provides 500+ char fixes for critical issues</td>
 </tr>
 </table>
 </div>
@@ -394,7 +394,7 @@ node dist/index.js
 <tr>
 <td><b>OpenRouter</b></td>
 <td>✅ <b>Required</b></td>
-<td>Pay-per-use (Grok ~$0.50/1M tokens)</td>
+<td>Pay-per-use (Perplexity Sonar: searches + tokens)</td>
 <td><a href="https://openrouter.ai/keys">openrouter.ai/keys</a></td>
 </tr>
 <tr>
@@ -453,8 +453,8 @@ node dist/index.js
 <tr>
 <td><code>RESEARCH_MODEL</code></td>
 <td>❌</td>
-<td>Model for research (must support search_parameters)</td>
-<td><code>x-ai/grok-4.1-fast</code></td>
+<td>Model for deep research with native web search</td>
+<td><code>perplexity/sonar-deep-research</code></td>
 </tr>
 <tr>
 <td><code>API_TIMEOUT_MS</code></td>
@@ -471,7 +471,7 @@ node dist/index.js
 <tr>
 <td><code>DEFAULT_MAX_URLS</code></td>
 <td>❌</td>
-<td>Max web sources to search (Grok caps at 30)</td>
+<td>Max web sources parameter (Perplexity searches autonomously)</td>
 <td><code>100</code></td>
 </tr>
 <tr>
@@ -575,11 +575,11 @@ node dist/index.js
 
 | model | best for | notes |
 | :--- | :--- | :--- |
-| `x-ai/grok-4.1-fast` | ⭐ research tools | fast reasoning + web search (caps at 30 sources) |
-| `google/gemini-2.0-flash` | task validation | good for code analysis |
-| `perplexity/sonar-pro` | research fallback | optimized for deep research |
+| `perplexity/sonar-deep-research` | ⭐ research tools | native web search, autonomous multi-step queries (default) |
+| `perplexity/sonar-pro` | fast research | lighter alternative with web search |
+| `google/gemini-2.0-flash` | task validation | good for code analysis (no web search) |
 
-> **note:** all models must support OpenRouter's `search_parameters` for web connectivity.
+> **note:** Perplexity models have native web search built-in, no external parameters needed.
 
 ---
 
@@ -626,7 +626,7 @@ deepresearch_bugfix({
   ]
 })
 
-// Grok searches web, finds GitHub issues, reads your code, returns:
+// Perplexity searches web, finds GitHub issues, reads your code, returns:
 // "The issue is Next.js 14 app router changed session handling.
 //  In API routes, use: await getServerSession(authOptions)
 //  Here's the fix with your exact setup..."
@@ -674,7 +674,7 @@ deepresearch_code_planning({
   ]
 })
 
-// Grok searches for SSE libraries, finds sse.js, examines your stack,
+// Perplexity searches for SSE libraries, finds sse.js, examines your stack,
 // returns complete implementation guide with code examples
 ```
 
@@ -734,7 +734,7 @@ validate_task_completion({
   `
 })
 
-// Grok reads your files, validates claims, returns:
+// Model reads your files, validates claims, returns:
 // - Actual completion: 60% (not 75%)
 // - Trust score: 0.8 (honest about what's broken)
 // - Critical issues with complete fixes
@@ -753,7 +753,7 @@ validate_task_completion({
 </tr>
 <tr>
 <td><b>1️⃣ Attach Files Liberally</b></td>
-<td>Grok handles 1M+ tokens. attach package.json, tsconfig, broken files, related components. more context = better answers.</td>
+<td>Perplexity Sonar handles 128k tokens. attach package.json, tsconfig, broken files, related components. more context = better answers.</td>
 </tr>
 <tr>
 <td><b>2️⃣ Be Specific</b></td>

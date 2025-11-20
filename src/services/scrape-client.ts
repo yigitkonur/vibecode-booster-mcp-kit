@@ -49,15 +49,16 @@ export async function makeApiRequest(params: DeepSearchParams): Promise<OpenRout
   messages.push({ role: 'user', content: deep_research_question });
   
   // Build OpenRouter request with search_parameters
-  // Note: xAI/Grok limits max_search_results to 30
+  // Note: Perplexity Sonar has native web search; search_parameters may be ignored
+  // but included for API compatibility with models that support it
   const maxSearchResults = Math.min(max_returned_urls || 100, 30);
   
   const requestPayload: any = {
     model: API_CONFIG.MODEL,
     messages,
     temperature: temperature !== undefined ? temperature : 0.3,
-    reasoning_effort: reasoning_effort || 'high',
-    max_completion_tokens: 1000000,
+    reasoning_effort: reasoning_effort || 'high', // Note: not natively supported by Perplexity Sonar
+    max_completion_tokens: 32000, // Perplexity Sonar Deep Research max output limit
     search_parameters: {
       mode: 'on',
       max_search_results: maxSearchResults,
