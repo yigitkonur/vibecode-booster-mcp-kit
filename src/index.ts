@@ -22,8 +22,6 @@ import {
   expertIntelligenceResearchParamsShape,
 } from './schemas/deepresearch-expert-intelligence';
 import {
-  taskCompletionValidatorOutputSchema,
-  taskCompletionValidatorOutputShape,
   taskCompletionValidatorParamsSchema,
   taskCompletionValidatorParamsShape,
 } from './schemas/task-completion-validator';
@@ -361,7 +359,7 @@ mcpServer.registerTool(
     title: validatorTool.title,
     description: validatorTool.description,
     inputSchema: taskCompletionValidatorParamsShape,
-    outputSchema: taskCompletionValidatorOutputShape,
+    // Note: outputSchema removed to allow error responses without schema validation
   },
   async (args, extra) => {
     try {
@@ -391,17 +389,15 @@ mcpServer.registerTool(
       ) {
         return {
           content: [{ type: 'text' as const, text: content }],
-          structuredContent: structuredContent,
+          structuredContent: structuredContent as Record<string, unknown>,
           isError: true,
         };
       }
 
-      // Validate and return structured output
-      const validatedOutput = taskCompletionValidatorOutputSchema.parse(structuredContent);
-
+      // Return structured output (no schema validation to allow flexibility)
       return {
         content: [{ type: 'text' as const, text: content }],
-        structuredContent: validatedOutput,
+        structuredContent: structuredContent as Record<string, unknown>,
       };
     } catch (error) {
       const simpleError = createSimpleError(error);

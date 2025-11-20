@@ -5,7 +5,6 @@ export interface ScrapeDoRequest {
   mode: 'basic' | 'premium' | 'javascript' | undefined;
   timeout: number | undefined;
   country: string | undefined;
-  waitFor: number | undefined;
 }
 
 export interface ScrapeDoResponse {
@@ -28,8 +27,8 @@ export class ScrapeDoClient {
     }
   }
 
-  async scrapeURL(request: ScrapeDoRequest): Promise<ScrapeDoResponse> {
-    const { url, mode = 'basic', timeout = 30, country, waitFor } = request;
+  async scrapeURL(request: ScrapeDoRequest, maxRetries: number = 3): Promise<ScrapeDoResponse> {
+    const { url, mode = 'basic', timeout = 30, country } = request;
 
     // Build query parameters
     const params = new URLSearchParams({
@@ -44,39 +43,73 @@ export class ScrapeDoClient {
       params.append('geoCode', country.toUpperCase());
     }
 
-    if (mode === 'javascript' && waitFor) {
-      params.append('waitForSelector', String(waitFor));
-    }
+    // Note: Scrape.do handles wait times automatically in JavaScript mode
+    // The 'timeout' parameter controls maximum wait time
+    // Custom wait/selector parameters are not supported by their API
 
     const apiUrl = `${this.baseURL}?${params.toString()}`;
+    const baseDelay = 1000; // 1 second
 
-    try {
-      const response = await fetch(apiUrl, {
-        method: 'GET',
-        headers: {
-          'Accept': 'text/html,application/json',
-        },
-      });
+    // Retry logic with exponential backoff
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'GET',
+          headers: {
+            'Accept': 'text/html,application/json',
+          },
+        });
 
-      if (!response.ok) {
-        const errorText = await response.text().catch(() => '');
-        throw new Error(`Scrape.do API error: ${response.status} ${errorText}`);
+        if (!response.ok) {
+          const errorText = await response.text().catch(() => '');
+          
+          // Don't retry on client errors (4xx) except 429 (rate limit)
+          if (response.status >= 400 && response.status < 500 && response.status !== 429) {
+            throw new Error(`Scrape.do API error: ${response.status} ${errorText}`);
+          }
+          
+          // Retry on server errors (5xx) or rate limits (429)
+          if (attempt < maxRetries - 1) {
+            const delay = baseDelay * Math.pow(2, attempt);
+            console.error(`[Scrape.do] Retry ${attempt + 1}/${maxRetries} after ${delay}ms for ${url} (status: ${response.status})`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+            continue;
+          }
+          
+          throw new Error(`Scrape.do API error: ${response.status} ${errorText}`);
+        }
+
+        const content = await response.text();
+        
+        // Extract credits from headers
+        const credits = mode === 'javascript' ? 5 : mode === 'premium' ? 10 : 1;
+
+        return {
+          content,
+          statusCode: response.status,
+          credits,
+          headers: Object.fromEntries(response.headers.entries()),
+        };
+      } catch (error) {
+        // If this is the last attempt, throw the error
+        if (attempt === maxRetries - 1) {
+          throw new Error(`Failed to scrape URL after ${maxRetries} attempts: ${error instanceof Error ? error.message : String(error)}`);
+        }
+        
+        // Otherwise, wait and retry (only for network errors)
+        if (error instanceof Error && !error.message.includes('API error')) {
+          const delay = baseDelay * Math.pow(2, attempt);
+          console.error(`[Scrape.do] Network error, retry ${attempt + 1}/${maxRetries} after ${delay}ms: ${error.message}`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          // Don't retry API errors
+          throw error;
+        }
       }
-
-      const content = await response.text();
-      
-      // Extract credits from headers
-      const credits = mode === 'javascript' ? 5 : mode === 'premium' ? 10 : 1;
-
-      return {
-        content,
-        statusCode: response.status,
-        credits,
-        headers: Object.fromEntries(response.headers.entries()),
-      };
-    } catch (error) {
-      throw new Error(`Failed to scrape URL: ${error instanceof Error ? error.message : String(error)}`);
     }
+    
+    // This should never be reached, but TypeScript needs it
+    throw new Error('Unexpected retry loop exit');
   }
 
   async scrapeMultipleURLs(urls: string[], request: Omit<ScrapeDoRequest, 'url'>): Promise<Array<ScrapeDoResponse & { url: string }>> {

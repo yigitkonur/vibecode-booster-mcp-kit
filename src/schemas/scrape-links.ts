@@ -24,13 +24,6 @@ export const scrapeLinksParamsShape = {
     .regex(/^[A-Z]{2}$/, 'Country code must be uppercase ISO 3166-1 alpha-2 format')
     .optional()
     .describe('Country code (US, GB, DE, etc) for premium mode'),
-  waitFor: z
-    .number()
-    .min(0)
-    .max(35000)
-    .default(5000)
-    .describe('Wait time in milliseconds for JavaScript rendering')
-    .optional(),
   use_llm: z
     .boolean()
     .default(isLLMEnabledByDefault())

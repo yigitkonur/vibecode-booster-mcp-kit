@@ -18,7 +18,7 @@ export async function performScrapeLinks(
 
   try {
     if (sessionId && logger) {
-      await logger('info', `Scraping ${params.urls.length} URL(s) in ${params.mode} mode`, sessionId);
+      await logger('info', `Starting scrape: ${params.urls.length} URL(s), mode=${params.mode}, LLM=${params.use_llm}`, sessionId);
     }
 
     const client = new ScrapeDoClient();
@@ -30,16 +30,27 @@ export async function performScrapeLinks(
       mode: params.mode,
       timeout: params.timeout,
       country: params.country,
-      waitFor: params.waitFor,
     });
+
+    if (sessionId && logger) {
+      await logger('info', `Scraping complete. Processing ${results.length} results...`, sessionId);
+    }
 
     let successful = 0;
     let failed = 0;
     let totalCredits = 0;
     const contents: string[] = [];
 
-    // Process each result
-    for (const result of results) {
+    // Process each result with progress logging
+    for (let i = 0; i < results.length; i++) {
+      const result = results[i];
+      
+      if (!result) continue;
+      
+      if (sessionId && logger) {
+        await logger('info', `[${i + 1}/${results.length}] Processing ${result.url}`, sessionId);
+      }
+      
       if (result.statusCode === 200 || result.statusCode < 400) {
         successful++;
         totalCredits += result.credits;
@@ -49,6 +60,10 @@ export async function performScrapeLinks(
 
         // LLM processing if enabled
         if (params.use_llm && llmProcessor) {
+          if (sessionId && logger) {
+            await logger('info', `[${i + 1}/${results.length}] Applying LLM extraction...`, sessionId);
+          }
+          
           const llmResult = await processContentWithLLM(
             content,
             {
@@ -58,6 +73,11 @@ export async function performScrapeLinks(
             llmProcessor
           );
           content = llmResult.content;
+          
+          if (sessionId && logger) {
+            const status = llmResult.processed ? 'complete' : 'skipped';
+            await logger('info', `[${i + 1}/${results.length}] LLM processing ${status}`, sessionId);
+          }
         }
 
         // Remove meta tags
@@ -67,6 +87,10 @@ export async function performScrapeLinks(
       } else {
         failed++;
         contents.push(`## ${result.url}\n\n❌ Failed to scrape: ${result.content}`);
+        
+        if (sessionId && logger) {
+          await logger('error', `[${i + 1}/${results.length}] Failed: ${result.statusCode}`, sessionId);
+        }
       }
     }
 
