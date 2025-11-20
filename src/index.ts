@@ -121,49 +121,18 @@ mcpServer.registerTool(
         };
       }
 
-      // Transform response to output schema
-      const perplexityResponse = structuredContent as {
-        id?: string;
-        model?: string;
-        created?: number;
-        choices?: Array<{ finish_reason?: string }>;
-        usage?: {
-          prompt_tokens?: number;
-          completion_tokens?: number;
-          total_tokens?: number;
-        };
-        visitedURLs?: string[];
-        readURLs?: string[];
-      };
+      // Transform response to output schema (xAI API format)
+      const apiResponse = structuredContent as any;
       const transformedOutput = {
         content,
         metadata: {
-          id: perplexityResponse.id || 'unknown',
-          model: perplexityResponse.model || 'perplexity/sonar-deep-research',
-          created: perplexityResponse.created || Date.now(),
-          finish_reason: perplexityResponse.choices?.[0]?.finish_reason || 'unknown',
+          id: apiResponse.id || 'unknown',
+          model: apiResponse.model || 'perplexity/sonar-deep-research',
+          created: apiResponse.created || Date.now(),
+          finish_reason: apiResponse.choices?.[0]?.finish_reason || 'unknown',
         },
-        usage: perplexityResponse.usage
-          ? {
-              prompt_tokens: perplexityResponse.usage.prompt_tokens || 0,
-              completion_tokens: perplexityResponse.usage.completion_tokens || 0,
-              total_tokens: perplexityResponse.usage.total_tokens || 0,
-            }
-          : undefined,
-        sources:
-          perplexityResponse.visitedURLs || perplexityResponse.readURLs
-            ? {
-                visited_urls: perplexityResponse.visitedURLs || [],
-                read_urls: perplexityResponse.readURLs || [],
-                total_sources:
-                  (perplexityResponse.visitedURLs?.length || 0) + (perplexityResponse.readURLs?.length || 0),
-              }
-            : undefined,
-        research_quality: {
-          reasoning_effort: 'high' as const,
-          team_size: 5,
-          confidence_score: undefined,
-        },
+        usage: apiResponse.usage,
+        annotations: apiResponse.choices?.[0]?.message?.annotations,
       };
 
       const validatedOutput = bugfixResearchOutputSchema.parse(transformedOutput);
@@ -243,49 +212,18 @@ mcpServer.registerTool(
         };
       }
 
-      // Transform response to output schema
-      const perplexityResponse = structuredContent as {
-        id?: string;
-        model?: string;
-        created?: number;
-        choices?: Array<{ finish_reason?: string }>;
-        usage?: {
-          prompt_tokens?: number;
-          completion_tokens?: number;
-          total_tokens?: number;
-        };
-        visitedURLs?: string[];
-        readURLs?: string[];
-      };
+      // Transform response to output schema (xAI API format)
+      const apiResponse = structuredContent as any;
       const transformedOutput = {
         content,
         metadata: {
-          id: perplexityResponse.id || 'unknown',
-          model: perplexityResponse.model || 'perplexity/sonar-deep-research',
-          created: perplexityResponse.created || Date.now(),
-          finish_reason: perplexityResponse.choices?.[0]?.finish_reason || 'unknown',
+          id: apiResponse.id || 'unknown',
+          model: apiResponse.model || 'perplexity/sonar-deep-research',
+          created: apiResponse.created || Date.now(),
+          finish_reason: apiResponse.choices?.[0]?.finish_reason || 'unknown',
         },
-        usage: perplexityResponse.usage
-          ? {
-              prompt_tokens: perplexityResponse.usage.prompt_tokens || 0,
-              completion_tokens: perplexityResponse.usage.completion_tokens || 0,
-              total_tokens: perplexityResponse.usage.total_tokens || 0,
-            }
-          : undefined,
-        sources:
-          perplexityResponse.visitedURLs || perplexityResponse.readURLs
-            ? {
-                visited_urls: perplexityResponse.visitedURLs || [],
-                read_urls: perplexityResponse.readURLs || [],
-                total_sources:
-                  (perplexityResponse.visitedURLs?.length || 0) + (perplexityResponse.readURLs?.length || 0),
-              }
-            : undefined,
-        research_quality: {
-          reasoning_effort: 'high' as const,
-          team_size: 5,
-          confidence_score: undefined,
-        },
+        usage: apiResponse.usage,
+        annotations: apiResponse.choices?.[0]?.message?.annotations,
       };
 
       const validatedOutput = expertIntelligenceResearchOutputSchema.parse(transformedOutput);
@@ -365,49 +303,18 @@ mcpServer.registerTool(
         };
       }
 
-      // Transform response to output schema
-      const perplexityResponse = structuredContent as {
-        id?: string;
-        model?: string;
-        created?: number;
-        choices?: Array<{ finish_reason?: string }>;
-        usage?: {
-          prompt_tokens?: number;
-          completion_tokens?: number;
-          total_tokens?: number;
-        };
-        visitedURLs?: string[];
-        readURLs?: string[];
-      };
+      // Transform response to output schema (xAI API format)
+      const apiResponse = structuredContent as any;
       const transformedOutput = {
         content,
         metadata: {
-          id: perplexityResponse.id || 'unknown',
-          model: perplexityResponse.model || 'perplexity/sonar-deep-research',
-          created: perplexityResponse.created || Date.now(),
-          finish_reason: perplexityResponse.choices?.[0]?.finish_reason || 'unknown',
+          id: apiResponse.id || 'unknown',
+          model: apiResponse.model || 'perplexity/sonar-deep-research',
+          created: apiResponse.created || Date.now(),
+          finish_reason: apiResponse.choices?.[0]?.finish_reason || 'unknown',
         },
-        usage: perplexityResponse.usage
-          ? {
-              prompt_tokens: perplexityResponse.usage.prompt_tokens || 0,
-              completion_tokens: perplexityResponse.usage.completion_tokens || 0,
-              total_tokens: perplexityResponse.usage.total_tokens || 0,
-            }
-          : undefined,
-        sources:
-          perplexityResponse.visitedURLs || perplexityResponse.readURLs
-            ? {
-                visited_urls: perplexityResponse.visitedURLs || [],
-                read_urls: perplexityResponse.readURLs || [],
-                total_sources:
-                  (perplexityResponse.visitedURLs?.length || 0) + (perplexityResponse.readURLs?.length || 0),
-              }
-            : undefined,
-        research_quality: {
-          reasoning_effort: 'high' as const,
-          team_size: 5,
-          confidence_score: undefined,
-        },
+        usage: apiResponse.usage,
+        annotations: apiResponse.choices?.[0]?.message?.annotations,
       };
 
       const validatedOutput = codePlanningResearchOutputSchema.parse(transformedOutput);

@@ -150,15 +150,39 @@ export const bugfixResearchOutputShape = {
       prompt_tokens: z.number().int().describe('Tokens in input question'),
       completion_tokens: z.number().int().describe('Tokens in generated answer'),
       total_tokens: z.number().int().describe('Total tokens (input + output + reasoning)'),
+      prompt_tokens_details: z
+        .object({
+          text_tokens: z.number().int().optional().describe('Text tokens in prompt'),
+          cached_tokens: z.number().int().optional().describe('Cached tokens'),
+        })
+        .optional()
+        .describe('Detailed prompt token breakdown'),
       completion_tokens_details: z
         .object({
           reasoning_tokens: z.number().int().optional().describe('Tokens used for reasoning'),
         })
         .optional()
         .describe('Detailed completion token breakdown'),
+      num_sources_used: z.number().int().optional().describe('Number of web sources used'),
     })
     .optional()
-    .describe('Token usage statistics'),
+    .describe('Token usage and source statistics'),
+  annotations: z
+    .array(
+      z.object({
+        type: z.literal('url_citation').describe('Type of annotation'),
+        url_citation: z
+          .object({
+            url: z.string().describe('Source URL'),
+            start_index: z.number().int().describe('Start position in content'),
+            end_index: z.number().int().describe('End position in content'),
+            title: z.string().describe('Source title'),
+          })
+          .describe('Citation details'),
+      })
+    )
+    .optional()
+    .describe('Source citations from web search'),
 };
 
 export const bugfixResearchOutputSchema = z.object(bugfixResearchOutputShape);
