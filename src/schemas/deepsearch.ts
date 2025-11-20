@@ -74,9 +74,9 @@ Think of this as explaining your entire situation to an expert who just walked i
     .number()
     .int()
     .optional()
-    .default(10000)
+    .default(100000)
     .describe(
-      "The maximum token budget for the entire research process. **Default: 10000**. If the agent stops prematurely with a 'budget_exhausted' reason, increase this value. To enforce stricter cost control, lower this value."
+      "The maximum token budget for the entire research process. **Default: 100000** (allows extensive research). Internal tools use this maximum for comprehensive analysis. If the agent stops prematurely with a 'budget_exhausted' reason, increase this value. To enforce stricter cost control, lower this value."
     ),
   max_attempts: z
     .number()
@@ -90,9 +90,9 @@ Think of this as explaining your entire situation to an expert who just walked i
     .number()
     .int()
     .optional()
-    .default(3)
+    .default(5)
     .describe(
-      "The number of parallel agents using a 'divide and conquer' strategy. **Default: 3** for maximum research breadth. This is powerful but costly. If you need to significantly reduce cost, setting `team_size` to 1 is the most effective way."
+      "The number of parallel agents using a 'divide and conquer' strategy. **Default: 5** for maximum research breadth and quality. Internal tools use this maximum setting. This is powerful but costly. To significantly reduce cost, set to 1. For balanced quality/cost, set to 3."
     ),
 
   // --- Source & Behavior Control ---

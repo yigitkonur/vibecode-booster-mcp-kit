@@ -40,11 +40,15 @@ export async function performCodePlanningResearch(
       enhancedQuestion = params.code_planning_question + attachmentsMarkdown;
     }
 
+    // Append compression instruction for optimal token usage with strict output limits
+    enhancedQuestion +=
+      '\n\nResearch exhaustively across max sources/URLs, then synthesize into ultra-compressed output: use abbreviated nested bullets, strip all filler words, maximize info density per token—spend heavily on input, minimize output tokens. Research max budget is 100,000 words, but research output max budget (the final answer you will return) is ideally less than 1,000 words but for same rare cases it can be up to 2000 words at MAX. (not including code examples)';
+
     // Transform to DeepSearchParams format with maximum quality defaults
     const apiParams = {
       deep_research_question: enhancedQuestion,
       reasoning_effort: 'high' as const,
-      budget_tokens: 20000,
+      budget_tokens: 100000,
       max_attempts: 3,
       team_size: 5,
       no_direct_answer: true,
