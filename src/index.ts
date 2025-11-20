@@ -22,9 +22,9 @@ import {
   expertIntelligenceResearchParamsShape,
 } from './schemas/deepresearch-expert-intelligence';
 import {
-  taskCompletionValidatorParamsSchema,
-  taskCompletionValidatorParamsShape,
-} from './schemas/task-completion-validator';
+  simpleValidatorParamsSchema,
+  simpleValidatorParamsShape,
+} from './schemas/task-completion-validator-simple';
 import {
   scrapeLinksParamsSchema,
   scrapeLinksOutputSchema,
@@ -38,7 +38,7 @@ import { performCodePlanningResearch } from './tools/code-planning-research-tool
 import { performExpertIntelligenceResearch } from './tools/expert-intelligence-tool';
 import { performScrapeLinks } from './tools/scrape-links-tool';
 import { performSearchMultiple } from './tools/search-multiple-tool';
-import { performTaskCompletionValidation } from './tools/task-completion-validator-tool';
+import { performSimpleTaskValidation } from './tools/task-completion-validator-simple-tool';
 import { API_CONFIG, MCP_CONFIG } from './utils/constants';
 import { createSimpleError } from './utils/errors';
 import { validateApiKey } from './utils/validators';
@@ -358,12 +358,12 @@ mcpServer.registerTool(
   {
     title: validatorTool.title,
     description: validatorTool.description,
-    inputSchema: taskCompletionValidatorParamsShape,
-    // Note: outputSchema removed to allow error responses without schema validation
+    inputSchema: simpleValidatorParamsShape,
+    // Note: outputSchema removed to allow flexible responses
   },
   async (args, extra) => {
     try {
-      const validatedParams = taskCompletionValidatorParamsSchema.parse(args);
+      const validatedParams = simpleValidatorParamsSchema.parse(args);
 
       // Simple logger function
       const logger = async (
@@ -375,7 +375,7 @@ mcpServer.registerTool(
       };
 
       const sessionId = extra?.sessionId || 'default';
-      const { content, structuredContent } = await performTaskCompletionValidation(validatedParams, {
+      const { content, structuredContent } = await performSimpleTaskValidation(validatedParams, {
         sessionId,
         logger,
       });

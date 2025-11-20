@@ -10,17 +10,30 @@ export function extractJson(text: string): string {
   // Remove markdown code blocks if present
   const jsonBlockMatch = text.match(/```json\s*([\s\S]*?)\s*```/);
   if (jsonBlockMatch?.[1]) {
-    return jsonBlockMatch[1].trim();
+    return cleanJson(jsonBlockMatch[1].trim());
   }
 
   // Remove generic code blocks
   const codeBlockMatch = text.match(/```\s*([\s\S]*?)\s*```/);
   if (codeBlockMatch?.[1]) {
-    return codeBlockMatch[1].trim();
+    return cleanJson(codeBlockMatch[1].trim());
   }
 
   // Return as-is if no code blocks found
-  return text.trim();
+  return cleanJson(text.trim());
+}
+
+/**
+ * Clean JSON string by removing trailing commas and other common issues
+ */
+function cleanJson(jsonStr: string): string {
+  // Remove trailing commas before closing braces/brackets
+  let cleaned = jsonStr.replace(/,(\s*[}\]])/g, '$1');
+  
+  // Remove any trailing commas at the end
+  cleaned = cleaned.replace(/,\s*$/, '');
+  
+  return cleaned;
 }
 
 /**
