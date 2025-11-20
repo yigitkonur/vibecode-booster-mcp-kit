@@ -1,0 +1,96 @@
+tools:
+  - name: deepresearch_bugfix
+    title: Bug Fix Deep Research
+    description: |
+      **CRITICAL: You MUST use this ONLY for debugging and fixing bugs, if you have tried to fix something and it never worked, then you HAVE TO USE THIS TOOL TO FIX THIS BUG.**
+
+      This is your unlimited debugging assistant. When you face a bug and your internal analysis doesn't lead to a 100% certain solution, use this tool. It performs comprehensive research to find root causes and proven solutions.
+
+      **When to use:**
+      - Encountering errors, exceptions, or unexpected behavior
+      - Application crashes or hangs
+      - Performance issues or memory leaks
+      - Integration failures with external services
+      - Configuration problems
+      - Dependency conflicts
+      - Security vulnerabilities discovered
+
+      **What makes this effective:**
+      - Structured template forces comprehensive context collection
+      - Searches across StackOverflow, GitHub issues, official docs
+      - Finds similar bug reports and their solutions
+      - Identifies root causes from symptoms
+      - Provides multiple solution approaches with trade-offs
+
+      **Required information:**
+      - Complete background and what you were trying to accomplish
+      - Exact error messages and logs (word-for-word)
+      - Code snippets showing the problematic area
+      - Environment details (versions, dependencies, OS)
+      - Reproduction steps
+      - What you've already tried
+
+      **Pro tip:** Attach files with `file_attachments` parameter for better context. Include the files where the bug occurs, configuration files, and dependency manifests.
+
+      Don't hesitate to use this tool abundantly during debugging - it's specifically designed for this purpose!
+
+  - name: deepresearch_generic
+    title: Generic Deep Research
+    description: |
+      **Use this tool for comprehensive exploration of any topic, technology, or concept.**
+
+      Perfect for general knowledge gathering and understanding complex subjects when you need deep, structured research.
+
+      **When to use:**
+      - Learning new technologies or frameworks
+      - Understanding industry best practices
+      - Comparing different approaches or solutions
+      - Researching architectural patterns
+      - Exploring new domains or concepts
+      - Technology evaluation and selection
+      - Understanding complex algorithms or systems
+      - Market research and competitive analysis
+
+      **What makes this effective:**
+      - Structured template ensures comprehensive research coverage
+      - Searches across official documentation, blogs, tutorials, academic papers
+      - Provides multiple perspectives and comparisons
+      - Includes practical examples and use cases
+      - Identifies pros, cons, and trade-offs
+
+      **Required information:**
+      - Clear research topic with context
+      - Specific questions you want answered (3-7 questions)
+      - Expected depth level (high-level overview, detailed technical, expert-level)
+      - Research priorities (source types, recency, domain focus)
+      - Research boundaries (what to exclude, scope limitations)
+
+      **Pro tip:** Use `file_attachments` to provide context about your existing codebase or architecture when researching how to integrate new technologies or approaches.
+
+      Use this tool whenever you need to deeply understand something before making technical decisions!
+
+  - name: deepresearch_code_planning
+    title: Code Planning Deep Research
+    description: |
+      **CRITICAL: Use this tool for comprehensive pre-development research when starting a NEW coding project, especially if user ask your opinion while planning something you are not very sure.**
+
+      This tool is your expert technical co-founder who researches everything BEFORE you write a single line of code. It helps you make informed decisions about frameworks, architecture, integrations, and implementation strategies backed by production examples and best practices.
+
+      **When to use:**
+      - Starting a new project and choosing the right tech stack
+      - Evaluating framework options and their trade-offs
+      - Planning architecture and design patterns
+      - Researching integration strategies with third-party services
+      - Understanding best practices for your specific domain
+      - Finding production-ready examples on GitHub (sorted by stars)
+      - Extracting quick-start guides and setup procedures
+      - Building on top of existing code (use file_attachments)
+      - Making technology decisions with confidence
+
+      **What this tool researches for you:**
+      - Technology Stack Analysis (framework comparisons, database selection, API architecture)
+      - Best Practices & Patterns (architecture patterns, code organization, testing strategies, security)
+      - GitHub Repository Intelligence (top repos, quick-start guides, production implementations)
+      - Integration Planning (authentication, payment processing, third-party APIs)
+
+      **Pro tip:** Always attach your existing codebase files when researching how to extend or modify an existing project. The tool will analyze your current stack and provide compatible recommendations.

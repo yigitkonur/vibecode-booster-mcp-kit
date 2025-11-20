@@ -24,10 +24,25 @@ import {
 import { performBugfixResearch } from './tools/bugfix-research-tool';
 import { performCodePlanningResearch } from './tools/code-planning-research-tool';
 import { performGenericResearch } from './tools/generic-research-tool';
-import { MCP_CONFIG } from './utils/constants';
+import { API_CONFIG, MCP_CONFIG } from './utils/constants';
 import { createSimpleError } from './utils/errors';
+import { validateApiKey } from './utils/validators';
+import { type ToolsConfig, getToolDefinition, loadToolsConfig } from './utils/yaml-loader';
 
+// Load environment variables
 dotenv.config();
+
+// Validate API configuration on startup
+validateApiKey(API_CONFIG.API_KEY);
+
+// Load tool definitions from YAML
+let toolsConfig: ToolsConfig;
+try {
+  toolsConfig = loadToolsConfig(MCP_CONFIG.TOOLS_CONFIG_PATH);
+} catch (error) {
+  console.error('Failed to load tools configuration:', error);
+  process.exit(1);
+}
 
 const mcpServer = new McpServer(
   {
@@ -52,12 +67,16 @@ const mcpServer = new McpServer(
 );
 
 // Register bug fix research tool
+const bugfixTool = getToolDefinition(toolsConfig, 'deepresearch_bugfix');
+if (!bugfixTool) {
+  throw new Error('deepresearch_bugfix tool definition not found in YAML config');
+}
+
 mcpServer.registerTool(
-  'deepresearch_bugfix',
+  bugfixTool.name,
   {
-    title: 'deepresearch_bugfix',
-    description:
-      "**CRITICAL: You MUST use this ONLY for debugging and fixing bugs, if you have tried to fix something and it never worked, then you HAVE TO USE THIS TOOL TO FIX THIS BUG.**\n\nThis is your unlimited debugging assistant. When you face a bug and your internal analysis doesn't lead to a 100% certain solution, use this tool. It performs comprehensive research to find root causes and proven solutions.\n\n**When to use:**\n- Encountering errors, exceptions, or unexpected behavior\n- Application crashes or hangs\n- Performance issues or memory leaks\n- Integration failures with external services\n- Configuration problems\n- Dependency conflicts\n- Security vulnerabilities discovered\n\n**What makes this effective:**\n- Structured template forces comprehensive context collection\n- Searches across StackOverflow, GitHub issues, official docs\n- Finds similar bug reports and their solutions\n- Identifies root causes from symptoms\n- Provides multiple solution approaches with trade-offs\n\n**Required information:**\n- Complete background and what you were trying to accomplish\n- Exact error messages and logs (word-for-word)\n- Code snippets showing the problematic area\n- Environment details (versions, dependencies, OS)\n- Reproduction steps\n- What you've already tried\n\n**Pro tip:** Attach files with `file_attachments` parameter for better context. Include the files where the bug occurs, configuration files, and dependency manifests.\n\nDon't hesitate to use this tool abundantly during debugging - it's specifically designed for this purpose!",
+    title: bugfixTool.title,
+    description: bugfixTool.description,
     inputSchema: bugfixResearchParamsShape,
     outputSchema: bugfixResearchOutputShape,
   },
@@ -170,12 +189,16 @@ mcpServer.registerTool(
 );
 
 // Register generic research tool
+const genericTool = getToolDefinition(toolsConfig, 'deepresearch_generic');
+if (!genericTool) {
+  throw new Error('deepresearch_generic tool definition not found in YAML config');
+}
+
 mcpServer.registerTool(
-  'deepresearch_generic',
+  genericTool.name,
   {
-    title: 'deepresearch_generic',
-    description:
-      '**Use this tool for comprehensive exploration of any topic, technology, or concept.**\n\nPerfect for general knowledge gathering and understanding complex subjects when you need deep, structured research.\n\n**When to use:**\n- Learning new technologies or frameworks\n- Understanding industry best practices\n- Comparing different approaches or solutions\n- Researching architectural patterns\n- Exploring new domains or concepts\n- Technology evaluation and selection\n- Understanding complex algorithms or systems\n- Market research and competitive analysis\n\n**What makes this effective:**\n- Structured template ensures comprehensive research coverage\n- Searches across official documentation, blogs, tutorials, academic papers\n- Provides multiple perspectives and comparisons\n- Includes practical examples and use cases\n- Identifies pros, cons, and trade-offs\n\n**Required information:**\n- Clear research topic with context\n- Specific questions you want answered (3-7 questions)\n- Expected depth level (high-level overview, detailed technical, expert-level)\n- Research priorities (source types, recency, domain focus)\n- Research boundaries (what to exclude, scope limitations)\n\n**Pro tip:** Use `file_attachments` to provide context about your existing codebase or architecture when researching how to integrate new technologies or approaches.\n\nUse this tool whenever you need to deeply understand something before making technical decisions!',
+    title: genericTool.title,
+    description: genericTool.description,
     inputSchema: genericResearchParamsShape,
     outputSchema: genericResearchOutputShape,
   },
@@ -288,12 +311,16 @@ mcpServer.registerTool(
 );
 
 // Register code planning research tool
+const codePlanningTool = getToolDefinition(toolsConfig, 'deepresearch_code_planning');
+if (!codePlanningTool) {
+  throw new Error('deepresearch_code_planning tool definition not found in YAML config');
+}
+
 mcpServer.registerTool(
-  'deepresearch_code_planning',
+  codePlanningTool.name,
   {
-    title: 'deepresearch_code_planning',
-    description:
-      '**CRITICAL: Use this tool for comprehensive pre-development research when starting a NEW coding project, especially if user ask your opinion while planning something you are not very sure.**\n\nThis tool is your expert technical co-founder who researches everything BEFORE you write a single line of code. It helps you make informed decisions about frameworks, architecture, integrations, and implementation strategies backed by production examples and best practices.\n\n**When to use:**\n- Starting a new project and choosing the right tech stack\n- Evaluating framework options and their trade-offs\n- Planning architecture and design patterns\n- Researching integration strategies with third-party services\n- Understanding best practices for your specific domain\n- Finding production-ready examples on GitHub (sorted by stars)\n- Extracting quick-start guides and setup procedures\n- Building on top of existing code (use file_attachments)\n- Making technology decisions with confidence\n\n**What this tool researches for you:**\n\n1. **Technology Stack Analysis:**\n   - Framework comparisons (React vs Vue, Express vs Fastify)\n   - Database selection (PostgreSQL vs MongoDB, when to use each)\n   - API architecture (REST vs GraphQL vs gRPC)\n   - Infrastructure decisions (serverless vs containers)\n\n2. **Best Practices & Patterns:**\n   - Architecture patterns (microservices, monolith, event-driven)\n   - Code organization and project structure\n   - Testing strategies and tools\n   - Security practices (auth, encryption, OWASP)\n   - Performance optimization approaches\n\n3. **GitHub Repository Intelligence:**\n   - Finds top repos with most stars for any topic\n   - Extracts quick-start guides from popular projects\n   - Analyzes production-grade implementations\n   - Identifies common patterns and anti-patterns\n   - Discovers integration examples\n\n4. **Integration Planning:**\n   - Authentication providers (Auth0, Clerk, Supabase Auth)\n   - Payment processing (Stripe, PayPal - which fits your use case)\n   - Email services (SendGrid vs AWS SES - cost comparison)\n   - File storage (S3, Cloudinary - features and pricing)\n   - Real-time features (WebSocket, SSE, WebRTC)\n   - Search functionality (Elasticsearch, Algolia, Meilisearch)\n   - Communication styles (REST vs gRPC vs GraphQL for each service)\n\n5. **Existing Codebase Compatibility:**\n   - Use `file_attachments` to share your existing code\n   - Research recommendations compatible with current architecture\n   - Avoid suggesting conflicting approaches\n   - Understand integration points and constraints\n\n**Required information:**\n- Project overview (what you\'re building, scale, requirements)\n- Technology stack constraints and preferences\n- Best practices areas to research\n- GitHub repository analysis needs\n- Integration requirements (auth, payments, email, etc.)\n- Research priorities (official docs, blogs, GitHub, tutorials)\n- Research boundaries (language limits, budget, compliance)\n\n**Pro tip:** This tool excels when you provide existing code via `file_attachments`. Attach your package.json, main entry files, or key modules to ensure research recommendations are compatible with what you\'ve already built.\n\n**Example use cases:**\n- "Research best frameworks for building a real-time collaborative editor like Google Docs"\n- "Find top GitHub repos for CRDT implementations and extract their quick-start guides"\n- "Compare Stripe vs PayPal for B2B SaaS subscription billing"\n- "Research authentication strategies for multi-tenant applications"\n- "Find production examples of microservices architecture in TypeScript"\n\nUse this tool BEFORE planning your implementation - it will save you from costly architecture mistakes and help you build on proven patterns!',
+    title: codePlanningTool.title,
+    description: codePlanningTool.description,
     inputSchema: codePlanningResearchParamsShape,
     outputSchema: codePlanningResearchOutputShape,
   },

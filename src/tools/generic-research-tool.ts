@@ -1,6 +1,7 @@
 import type { GenericResearchParams } from '../schemas/deepresearch-generic';
 import { FileAttachmentService } from '../services/file-attachment';
 import { makeApiRequest } from '../services/scrape-client';
+import { RESEARCH_DEFAULTS } from '../utils/constants';
 import { createSimpleError } from '../utils/errors';
 
 interface ResearchOptions {
@@ -44,15 +45,15 @@ export async function performGenericResearch(
     enhancedQuestion +=
       '\n\nResearch exhaustively across max sources/URLs, then synthesize into ultra-compressed output: use abbreviated nested bullets, strip all filler words, maximize info density per token—spend heavily on input, minimize output tokens. Research max budget is 100,000 words, but research output max budget (the final answer you will return) is ideally less than 1,000 words but for same rare cases it can be up to 2000 words at MAX. (not including code examples)';
 
-    // Transform to DeepSearchParams format with maximum quality defaults
+    // Transform to DeepSearchParams format with configuration defaults
     const apiParams = {
       deep_research_question: enhancedQuestion,
-      reasoning_effort: 'high' as const,
-      budget_tokens: 100000,
-      max_attempts: 3,
-      team_size: 5,
+      reasoning_effort: RESEARCH_DEFAULTS.REASONING_EFFORT,
+      budget_tokens: RESEARCH_DEFAULTS.BUDGET_TOKENS,
+      max_attempts: RESEARCH_DEFAULTS.MAX_ATTEMPTS,
+      team_size: RESEARCH_DEFAULTS.TEAM_SIZE,
       no_direct_answer: true,
-      max_returned_urls: 100,
+      max_returned_urls: RESEARCH_DEFAULTS.MAX_URLS,
     };
 
     // biome-ignore lint/suspicious/noExplicitAny: API params are dynamically constructed from different schemas
