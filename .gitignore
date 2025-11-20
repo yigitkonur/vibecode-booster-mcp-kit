@@ -48,3 +48,8 @@ coverage/
 # Temporary files
 *.tmp
 *.temp
+
+# Cascade/AI assistant files
+cascade_files/
+.cascade/
+.windsurf/

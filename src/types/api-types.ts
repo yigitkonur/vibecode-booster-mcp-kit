@@ -17,9 +17,10 @@ export interface Annotation {
 }
 
 /**
- * Chat completion response from xAI/OpenRouter (OpenAI-compatible)
+ * Chat completion response from OpenRouter (OpenAI-compatible format)
+ * Used by models like xAI Grok and Perplexity Sonar with web search capabilities
  */
-export interface ChatCompletionResponse {
+export interface OpenRouterResponse {
   id: string;
   object: string;
   created: number;
@@ -51,6 +52,3 @@ export interface ChatCompletionResponse {
   };
   system_fingerprint?: string;
 }
-
-// Legacy alias for backward compatibility
-export type JINAResponse = ChatCompletionResponse;

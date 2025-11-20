@@ -19,7 +19,7 @@ export function loadToolsConfig(configPath: string): ToolsConfig {
   try {
     const absolutePath = path.isAbsolute(configPath)
       ? configPath
-      : path.join(process.cwd(), configPath);
+      : path.join(__dirname, '../../', configPath);
 
     const fileContents = fs.readFileSync(absolutePath, 'utf8');
     const config = yaml.load(fileContents) as ToolsConfig;
