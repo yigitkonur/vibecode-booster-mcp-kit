@@ -56,13 +56,6 @@ const mcpServer = new McpServer(
     name: MCP_CONFIG.SERVER_NAME,
     version: MCP_CONFIG.SERVER_VERSION,
     description: MCP_CONFIG.DESCRIPTION,
-    icons: [
-      {
-        src: MCP_CONFIG.ICONS.FAVICON,
-        sizes: '32x32',
-        mimeType: 'image/x-icon',
-      },
-    ],
     license: MCP_CONFIG.LICENSE,
     author: `${MCP_CONFIG.AUTHOR.name} <${MCP_CONFIG.AUTHOR.email}>`,
   },
