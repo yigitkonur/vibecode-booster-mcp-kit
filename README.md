@@ -1,489 +1,834 @@
-# 🔍 Deep Research MCP
+<h3 align="center">vibecode-booster-mcp-kit 🫨</h3>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![CI](https://github.com/yigitkonur/deep-research-bug-fix-mcp/workflows/CI/badge.svg)](https://github.com/yigitkonur/deep-research-bug-fix-mcp/actions)
+<p align="center">
+  <strong>
+    <em>your AI assistant on steroids: web-connected research, smart code planning, instant code review. get unstuck fast and ship code at warp speed</em>
+  </strong>
+  
+  > hit a wall? attach your broken code, get battle-tested solutions from developers who solved this exact problem. keep the vibe going 🔥
+</p>
 
-> **MCP for AI-powered deep research and code validation** 🕵️‍♂️  
-> 4 specialized tools: Bug Fixing, Code Planning, Expert Intelligence, and Task Validation
+<p align="center">
+  <!-- Package Info -->
+  <a href="#"><img alt="npm" src="https://img.shields.io/npm/v/deep-research-bug-fix-mcp.svg?style=flat-square&color=4D87E6"></a>
+  <a href="#"><img alt="node" src="https://img.shields.io/badge/node-18+-4D87E6.svg?style=flat-square"></a>
+  &nbsp;&nbsp;•&nbsp;&nbsp;
+  <!-- Features -->
+  <a href="#"><img alt="license" src="https://img.shields.io/badge/License-MIT-F9A825.svg?style=flat-square"></a>
+  <a href="#"><img alt="mcp compatible" src="https://img.shields.io/badge/MCP-Compatible-2ED573.svg?style=flat-square"></a>
+</p>
 
-## 🤔 What This Is
+<p align="center">
+  <img alt="web connected" src="https://img.shields.io/badge/🌐_web_connected-grok_4.1_with_search-2ED573.svg?style=for-the-badge">
+  <img alt="file attachment optimized" src="https://img.shields.io/badge/📎_smart_attachments-1M+_token_context-2ED573.svg?style=for-the-badge">
+</p>
 
-An MCP server that provides AI-powered web research through OpenRouter, optimized for coding tasks. Uses structured templates to get better context and comprehensive answers for debugging, architecture planning, technical research, and production-ready code validation.
+<div align="center">
+  
+### 🧭 Quick Navigation
 
-**Four Specialized Tools:**
-1. **🐛 Bug Fix Research** - Deep-dive debugging with root cause analysis across Stack Overflow, GitHub issues, and official docs
-2. **🏗️ Code Planning** - Library discovery and architecture recommendations from battle-tested solutions  
-3. **🧠 Expert Intelligence** - Comprehensive multi-perspective research on any topic (technical or non-technical)
-4. **✅ Task Completion Validator** - Carmack-grade forensic code validation with 3-attempt retry logic and comprehensive analysis
+[**⚡ Installation**](#-installation-60-seconds-to-launch) • 
+[**🛠️ The 6 Tools**](#️-the-six-tools-your-problem-solving-arsenal) • 
+[**💡 Why This Rocks**](#-five-reasons-this-kit-slaps) • 
+[**📊 Tool Reference**](#-complete-tool-reference) •
+[**🔧 Configuration**](#-configuration)
 
-**Key Features:**
-- 🔄 **Intelligent Retry Logic** - Task validator automatically retries up to 3 times if JSON parsing fails, falling back to raw markdown on final failure
-- 📋 **Enhanced Input Schemas** - 100x more detailed parameter descriptions with examples and validation criteria
-- 🎯 **Production-Ready Validation** - Mars Rover standards enforcement: error handling, logging, DRY/SOLID compliance
-- 🔍 **Forensic Code Analysis** - Reads actual files from disk, verifies execution proofs, detects deception patterns
-- 📊 **Trust Scoring** - Honesty metric comparing claimed vs actual completion with fraud detection
+</div>
 
-Powered by **OpenRouter** with support for models like:
-- `x-ai/grok-4.1-fast` (recommended - with web search)
-- `google/gemini-2.0-flash` (recommended for task validation)
-- `perplexity/sonar-pro` 
-- Any OpenRouter model supporting `search_parameters`
+---
 
-## 🚀 Installation
+**vibecode-booster-mcp-kit** is your secret weapon when you're stuck. no more context-switching to Stack Overflow, no more reading 50-page library docs, no more guessing if your code's production-ready. your AI gets web search superpowers, reads your actual files (without burning tokens), and gives you honest code reviews before you push.
 
-### Claude Code (Recommended)
+<div align="center">
+<table>
+<tr>
+<td align="center">
+<h3>🌐</h3>
+<b>Web-Connected</b><br/>
+<sub>Grok 4.1 with live search</sub>
+</td>
+<td align="center">
+<h3>📎</h3>
+<b>Smart Attachments Logic</b><br/>
+<sub>Mention files -> appended to user message</sub>
+</td>
+<td align="center">
+<h3>🎯</h3>
+<b>Always Relevant</b><br/>
+<sub>AI focus what matters by context</sub>
+</td>
+</tr>
+</table>
+</div>
 
-```bash
-claude mcp add deep-research --scope user --env OPENROUTER_API_KEY=sk-or-v1-your-api-key -- npx -y deep-research-bug-fix-mcp
+**how it works:**  
+- you're stuck → attach your broken code  
+- AI searches the web for real solutions  
+- get answers based on your actual codebase  
+- ship faster, vibe harder
+
+---
+
+## 💥 why this kit slaps: the vibe coder advantage
+
+stop doing the slow grind. this kit makes your AI assistant **actually useful** when you're stuck:
+
+1. **searches first, answers second** - no more hallucinated solutions  
+2. **reads your code without token waste** - 1M+ context, optimized attachments  
+3. **scrapes what bots can't** - handles JS-rendered sites, saves credits  
+4. **validates before you push** - honest code review catches incomplete work  
+
+<details open>
+<summary><b>⚡ The Vibe Coder Workflow</b></summary>
+
+### traditional way (slow & painful):
+```mermaid
+graph LR
+    A[Hit Bug 🐛]:::problem --> B[Google for 20min]:::slow
+    B --> C[Read 5 SO threads]:::slow
+    C --> D[Try fix, breaks more]:::problem
+    D --> E[Repeat cycle]:::slow
+    E --> F[Finally works]:::success
+    
+    classDef problem fill:#ff6b6b,stroke:#c92a2a,color:#fff
+    classDef slow fill:#ffa94d,stroke:#fd7e14,color:#000
+    classDef success fill:#51cf66,stroke:#2f9e44,color:#fff
 ```
 
-### Windsurf (Full Example)
+### with vibecode-booster (fast & smooth):
+```mermaid
+graph LR
+    A[Hit Bug 🐛]:::problem --> B[Call deepresearch_bugfix<br/>+ attach broken file]:::fast
+    B --> C[AI searches web<br/>reads your code]:::fast
+    C --> D[Get root cause<br/>+ ready-to-paste fix]:::fast
+    D --> E[Apply fix, works]:::success
+    E --> F[Validate with task validator]:::fast
+    F --> G[Push to prod]:::success
+    
+    classDef problem fill:#ff6b6b,stroke:#c92a2a,color:#fff
+    classDef fast fill:#4dabf7,stroke:#339af0,color:#fff
+    classDef success fill:#51cf66,stroke:#2f9e44,color:#fff
+```
 
-Add to `~/.codeium/windsurf/mcp_config.json`:
+**time saved:** 20-30 minutes per stuck moment. that's hours saved per day. 🚀
+
+</details>
+
+---
+
+## 🎯 built for vibe coders
+
+you're in flow. building fast. then you hit a wall:
+- "why is this API returning undefined?"  
+- "which library should I use for X?"  
+- "is my code actually ready to ship?"
+
+**stop context-switching.** these tools keep you in the zone. attach your code, get answers, keep building.
+
+---
+
+## 🛠️ the six tools: your problem-solving arsenal
+
+<div align="center">
+<table>
+<tr>
+<th width="20%">Tool</th>
+<th width="40%">What It Does</th>
+<th width="40%">When To Use</th>
+</tr>
+<tr>
+<td align="center"><b>🐛 Bug Fix<br/>Research</b><br/><code>deepresearch_bugfix</code></td>
+<td>Deep-dive debugging across Stack Overflow, GitHub issues, official docs. Searches for root causes and battle-tested solutions.</td>
+<td>"My code throws X error and I don't know why." Attach broken files, get real fixes from devs who solved this.</td>
+</tr>
+<tr>
+<td align="center"><b>🏗️ Code<br/>Planning</b><br/><code>deepresearch_code_planning</code></td>
+<td>Library discovery and architecture recommendations. Finds high-star repos, proven abstractions, best practices.</td>
+<td>"Before I build X, what libraries exist?" Saves you from reinventing wheels. Gets npm packages, patterns, integrations.</td>
+</tr>
+<tr>
+<td align="center"><b>🧠 Expert<br/>Intelligence</b><br/><code>deepresearch_expert_intelligence</code></td>
+<td>Multi-perspective research on any topic. Expert-level explanations with trade-offs, real-world context, citations.</td>
+<td>"How does WebSockets compare to SSE?" Technical deep-dives, architecture decisions, current best practices.</td>
+</tr>
+<tr>
+<td align="center"><b>✅ Task<br/>Validator</b><br/><code>validate_task_completion</code></td>
+<td>Forensic code review: reads your files, checks error handling, detects stubs, calculates real completion %. Honest feedback.</td>
+<td>"Is my code actually ready?" Pre-push validation. Catches missing error handling, incomplete features, code smells.</td>
+</tr>
+<tr>
+<td align="center"><b>🔗 Web<br/>Scraper</b><br/><code>scrape_links</code></td>
+<td>Scrapes 1-5 URLs with smart fallback (basic→JS→geo). AI extracts relevant content. Handles bot-blocking sites.</td>
+<td>"I need to read this doc site." Pulls clean Markdown from sites that block bots. Optional AI filtering saves tokens.</td>
+</tr>
+<tr>
+<td align="center"><b>🔍 Web<br/>Search</b><br/><code>search_multiple</code></td>
+<td>Batch Google search (up to 100 keywords). Top 10 results per keyword with snippets and URLs. Parallel execution.</td>
+<td>"Let AI research this for me." Makes your agent web-aware. Searches multiple angles, finds current solutions.</td>
+</tr>
+</table>
+</div>
+
+---
+
+## 💡 five reasons this kit slaps
+
+<details open>
+<summary><b>1. 🌐 Web-Connected Problem Solving (Grok 4.1 Goes Brrr)</b></summary>
+
+powered by **xAI Grok 4.1 on OpenRouter** with web search parameters enabled. when you call research tools, Grok doesn't just hallucinate—it **actively searches the web** for current info:
+- official documentation sites
+- GitHub issues & discussions  
+- Stack Overflow accepted answers
+- engineering blogs & postmortems
+
+**file attachment magic:** attach code files to research queries. the MCP reads them from disk and appends content as context—**without streaming entire files as output tokens**. critical optimization: Grok handles 1M+ token contexts, so you get comprehensive answers based on your actual codebase without burning through output budgets.
+
+**why this slaps:** most AI assistants work blind. this makes yours web-aware, finding real solutions from real devs who solved your exact problem.
+
+</details>
+
+<details open>
+<summary><b>2. 🎯 Search-First Philosophy (No More Hallucinations)</b></summary>
+
+the three research tools (`deepresearch_bugfix`, `deepresearch_code_planning`, `deepresearch_expert_intelligence`) all force **search first, synthesize second**.
+
+**why three separate tools instead of one generic research tool?**
+
+| aspect | the reasoning |
+| :--- | :--- |
+| **different templates** | bug fixing needs root cause analysis. code planning needs library comparisons. expert intelligence needs multi-perspective synthesis. each tool has specialized system prompts guiding LLM thinking. |
+| **verbose explanations** | templates enforce detailed answers—not surface-level BS. you get "why this works," trade-offs, and "what experienced devs do." |
+| **file attachment context** | all three read your codebase files (with line ranges). attach package.json, broken component, related files. Grok's 1M+ token window makes this practical. |
+
+**the result:** specific, actionable guidance accounting for your stack, constraints, and existing patterns. not generic "try this lol" advice.
+
+</details>
+
+<details open>
+<summary><b>3. 💸 Scrapedo Integration (Smart Credit Management)</b></summary>
+
+most websites block non-JS visitors or serve incomplete content to bots. kills basic scraping, leaves your agent blind.
+
+**Scrapedo's free tier solves this** with our **3-tier intelligent fallback**:
+
+<div align="center">
+<table>
+<tr>
+<th>Tier</th>
+<th>Cost</th>
+<th>When Used</th>
+<th>Success Rate</th>
+</tr>
+<tr>
+<td><b>1️⃣ Basic Proxy</b></td>
+<td>1 credit/URL</td>
+<td>First attempt, most sites</td>
+<td>~70% of sites</td>
+</tr>
+<tr>
+<td><b>2️⃣ JavaScript Rendering</b></td>
+<td>5 credits/URL</td>
+<td>Dynamic React/Vue sites</td>
+<td>~25% of sites</td>
+</tr>
+<tr>
+<td><b>3️⃣ Geo-Targeting</b></td>
+<td>5 credits/URL</td>
+<td>Region-restricted content</td>
+<td>~5% of sites</td>
+</tr>
+</table>
+</div>
+
+**the smart part:** auto-escalates only when needed. site works with basic? saves 80% of credits. **parallel requests** (up to 5 URLs) + **AI content extraction** with custom instructions = only relevant context, clean Markdown output.
+
+**example:** "extract only API reference for auth endpoints" instead of entire docs site.
+
+**why this slaps:** your agent reads docs sites, GitHub wikis, blog posts, SO threads that normally block bots—without wasting credits or tokens.
+
+</details>
+
+<details open>
+<summary><b>4. 🔍 SERPER Dev Integration (Agent Goes Full Researcher)</b></summary>
+
+the `search_multiple` tool connects your agent to Google Search via SERPER API.
+
+**no black-box BS.** agent creates its own research strategy:
+
+```mermaid
+graph LR
+    A[You: Why is X broken?]:::user --> B[Agent: Search 3 angles]:::search
+    B --> C["nextjs middleware loop"<br/>"next redirect bug"<br/>"middleware infinite redirect"]:::parallel
+    C --> D[Get top 30 results<br/>with snippets + URLs]:::results
+    D --> E[Scrape top 5<br/>most relevant]:::scrape
+    E --> F[Synthesize + cite sources]:::answer
+    F --> G[You: Here's the fix with proof]:::user
+    
+    classDef user fill:#7950f2,stroke:#6741d9,color:#fff
+    classDef search fill:#4dabf7,stroke:#339af0,color:#fff
+    classDef parallel fill:#ffd43b,stroke:#fab005,color:#000
+    classDef results fill:#51cf66,stroke:#2f9e44,color:#fff
+    classDef scrape fill:#ff6b6b,stroke:#c92a2a,color:#fff
+    classDef answer fill:#20c997,stroke:#12b886,color:#fff
+```
+
+**agent's capabilities:**
+- searches up to 100 keywords in parallel
+- gets top 10 results per keyword with snippets
+- follows up with `scrape_links` on promising results
+- synthesizes findings with citations
+
+**why this slaps:** agent isn't hallucinating from training data. it's **actively researching** current solutions to your current problem—just like you would, but 10x faster.
+
+</details>
+
+<details open>
+<summary><b>5. ✅ Task Completion Validator (Your Pre-Push Safety Net)</b></summary>
+
+the `validate_task_completion` tool is your **honest code reviewer** that doesn't play nice.
+
+**how it works:**
+
+<div align="center">
+<table>
+<tr>
+<th width="10%">Step</th>
+<th width="90%">What Happens</th>
+</tr>
+<tr>
+<td align="center"><b>1️⃣</b></td>
+<td>You describe what you built (PRD format with MUST/SHOULD/COULD priorities)</td>
+</tr>
+<tr>
+<td align="center"><b>2️⃣</b></td>
+<td>You claim completion % and list working vs. non-working features (honesty rewarded)</td>
+</tr>
+<tr>
+<td align="center"><b>3️⃣</b></td>
+<td>You attach: source files, test results, error logs, execution proof (curl outputs, test runs)</td>
+</tr>
+<tr>
+<td align="center"><b>4️⃣</b></td>
+<td>Grok performs <b>forensic code analysis</b>: reads actual files from disk, scans for stubs/TODOs/missing error handling, verifies execution proofs, calculates real completion % vs claimed %, generates trust score (0.0-1.0), provides 500+ char fixes for critical issues</td>
+</tr>
+</table>
+</div>
+
+**the feedback loop:**
+- **attempt 1:** initial validation, helpful guidance  
+- **attempt 2:** stern warnings if still broken  
+- **attempt 3:** final ultimatum before merge  
+
+**what it catches:**
+- missing error handling on I/O operations
+- stub functions (pass, NotImplementedError, TODO)
+- code duplication (DRY violations)
+- false claims ("it works" but tests fail)
+- missing logging on critical paths
+
+**why this slaps:** most devs don't catch their own incomplete work until code review or QA. this gives **third-party LLM perspective** before you push. builds tight execution loop: **build → validate → fix → ship**.
+
+no more "works on my machine" surprises. 🚀
+
+</details>
+
+---
+
+## � installation: 60 seconds to launch
+
+### quickest path (npx - zero install)
+
+**windsurf / cline / cursor:**
+
+add to your MCP config (`~/.codeium/windsurf/mcp_config.json` or `~/.cline_mcp_settings.json`):
 
 ```json
 {
   "mcpServers": {
-    "deep-research": {
-      "command": "node",
-      "args": ["/absolute/path/to/deep-research-bug-fix-mcp/dist/index.js"],
-      "disabled": false,
-      "env": {
-        "OPENROUTER_API_KEY": "sk-or-v1-your-api-key",
-        "OPENROUTER_BASE_URL": "https://openrouter.ai/api/v1",
-        "RESEARCH_MODEL": "x-ai/grok-4.1-fast",
-        "API_TIMEOUT_MS": "1800000",
-        "DEFAULT_REASONING_EFFORT": "high",
-        "DEFAULT_MAX_URLS": "30"
-      }
-    }
-  }
-}
-```
-
-### Other MCP Clients
-
-**Cline** (`~/.cline_mcp_settings.json`):
-```json
-{
-  "mcpServers": {
-    "deep-research": {
+    "vibecode-booster": {
       "command": "npx",
       "args": ["-y", "deep-research-bug-fix-mcp"],
       "env": {
-        "OPENROUTER_API_KEY": "sk-or-v1-your-api-key",
-        "RESEARCH_MODEL": "x-ai/grok-4.1-fast"
+        "OPENROUTER_API_KEY": "sk-or-v1-your-api-key"
       }
     }
   }
 }
 ```
 
-**Cursor** (`~/.cursor/mcp.json`): Same JSON as Cline
-
-### Local Development
+**claude desktop:**
 
 ```bash
-git clone https://github.com/yigitkonur/deep-research-bug-fix-mcp.git
-cd deep-research-bug-fix-mcp
+claude mcp add vibecode-booster --scope user \
+  --env OPENROUTER_API_KEY=sk-or-v1-your-key \
+  -- npx -y deep-research-bug-fix-mcp
+```
+
+### local dev setup
+
+```bash
+git clone https://github.com/yigitkonur/vibecode-booster-mcp-kit.git
+cd vibecode-booster-mcp-kit
 npm install
 npm run build
-echo "OPENROUTER_API_KEY=sk-or-v1-your-api-key" > .env
+
+# configure
+cp .env.example .env
+# edit .env with your API keys
+
+# run
 node dist/index.js
 ```
 
-## 🎯 The Template Structure
+### 🔑 get api keys (all have free tiers)
 
-```
-BACKGROUND: [What were you building? What changed?]
-CURRENT ISSUE: [What's broken? Be specific]
-EVIDENCE: [Error messages, logs, versions, code snippets]
-GOAL: [What does success look like?]
-QUESTIONS:
-1. [What's the root cause?]
-2. [How to configure X without breaking Y?]
-3. [What would an experienced dev do?]
-4. [What are alternative approaches?]
-5. [What to debug next?]
-```
+<div align="center">
+<table>
+<tr>
+<th width="20%">Service</th>
+<th width="15%">Required?</th>
+<th width="30%">Free Tier</th>
+<th width="35%">Get It</th>
+</tr>
+<tr>
+<td><b>OpenRouter</b></td>
+<td>✅ <b>Required</b></td>
+<td>Pay-per-use (Grok ~$0.50/1M tokens)</td>
+<td><a href="https://openrouter.ai/keys">openrouter.ai/keys</a></td>
+</tr>
+<tr>
+<td><b>Scrapedo</b></td>
+<td>⚠️ Optional</td>
+<td>1000 credits/month<br/>(1-5 credits per URL)</td>
+<td><a href="https://scrape.do/dashboard">scrape.do/dashboard</a></td>
+</tr>
+<tr>
+<td><b>SERPER</b></td>
+<td>⚠️ Optional</td>
+<td>2500 searches/month</td>
+<td><a href="https://serper.dev/api-key">serper.dev/api-key</a></td>
+</tr>
+<tr>
+<td><b>OpenAI-compatible</b></td>
+<td>⚠️ Optional</td>
+<td>For AI content extraction<br/>(can reuse OpenRouter key)</td>
+<td>Use your OpenRouter key</td>
+</tr>
+</table>
+</div>
 
-## 📋 Example Usage
+> **💡 pro tip:** start with just OpenRouter. add Scrapedo/SERPER later when you need scraping/search.
 
-### TypeScript Build Error
+---
+
+## 🔧 configuration
+
+### ⚡ environment variables
+
+<div align="center">
+<table>
+<tr>
+<th width="25%">Variable</th>
+<th width="10%">Required</th>
+<th width="40%">Description</th>
+<th width="25%">Default</th>
+</tr>
+<tr>
+<td><b>Core Research</b></td>
+<td colspan="3"><i>Required for all research tools</i></td>
+</tr>
+<tr>
+<td><code>OPENROUTER_API_KEY</code></td>
+<td>✅</td>
+<td>Your OpenRouter API key from openrouter.ai/keys</td>
+<td><i>none - must set</i></td>
+</tr>
+<tr>
+<td><code>OPENROUTER_BASE_URL</code></td>
+<td>❌</td>
+<td>OpenRouter API endpoint</td>
+<td><code>https://openrouter.ai/api/v1</code></td>
+</tr>
+<tr>
+<td><code>RESEARCH_MODEL</code></td>
+<td>❌</td>
+<td>Model for research (must support search_parameters)</td>
+<td><code>x-ai/grok-4.1-fast</code></td>
+</tr>
+<tr>
+<td><code>API_TIMEOUT_MS</code></td>
+<td>❌</td>
+<td>Request timeout in milliseconds (30min for deep research)</td>
+<td><code>1800000</code></td>
+</tr>
+<tr>
+<td><code>DEFAULT_REASONING_EFFORT</code></td>
+<td>❌</td>
+<td>Reasoning depth: <code>low</code> / <code>medium</code> / <code>high</code></td>
+<td><code>high</code></td>
+</tr>
+<tr>
+<td><code>DEFAULT_MAX_URLS</code></td>
+<td>❌</td>
+<td>Max web sources to search (Grok caps at 30)</td>
+<td><code>100</code></td>
+</tr>
+<tr>
+<td><b>Web Scraping</b></td>
+<td colspan="3"><i>Optional - for scrape_links tool</i></td>
+</tr>
+<tr>
+<td><code>SCRAPEDO_API_KEY</code></td>
+<td>⚠️</td>
+<td>Scrapedo API key for smart web scraping</td>
+<td><i>tool disabled without key</i></td>
+</tr>
+<tr>
+<td><b>Web Search</b></td>
+<td colspan="3"><i>Optional - for search_multiple tool</i></td>
+</tr>
+<tr>
+<td><code>SERPER_API_KEY</code></td>
+<td>⚠️</td>
+<td>SERPER API key for Google search</td>
+<td><i>tool disabled without key</i></td>
+</tr>
+<tr>
+<td><b>AI Content Extraction</b></td>
+<td colspan="3"><i>Optional - for scrape_links LLM processing</i></td>
+</tr>
+<tr>
+<td><code>OPENAI_API_KEY</code></td>
+<td>⚠️</td>
+<td>OpenAI-compatible API key (can reuse OpenRouter key)</td>
+<td><i>extraction disabled</i></td>
+</tr>
+<tr>
+<td><code>OPENAI_BASE_URL</code></td>
+<td>❌</td>
+<td>API endpoint for content extraction</td>
+<td><code>https://openrouter.ai/api/v1</code></td>
+</tr>
+<tr>
+<td><code>OPENAI_MODEL</code></td>
+<td>❌</td>
+<td>Primary model for extraction</td>
+<td><code>openai/gpt-oss-120b:nitro</code></td>
+</tr>
+<tr>
+<td><code>OPENAI_MODEL_SECONDARY</code></td>
+<td>❌</td>
+<td>Failover model</td>
+<td><code>google/gemini-2.5-flash</code></td>
+</tr>
+<tr>
+<td><code>OPENAI_MODEL_TERTIARY</code></td>
+<td>❌</td>
+<td>Final failover model</td>
+<td><code>openai/gpt-oss-20b:free</code></td>
+</tr>
+<tr>
+<td><code>LLM_ENABLED</code></td>
+<td>❌</td>
+<td>Enable AI content extraction by default</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>LLM_TIMEOUT_MS</code></td>
+<td>❌</td>
+<td>LLM request timeout</td>
+<td><code>300000</code></td>
+</tr>
+<tr>
+<td><code>LLM_MAX_CONCURRENT</code></td>
+<td>❌</td>
+<td>Max parallel LLM requests</td>
+<td><code>5</code></td>
+</tr>
+<tr>
+<td><code>LLM_MAX_RETRIES</code></td>
+<td>❌</td>
+<td>Max retry attempts for LLM</td>
+<td><code>3</code></td>
+</tr>
+<tr>
+<td><b>Debug & System</b></td>
+<td colspan="3"><i>Optional - for development</i></td>
+</tr>
+<tr>
+<td><code>MCP_DEBUG</code></td>
+<td>❌</td>
+<td>Enable debug logging</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>NODE_ENV</code></td>
+<td>❌</td>
+<td>Node environment</td>
+<td><code>production</code></td>
+</tr>
+</table>
+</div>
+
+### 🎯 recommended models
+
+| model | best for | notes |
+| :--- | :--- | :--- |
+| `x-ai/grok-4.1-fast` | ⭐ research tools | fast reasoning + web search (caps at 30 sources) |
+| `google/gemini-2.0-flash` | task validation | good for code analysis |
+| `perplexity/sonar-pro` | research fallback | optimized for deep research |
+
+> **note:** all models must support OpenRouter's `search_parameters` for web connectivity.
+
+---
+
+## � usage examples
+
+### Example 1: Debug a Broken API
 
 ```typescript
-deep_research_question: `
-BACKGROUND: React project was working, updated dependencies, now getting TypeScript errors.
+// You're stuck with this error:
+// "TypeError: Cannot read property 'user' of undefined" in your Next.js API route
 
-CURRENT ISSUE: "Property 'replaceAll' does not exist on type 'string'" - but it should exist.
-
-EVIDENCE:
-- Error: src/utils/formatter.ts(23,34): error TS2339: Property 'replaceAll' does not exist on type 'string'
-- TypeScript: 4.9.5
-- tsconfig target: "ES2020"
-- Node: 18.17.0
-- Code: const cleaned = text.replaceAll(/[^\w\s]/g, '');
-
-GOAL: Fix build for deployment with clean solution.
-
-QUESTIONS:
-1. Why isn't replaceAll recognized in TS 4.9.5?
-2. Should I update TypeScript or change approach?
-3. What's the most reliable string replacement method?
-4. How to prevent this in future?
-5. Any polyfill considerations?
-`
-```
-
-### OAuth Session Issues
-
-```typescript
-deep_research_question: `
-BACKGROUND: Next.js app with GitHub OAuth. Login works on my machine, but users get randomly logged out.
-
-CURRENT ISSUE: Session persistence inconsistent. Happens more on mobile/incognito.
-
-EVIDENCE:
-- next-auth v4.24.5 with GitHub provider
-- Cookies: secure: true, httpOnly: true, sameSite: 'lax'
-- Error: "JWT session token signature verification failed"
-- DevTools shows cookies present but session.user undefined
-- req.nextauth.token randomly null
-
-GOAL: Reliable sessions across all browsers until explicit logout.
-
-QUESTIONS:
-1. Why do JWT signatures fail intermittently?
-2. Best cookie settings for cross-browser compatibility?
-3. How to debug without going crazy?
-4. Alternative session strategies?
-5. Mobile browser specific issues?
-`
-```
-
-## ⚙️ Configuration
-
-### Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `OPENROUTER_API_KEY` | **Required** - Your OpenRouter API key | - |
-| `RESEARCH_MODEL` | Model to use for research | `x-ai/grok-4.1-fast` |
-| `OPENROUTER_BASE_URL` | OpenRouter API base URL | `https://openrouter.ai/api/v1` |
-| `API_TIMEOUT_MS` | Request timeout (30min for deep research) | `1800000` |
-| `DEFAULT_REASONING_EFFORT` | Reasoning depth: low/medium/high | `high` |
-| `DEFAULT_MAX_URLS` | Max web sources (capped at 30 for Grok) | `100` |
-| `MCP_DEBUG` | Enable debug logging | `false` |
-
-### Tool Parameters
-
-**Required:**
-- `deep_research_question` - Structured problem description
-
-**Optional:**
-- `file_attachments` - Array of files to include for context
-  - `path` - File path (absolute or relative)
-  - `start_line` - Optional line range start
-  - `end_line` - Optional line range end  
-  - `description` - What to focus on in this file
-
-### Supported Models
-
-Any OpenRouter model with `search_parameters` support:
-- ✅ `x-ai/grok-4.1-fast` - Fast reasoning + web search (30 sources max)
-- ✅ `perplexity/sonar-pro` - Optimized for research
-- ⚠️ Other models may not support web search features
-
-## 📎 File Attachments
-
-Attach one or more files to provide code context for your research question. Files are read from disk and included with full content, line numbers, and syntax highlighting.
-
-### Usage Patterns
-
-**Single File:**
-```typescript
-file_attachments: [{
-  path: "src/services/payment.ts",
-  description: "Payment service with suspected memory leak"
-}]
-```
-
-**Multiple Files with Line Ranges:**
-```typescript
-file_attachments: [
-  {
-    path: "src/components/DataTable.tsx",
-    start_line: 45,
-    end_line: 120,
-    description: "Component lifecycle methods causing the issue"
-  },
-  {
-    path: "package.json",
-    description: "Dependencies for version checking"
-  }
-]
-```
-
-### Features
-- Automatic language detection and syntax highlighting
-- Smart truncation for large files (>600 lines)
-- Line numbers for easy reference
-- Graceful handling of missing files
-- Files appended as formatted markdown sections
-
-### Best Practices
-- Attach only relevant files to avoid token waste
-- Use line ranges to focus on specific problem areas
-- Include configuration files (package.json, tsconfig.json) when relevant
-- Add descriptions to guide the AI's attention
-- Order files by importance (most relevant first)
-
-### Example with File Attachment
-
-```typescript
-deep_research({
+deepresearch_bugfix({
   deep_research_question: `
-  BACKGROUND: React app with performance issues in data table component
-  CURRENT ISSUE: Memory leak causing browser to slow down after 5 minutes
-  EVIDENCE: Chrome DevTools shows increasing heap size
-  GOAL: Identify and fix memory leak
-  QUESTIONS:
-  1. What's causing the memory leak?
-  2. Which lifecycle hooks need cleanup?
-  3. Are there closure issues?
+    BACKGROUND: Building Next.js 14 API with Prisma and NextAuth
+    
+    CURRENT ISSUE: Getting "Cannot read property 'user' of undefined" 
+    in /api/dashboard route after successful login
+    
+    EVIDENCE:
+    - NextAuth v4.24.5 with GitHub provider
+    - Error occurs at: const userId = req.session.user.id
+    - Session exists in middleware but undefined in API route
+    - Chrome DevTools shows cookies present
+    
+    GOAL: Fix session access in API routes
+    
+    QUESTIONS:
+    1. Why is session undefined in API routes but works in middleware?
+    2. How to properly access session in Next.js 14 app router API?
+    3. Do I need special configuration for API routes?
+    4. What's the correct way to protect API routes with NextAuth?
   `,
   file_attachments: [
     {
-      path: "src/components/DataTable.tsx",
+      path: "app/api/dashboard/route.ts",
       start_line: 1,
-      end_line: 200,
-      description: "Main component with suspected leak"
+      end_line: 30,
+      description: "Broken API route with session error"
     },
     {
-      path: "src/hooks/useDataFetch.ts",
-      description: "Custom hook managing data fetching"
+      path: "middleware.ts",
+      description: "Auth middleware that works correctly"
     }
   ]
 })
+
+// Grok searches web, finds GitHub issues, reads your code, returns:
+// "The issue is Next.js 14 app router changed session handling.
+//  In API routes, use: await getServerSession(authOptions)
+//  Here's the fix with your exact setup..."
 ```
 
-## ✅ Task Completion Validator
-
-The **Carmack-Grade Task Completion Validator** performs forensic code analysis before production deployment, enforcing John Carmack's Mars Rover standards where remote fixes are impossible.
-
-### What It Validates
-
-**Code Quality (Carmack's Commandments):**
-- ✅ **Error Handling is GOD**: Every I/O operation has try-catch with recovery
-- ✅ **Observability is Salvation**: Critical decisions logged with full context
-- ✅ **DRY is Divine Law**: <5% code duplication allowed
-- ✅ **SOLID is Scripture**: Single responsibility, proper abstractions maintained
-- ✅ **Honesty is Mandatory**: Claimed completion matches actual implementation
-
-**Validation Process:**
-1. Reads actual files from disk (no fake file claims)
-2. Scans for stub functions, TODOs, missing error handling
-3. Verifies execution proofs against claimed working features
-4. Calculates actual completion % from implementation
-5. Compares claimed vs actual to generate trust_score (0.0-1.0)
-6. Detects deception patterns and fraud indicators
-7. Provides complete fixes (500+ char code solutions)
-
-### Intelligent Retry System
-
-**3-Attempt Retry Logic:**
-- Attempt 1: Initial validation with helpful guidance
-- Attempt 2: Retry if JSON parsing fails or schema mismatch
-- Attempt 3: Final attempt with stern warnings
-- Fallback: Returns raw markdown if all 3 attempts fail (graceful degradation)
-
-### Required Parameters
+### Example 2: Plan a New Feature
 
 ```typescript
-{
-  original_request: "Complete PRD-format requirements (hierarchical, with MUST/SHOULD/COULD priorities)",
-  claimed_percentage: 85, // Your honest assessment (0-100)
-  completion_claim: "Detailed evidence: what's implemented, tested, working vs broken",
-  working_features: ["Login with JWT", "Logout with session cleanup"] // Only list fully working features
-}
+// You need to add real-time notifications to your app
+
+deepresearch_code_planning({
+  deep_research_question: `
+    BUILDING: Real-time notification system for Next.js SaaS app
+    
+    STACK:
+    - Next.js 14 app router
+    - PostgreSQL with Prisma
+    - Deployed on Vercel
+    - 500 users expected
+    
+    OUTCOME: Implement push notifications when users receive messages
+    Must work on web and mobile browsers
+    Must NOT require WebSocket server (Vercel limitations)
+    
+    RESEARCH FOCUS:
+    - Find: Production-grade libraries with 5k+ stars
+    - Prefer: Server-Sent Events or Vercel-compatible solutions
+    - Avoid: WebSocket solutions requiring persistent connections
+    
+    QUESTIONS:
+    1. Best library for SSE-based notifications in Next.js 14?
+    2. How do production apps handle this on Vercel?
+    3. Trade-offs: SSE vs polling vs push API?
+    4. How to integrate with Prisma for database triggers?
+  `,
+  file_attachments: [
+    {
+      path: "package.json",
+      description: "Current dependencies"
+    },
+    {
+      path: "app/api/messages/route.ts",
+      description: "Message creation endpoint"
+    }
+  ]
+})
+
+// Grok searches for SSE libraries, finds sse.js, examines your stack,
+// returns complete implementation guide with code examples
 ```
 
-### Optional But Recommended
-
-```typescript
-{
-  non_working_features: ["Password reset", "Email verification"], // Honesty improves trust_score
-  full_file_content_files: [
-    { path: "src/auth.ts", description: "Authentication logic" },
-    { path: "tests/auth.test.ts", description: "Unit tests" }
-  ],
-  execution_proof: "$ npm test\n✓ All tests passed\n$ curl /api/login\n{token: 'eyJ...'}",
-  error_logs: "2024-11-20 ERROR: Connection timeout at db.ts:45", // Transparency valued
-  attempt_number: 1 // Increment on resubmission
-}
-```
-
-### Output Structure
-
-**Core Verdict:**
-- `ship_it`: boolean (true = production ready, false = needs work)
-- `severity`: COMPLETE | MINOR_INCOMPLETE | MODERATE_INCOMPLETE | MAJOR_INCOMPLETE | CRITICAL_INCOMPLETE | FRAUD_DETECTED
-- `actual_percentage`: Calculated from code analysis (0-100)
-- `trust_score`: Honesty metric (1.0=perfect, 0.0=fraud)
-
-**Detailed Analysis:**
-- `critical_issues`: Blocking problems with complete 500+ char fixes
-- `working_features_validated`: Claimed vs actually working with false claims identified
-- `code_quality_analysis`: Error handling, logging, DRY/SOLID assessment  
-- `next_priority_fix`: #1 most critical issue with ready-to-paste solution
-- `detailed_report`: 1000+ char comprehensive narrative
-
-**Carmack Metrics:**
-- `error_handling_score`: % of I/O operations with proper error handling (0-100)
-- `logging_score`: % of critical points with logging (0-100)
-- `dry_compliance`: boolean (code duplication check)
-- `solid_compliance`: boolean (architecture principles check)
-
-### Example Usage
+### Example 3: Validate Before Pushing
 
 ```typescript
 validate_task_completion({
   original_request: `
     1. User Authentication System
-       1.1 Login with email/password (MUST have: validation, hashing, sessions, rate limiting)
-       1.2 Logout (MUST have: session cleanup, token invalidation)
-       1.3 Password reset (SHOULD have: email verification, token expiry)
+       1.1 Login with email/password (MUST: validation, bcrypt, JWT, rate limiting)
+       1.2 Logout (MUST: session cleanup, token invalidation)
+       1.3 Password reset (SHOULD: email verification, token expiry)
     2. Dashboard
-       2.1 Display user statistics (MUST have: real-time data, error states)
+       2.1 User stats display (MUST: real-time data, loading states)
   `,
-  claimed_percentage: 80,
+  
+  claimed_percentage: 75,
+  
   completion_claim: `
-    Implemented login (auth.ts:45-120) with bcrypt hashing and JWT generation.
-    Tested successfully - see execution_proof.
-    Logout works (auth.ts:125-145) with session cleanup.
-    Password reset partially done - email works but token expiry missing.
-    Dashboard displays stats but no error handling yet.
+    Implemented login at auth.ts:45-120 with bcrypt and JWT.
+    Tested successfully with curl - returns valid token.
+    Logout works - session cleanup implemented.
+    Password reset email sending works but token expiry NOT done yet.
+    Dashboard shows stats but missing error handling.
   `,
+  
   working_features: [
-    "Login with email validation and JWT",
+    "Login with email validation and JWT generation",
     "Logout with session invalidation"
   ],
+  
   non_working_features: [
     "Password reset token expiry",
-    "Dashboard error handling"
+    "Dashboard error handling",
+    "Rate limiting on login endpoint"
   ],
+  
   full_file_content_files: [
-    { path: "src/auth.ts", description: "Core authentication" },
-    { path: "src/dashboard.ts", description: "Dashboard component" }
+    { path: "src/auth.ts", description: "Authentication logic" },
+    { path: "src/dashboard.tsx", description: "Dashboard component" }
   ],
+  
   execution_proof: `
     $ npm test
-    ✓ Login test passed (auth generates JWT)
-    ✓ Logout test passed (session cleared)
+    ✓ Login test passed
+    ✓ Logout test passed
     ✗ Password reset test failed (token doesn't expire)
     
-    $ curl -X POST /api/login
+    $ curl -X POST http://localhost:3000/api/login
     {"status": 200, "token": "eyJhbGc..."}
   `,
+  
   error_logs: `
-    2024-11-20 10:30:15 ERROR: Unhandled promise rejection
-      at dashboard.ts:67
+    2024-11-20 10:30 ERROR: Unhandled promise rejection
+      at dashboard.tsx:67
       TypeError: Cannot read property 'stats' of undefined
   `
 })
+
+// Grok reads your files, validates claims, returns:
+// - Actual completion: 60% (not 75%)
+// - Trust score: 0.8 (honest about what's broken)
+// - Critical issues with complete fixes
+// - Priority #1: Add try-catch in dashboard.tsx line 67
 ```
 
-### Trust Score Calculation
+---
 
-```
-Start at 1.0
-If claimed > actual by:
-  >30% → ×0.2 (severe dishonesty)
-  20-30% → ×0.4 (major exaggeration)  
-  10-20% → ×0.6 (significant exaggeration)
-  5-10% → ×0.8 (minor exaggeration)
+## 💡 pro tips
 
-Additional penalties:
-- Stub functions in working_features: ×0.5
-- Unhandled errors while claiming working: ×0.6
-- Missing error handling: ×0.5
-- False test claims: ×0.7
+<div align="center">
+<table>
+<tr>
+<th width="30%">Tip</th>
+<th width="70%">Why It Matters</th>
+</tr>
+<tr>
+<td><b>1️⃣ Attach Files Liberally</b></td>
+<td>Grok handles 1M+ tokens. attach package.json, tsconfig, broken files, related components. more context = better answers.</td>
+</tr>
+<tr>
+<td><b>2️⃣ Be Specific</b></td>
+<td>instead of "fix my code," use "nextjs middleware redirect loop with matcher patterns." specificity gets you targeted solutions.</td>
+</tr>
+<tr>
+<td><b>3️⃣ Iterate with Validator</b></td>
+<td>don't wait until "done." run validation early, fix critical issues, re-validate. each cycle improves code quality.</td>
+</tr>
+<tr>
+<td><b>4️⃣ Combine Tools</b></td>
+<td>search with <code>search_multiple</code> → scrape with <code>scrape_links</code> → validate with <code>validate_task_completion</code>. full workflow.</td>
+</tr>
+<tr>
+<td><b>5️⃣ Save Credits</b></td>
+<td>most sites work with basic mode (1 credit). only upgrade to JS rendering (5 credits) if you see errors or incomplete content.</td>
+</tr>
+</table>
+</div>
 
-Score interpretation:
-≥0.8 = Honest professional
-0.6-0.8 = Minor exaggeration
-0.4-0.6 = Significant honesty issues
-<0.4 = Deceptive or incompetent
-```
+---
 
-### Deception Detection
-
-The validator identifies these red flags:
-- `FAKE_FILES`: Non-existent files listed
-- `STUB_CODE`: NotImplementedError/pass functions in "working" features
-- `FALSE_WORKING_CLAIMS`: Features claimed as working but execution shows failures
-- `NO_ERROR_HANDLING`: I/O operations without try-catch
-- `INFLATED_NUMBERS`: >20% discrepancy between claimed and actual
-- `EXECUTION_CONTRADICTS_CLAIMS`: Proof shows failures for claimed working features
-
-### Mars Rover Test
-
-**The Core Question:** "Would this code survive on Mars where remote fixes are impossible?"
-
-If NO → `ship_it: false` with specific fixes required
-
-## 🔄 How It Works
-
-```
-Problem → Structured Template → OpenRouter Web Search → AI Analysis → Detailed Solution
-```
-
-**The template structure ensures:**
-1. Complete context for accurate research
-2. Specific problem definition
-3. All relevant technical details included
-4. Clear success criteria
-
-**OpenRouter handles:**
-- Real-time web search across 30+ sources
-- Citation tracking and verification
-- Deep reasoning with extended context
-
-## 🛠️ Development
+## 🏗️ Development
 
 ```bash
-git clone https://github.com/yigitkonur/deep-research-bug-fix-mcp.git
-cd deep-research-bug-fix-mcp
+git clone https://github.com/yigitkonur/vibecode-booster-mcp-kit.git
+cd vibecode-booster-mcp-kit
 npm install
-npm run build     # Build TypeScript → dist/
-npm run dev       # Watch mode
-npm run lint      # Check code quality
-npm run format    # Format with Biome
+npm run build
+
+# Configure
+cp .env.example .env
+# Edit .env with your API keys
+
+# Run
+node dist/index.js
 ```
 
-### Testing
+### Build Commands
 
 ```bash
-# Test initialization
-echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}' | node dist/index.js
-
-# List available tools
-echo '{"jsonrpc":"2.0","id":2,"method":"tools/list"}' | node dist/index.js
-
-# Test a research query
-echo '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"deepresearch_bugfix","arguments":{"deep_research_question":"Test question"}}}' | node dist/index.js
+npm run build      # Compile TypeScript → dist/
+npm run dev        # Watch mode for development
+npm run lint       # Check code quality
+npm run format     # Format with Biome
 ```
+
+---
 
 ## 📝 License
 
 MIT © [Yiğit Konur](https://github.com/yigitkonur)
 
+---
+
 ## 🤝 Contributing
 
-Contributions welcome! Please open an issue or PR.
+Contributions welcome! Open an issue or PR.
 
-## 🔗 Links
+**Ideas for contribution:**
+- Add more research tool templates
+- Improve scraping fallback logic
+- Expand task validator ruleset
+- Add support for more LLM providers
 
-- [OpenRouter Documentation](https://openrouter.ai/docs)
+---
+
+## 🔗 Resources
+
+- [OpenRouter Docs](https://openrouter.ai/docs)
 - [MCP Protocol Spec](https://modelcontextprotocol.io/)
-- [Report Issues](https://github.com/yigitkonur/deep-research-bug-fix-mcp/issues)
+- [Scrapedo API](https://scrape.do/docs)
+- [SERPER API](https://serper.dev/docs)
+- [Report Issues](https://github.com/yigitkonur/vibecode-booster-mcp-kit/issues)
+
+---
+
+**Built with ❤️ for developers who vibe with velocity**

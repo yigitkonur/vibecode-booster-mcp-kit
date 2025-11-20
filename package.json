@@ -1,18 +1,18 @@
 {
-  "name": "deep-research-bug-fix-mcp",
+  "name": "vibecode-booster-mcp-kit",
   "version": "2.0.1",
-  "description": "MCP for deep-dive bug research - structured template approach for better debugging context with LLMs",
+  "description": "Web-connected MCP toolkit for vibe coders: research tools, smart code planning, instant code review. Get unstuck fast and ship code at warp speed.",
   "main": "dist/index.js",
   "bin": {
-    "deep-research-bug-fix-mcp": "dist/index.js"
+    "vibecode-booster-mcp-kit": "dist/index.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yigitkonur/deep-research-bug-fix-mcp.git"
+    "url": "https://github.com/yigitkonur/vibecode-booster-mcp-kit.git"
   },
-  "homepage": "https://github.com/yigitkonur/deep-research-bug-fix-mcp#readme",
+  "homepage": "https://github.com/yigitkonur/vibecode-booster-mcp-kit#readme",
   "bugs": {
-    "url": "https://github.com/yigitkonur/deep-research-bug-fix-mcp/issues"
+    "url": "https://github.com/yigitkonur/vibecode-booster-mcp-kit/issues"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -36,16 +36,19 @@
   },
   "keywords": [
     "mcp",
-    "debug",
-    "research",
-    "bug-fix",
+    "vibecode",
+    "web-connected-ai",
+    "code-planning",
+    "bug-fix-research",
     "claude-code",
     "model-context-protocol",
-    "deep-research",
-    "debugging",
+    "grok-4.1",
+    "task-validator",
+    "code-review",
+    "smart-scraping",
     "llm-tools",
     "ai-agent",
-    "structured-debugging",
+    "web-search",
     "development-tools"
   ],
   "author": "Yiğit Konur <yigit35@gmail.com>",
