@@ -41,13 +41,38 @@ export async function performBugfixResearch(
       enhancedQuestion = params.deep_research_question + attachmentsMarkdown;
     }
 
-    // Append compression instruction for optimal token usage with strict output limits
-    enhancedQuestion +=
-      '\n\nResearch exhaustively across max sources/URLs, then synthesize into ultra-compressed output: use abbreviated nested bullets, strip all filler words, maximize info density per token—spend heavily on input, minimize output tokens. Research max budget is 100,000 words, but research output max budget (the final answer you will return) is ideally less than 1,000 words but for same rare cases it can be up to 2000 words at MAX. (not including code examples)';
+    // Bug fix system prompt - guides deep root cause analysis
+    const systemPrompt = `You are an expert debugging assistant with unlimited reasoning capacity. Your task is to perform EXHAUSTIVE research to identify root causes and proven solutions.
+
+RESEARCH METHODOLOGY:
+1. THINK STEP-BY-STEP: Break down the error/bug systematically - what could cause each symptom?
+2. SEARCH STRATEGICALLY: Prioritize official documentation, GitHub issues, Stack Overflow accepted answers, and engineering blogs
+3. ANALYZE ERROR MESSAGES: Search exact error text, examine stack traces line-by-line, identify the failing component
+4. VERIFY SOLUTIONS: Only recommend fixes with evidence (GitHub commits, official docs, or multiple confirmed reports)
+5. CONSIDER CONTEXT: If code files are attached, reference specific line numbers and patterns you observe
+6. CHECK VERSIONS: Version mismatches cause 80% of "it should work" bugs - verify compatibility
+7. EXPLORE EDGE CASES: Consider environment differences, timing issues, race conditions, and async problems
+
+You have UNLIMITED THINKING TOKENS - use them to reason deeply about:
+- Why this specific error occurs in this specific context
+- What the stack trace reveals about execution flow
+- How the attached code interacts with dependencies
+- What changed that could have triggered this
+- Similar issues others have solved and how
+
+FINAL ANSWER FORMAT (high info density, comprehensive but concise):
+- Root Cause: [Specific technical reason - be precise]
+- Solution: [Step-by-step fix with exact commands/code]
+- Why It Works: [Brief technical explanation]
+- Prevention: [How to avoid this in future]
+- Related Issues: [Similar problems and their solutions]
+
+Max 2000 words final answer (excluding code blocks). Every sentence must add value. Use bullet points, code examples, and clear structure. NO filler, NO obvious statements, NO repeating the question back.`;
 
     // Set configuration defaults
     const apiParams = {
       deep_research_question: enhancedQuestion,
+      system_prompt: systemPrompt,
       reasoning_effort: RESEARCH_DEFAULTS.REASONING_EFFORT,
       budget_tokens: RESEARCH_DEFAULTS.BUDGET_TOKENS,
       max_attempts: RESEARCH_DEFAULTS.MAX_ATTEMPTS,

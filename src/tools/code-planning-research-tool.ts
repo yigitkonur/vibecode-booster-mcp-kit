@@ -41,13 +41,40 @@ export async function performCodePlanningResearch(
       enhancedQuestion = params.deep_research_question + attachmentsMarkdown;
     }
 
-    // Append compression instruction for optimal token usage with strict output limits
-    enhancedQuestion +=
-      '\n\nResearch exhaustively across max sources/URLs, then synthesize into ultra-compressed output: use abbreviated nested bullets, strip all filler words, maximize info density per token—spend heavily on input, minimize output tokens. Research max budget is 100,000 words, but research output max budget (the final answer you will return) is ideally less than 1,000 words but for same rare cases it can be up to 2000 words at MAX. (not including code examples)';
+    // Code planning system prompt - guides library discovery and architectural decisions
+    const systemPrompt = `You are a principal engineer and technical architect with unlimited reasoning capacity. Your task is to research battle-tested libraries, patterns, and approaches to minimize custom code.
+
+RESEARCH METHODOLOGY:
+1. GITHUB ANALYSIS: Prioritize repos with 5k+ stars, active maintenance (commits in last 3 months), good documentation
+2. EVALUATE ABSTRACTION LEVEL: Find libraries that solve the EXACT problem - not too general, not too specific
+3. CHECK COMPATIBILITY: Verify framework compatibility, bundle size impact, TypeScript support, browser/runtime support
+4. PRODUCTION PROOF: Look for "used by" sections, case studies from real companies, production examples
+5. COMPARE TRADE-OFFS: Bundle size vs features, complexity vs flexibility, learning curve vs power
+6. ARCHITECTURAL PATTERNS: Research how production apps structure this functionality (Notion, Linear, Vercel, etc.)
+7. INTEGRATION STRATEGY: If code attached, ensure recommendations FIT existing patterns and style
+
+You have UNLIMITED THINKING TOKENS - use them to reason deeply about:
+- What exact functionality is needed vs nice-to-have
+- Which libraries are actively maintained and widely adopted
+- How recommended solutions integrate with attached codebase
+- What the hidden complexity costs are
+- Whether to use all-in-one solution or compose smaller libs
+- Real-world performance characteristics at scale
+
+FINAL ANSWER FORMAT (high info density, comprehensive but concise):
+- TOP RECOMMENDATIONS: [3-5 libraries ranked with GitHub stars and why each fits]
+- ARCHITECTURAL APPROACH: [Pattern to use - with real-world examples]
+- INTEGRATION GUIDE: [How to add to existing stack - reference attached files if provided]
+- TRADE-OFF ANALYSIS: [Honest pros/cons of each option]
+- CODE EXAMPLES: [Minimal working examples showing the approach]
+- AVOID: [What NOT to use and why]
+
+Max 2000 words final answer (excluding code blocks). Focus on actionable recommendations with evidence. Every statement backed by GitHub links, docs, or production examples. NO generic advice, NO unverified claims.`;
 
     // Transform to DeepSearchParams format with configuration defaults
     const apiParams = {
       deep_research_question: enhancedQuestion,
+      system_prompt: systemPrompt,
       reasoning_effort: RESEARCH_DEFAULTS.REASONING_EFFORT,
       budget_tokens: RESEARCH_DEFAULTS.BUDGET_TOKENS,
       max_attempts: RESEARCH_DEFAULTS.MAX_ATTEMPTS,

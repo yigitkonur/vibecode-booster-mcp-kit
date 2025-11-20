@@ -149,43 +149,16 @@ export const bugfixResearchOutputShape = {
     .object({
       prompt_tokens: z.number().int().describe('Tokens in input question'),
       completion_tokens: z.number().int().describe('Tokens in generated answer'),
-      total_tokens: z
-        .number()
-        .int()
-        .describe('Total tokens consumed (input + searches + reasoning + output). Used for billing.'),
+      total_tokens: z.number().int().describe('Total tokens (input + output + reasoning)'),
+      completion_tokens_details: z
+        .object({
+          reasoning_tokens: z.number().int().optional().describe('Tokens used for reasoning'),
+        })
+        .optional()
+        .describe('Detailed completion token breakdown'),
     })
     .optional()
     .describe('Token usage statistics'),
-  sources: z
-    .object({
-      visited_urls: z
-        .array(z.string())
-        .describe('All URLs considered during search'),
-      read_urls: z
-        .array(z.string())
-        .describe('URLs actually read to construct answer'),
-      total_sources: z
-        .number()
-        .int()
-        .describe('Total unique URLs found before filtering'),
-    })
-    .optional()
-    .describe('Web sources consulted'),
-  research_quality: z
-    .object({
-      reasoning_effort: z
-        .enum(['low', 'medium', 'high'])
-        .describe('Reasoning effort level used'),
-      team_size: z.number().int().describe('Number of parallel agents used'),
-      confidence_score: z
-        .number()
-        .min(0)
-        .max(1)
-        .optional()
-        .describe("Agent's confidence in answer quality (0-1)"),
-    })
-    .optional()
-    .describe('Research quality metrics'),
 };
 
 export const bugfixResearchOutputSchema = z.object(bugfixResearchOutputShape);
