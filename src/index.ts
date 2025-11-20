@@ -27,9 +27,21 @@ import {
   taskCompletionValidatorParamsSchema,
   taskCompletionValidatorParamsShape,
 } from './schemas/task-completion-validator';
+import {
+  scrapeLinksParamsSchema,
+  scrapeLinksParamsShape,
+  scrapeLinksOutputShape,
+} from './schemas/scrape-links';
+import {
+  searchMultipleParamsSchema,
+  searchMultipleParamsShape,
+  searchMultipleOutputShape,
+} from './schemas/search-multiple';
 import { performBugfixResearch } from './tools/bugfix-research-tool';
 import { performCodePlanningResearch } from './tools/code-planning-research-tool';
 import { performExpertIntelligenceResearch } from './tools/expert-intelligence-tool';
+import { performScrapeLinks } from './tools/scrape-links-tool';
+import { performSearchMultiple } from './tools/search-multiple-tool';
 import { performTaskCompletionValidation } from './tools/task-completion-validator-tool';
 import { API_CONFIG, MCP_CONFIG } from './utils/constants';
 import { createSimpleError } from './utils/errors';
@@ -402,6 +414,118 @@ mcpServer.registerTool(
           error: true,
           code: simpleError.code,
           message: simpleError.message,
+        },
+        isError: true,
+      };
+    }
+  }
+);
+
+// Register scrape_links tool
+const scrapeLinksTool = getToolDefinition(toolsConfig, 'scrape_links');
+if (!scrapeLinksTool) {
+  throw new Error('scrape_links tool definition not found in YAML config');
+}
+
+mcpServer.registerTool(
+  scrapeLinksTool.name,
+  {
+    title: scrapeLinksTool.title,
+    description: scrapeLinksTool.description,
+    inputSchema: scrapeLinksParamsShape as any,
+    outputSchema: scrapeLinksOutputShape as any,
+  },
+  async (args, extra) => {
+    try {
+      const validatedParams = scrapeLinksParamsSchema.parse(args);
+
+      const logger = async (
+        level: 'info' | 'error' | 'debug',
+        message: string,
+        sessionId: string
+      ) => {
+        await mcpServer.server.sendLoggingMessage({ level, data: message }, sessionId);
+      };
+
+      const sessionId = extra?.sessionId || 'default';
+      const { content, structuredContent } = await performScrapeLinks(validatedParams, {
+        sessionId,
+        logger,
+      });
+
+      return {
+        content: [{ type: 'text' as const, text: content }],
+        structuredContent,
+      };
+    } catch (error) {
+      const simpleError = createSimpleError(error);
+
+      return {
+        content: [{ type: 'text' as const, text: `Error: ${simpleError.message}` }],
+        structuredContent: {
+          content: `Error: ${simpleError.message}`,
+          metadata: {
+            total_urls: 0,
+            successful: 0,
+            failed: 0,
+            total_credits: 0,
+            execution_time_ms: 0,
+          },
+        },
+        isError: true,
+      };
+    }
+  }
+);
+
+// Register search_multiple tool
+const searchMultipleTool = getToolDefinition(toolsConfig, 'search_multiple');
+if (!searchMultipleTool) {
+  throw new Error('search_multiple tool definition not found in YAML config');
+}
+
+mcpServer.registerTool(
+  searchMultipleTool.name,
+  {
+    title: searchMultipleTool.title,
+    description: searchMultipleTool.description,
+    inputSchema: searchMultipleParamsShape as any,
+    outputSchema: searchMultipleOutputShape as any,
+  },
+  async (args, extra) => {
+    try {
+      const validatedParams = searchMultipleParamsSchema.parse(args);
+
+      const logger = async (
+        level: 'info' | 'error' | 'debug',
+        message: string,
+        sessionId: string
+      ) => {
+        await mcpServer.server.sendLoggingMessage({ level, data: message }, sessionId);
+      };
+
+      const sessionId = extra?.sessionId || 'default';
+      const { content, structuredContent } = await performSearchMultiple(validatedParams, {
+        sessionId,
+        logger,
+      });
+
+      return {
+        content: [{ type: 'text' as const, text: content }],
+        structuredContent,
+      };
+    } catch (error) {
+      const simpleError = createSimpleError(error);
+
+      return {
+        content: [{ type: 'text' as const, text: `Error: ${simpleError.message}` }],
+        structuredContent: {
+          content: `Error: ${simpleError.message}`,
+          metadata: {
+            total_keywords: 0,
+            total_results: 0,
+            execution_time_ms: 0,
+          },
         },
         isError: true,
       };

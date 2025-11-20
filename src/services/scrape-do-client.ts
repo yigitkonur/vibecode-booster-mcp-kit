@@ -2,10 +2,10 @@ import { parseEnvironmentVariables } from '../utils/env-config';
 
 export interface ScrapeDoRequest {
   url: string;
-  mode?: 'basic' | 'premium' | 'javascript';
-  timeout?: number;
-  country?: string;
-  waitFor?: number;
+  mode: 'basic' | 'premium' | 'javascript' | undefined;
+  timeout: number | undefined;
+  country: string | undefined;
+  waitFor: number | undefined;
 }
 
 export interface ScrapeDoResponse {

@@ -32,6 +32,33 @@ tools:
       
       **USE:** Aggressively when you think "I'm not 100% confident," "is my understanding current?", "what are the trade-offs?", or when evaluating technologies, learning complex systems, understanding best practices, or researching any domain knowledge (technical or business) that doesn't fit the other two tools.
 
+  - name: scrape_links
+    title: Universal URL Content Scraper
+    description: |
+      **Universal URL content extraction tool** with batch processing (1-5 URLs), intelligent fallback modes, and optional AI-powered content extraction. This is your primary tool for any web scraping task.
+      
+      **MODES:**
+      - **basic** (default): Fast datacenter proxies for static content (1 credit/URL)
+      - **javascript**: Headless browser for SPAs and dynamic sites (5 credits/URL)  
+      - **premium**: Residential proxies for geo-targeting and anti-bot bypass (10 credits/URL)
+      
+      **AI EXTRACTION:** Set `use_llm=true` (default) with optional `what_to_extract` instructions to intelligently filter and clean content.
+      
+      **USE:** After web searches to extract content from discovered URLs. Batch up to 5 URLs per call. Start with basic mode, upgrade to javascript for React/Vue/Angular sites, use premium only for geo-restricted content.
+
+  - name: search_multiple
+    title: Batch Web Search
+    description: |
+      **Batch web search** using Google via SERPER API. Search up to 100 keywords in parallel, get top 10 results per keyword with snippets, links, and related searches.
+      
+      **FEATURES:**
+      - Supports Google search operators (site:, -exclusion, "exact phrase", filetype:)
+      - Returns clickable markdown links with snippets
+      - Provides related search suggestions
+      - Identifies frequently appearing URLs across queries
+      
+      **USE:** For research tasks requiring multiple perspectives. Use distinct keywords to maximize coverage. Follow up with `scrape_links` to extract full content from promising URLs.
+
   - name: validate_task_completion
     title: Carmack-Grade Task Completion Validator
     description: |

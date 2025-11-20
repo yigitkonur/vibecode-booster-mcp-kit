@@ -3,7 +3,7 @@ import { createLLMConfigsFromEnvironment, isLLMAvailable } from '../utils/llm-co
 
 export interface ProcessingConfig {
   use_llm: boolean;
-  what_to_extract?: string;
+  what_to_extract: string | undefined;
 }
 
 export interface LLMResult {
