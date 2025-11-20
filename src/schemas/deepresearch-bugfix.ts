@@ -149,7 +149,7 @@ export const bugfixResearchOutputShape = {
   metadata: z
     .object({
       id: z.string().describe('A unique identifier for this specific research task.'),
-      model: z.string().describe('The Jina AI model used for the research process.'),
+      model: z.string().describe('The AI model used for the research process.'),
       created: z.number().describe('The Unix timestamp of when the research task was initiated.'),
       finish_reason: z
         .string()

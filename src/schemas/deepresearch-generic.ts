@@ -179,7 +179,7 @@ export const genericResearchOutputShape = {
   metadata: z
     .object({
       id: z.string().describe('Unique identifier for this research task.'),
-      model: z.string().describe('The Jina AI model used for research.'),
+      model: z.string().describe('The AI model used for research.'),
       created: z.number().describe('Unix timestamp of when research was initiated.'),
       finish_reason: z
         .string()
