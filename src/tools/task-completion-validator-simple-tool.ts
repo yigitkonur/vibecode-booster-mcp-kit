@@ -57,83 +57,127 @@ export async function performSimpleTaskValidation(
       attempt_number: params.attempt_number,
     });
 
-    if (sessionId && logger) {
-      await logger('info', 'Sending validation request to LLM', sessionId);
-    }
-
-    // Make API request with JSON mode
-    const response = await makeApiRequest({
-      deep_research_question: userPrompt,
-      system_prompt: SIMPLE_VALIDATION_SYSTEM_PROMPT,
-      response_format: { type: 'json_object' },
-      temperature: 0.3,
-      reasoning_effort: 'high',
-      max_returned_urls: 0, // No web search needed for code validation
-    });
-
-    if (sessionId && logger) {
-      await logger('info', 'Received validation response', sessionId);
-    }
-
-    // Extract and parse JSON
-    const rawContent = response.choices?.[0]?.message?.content || '{}';
-    const extractedJson = extractJson(rawContent);
+    // Retry logic: Try up to 3 times to get valid JSON
+    const maxAttempts = 3;
+    let lastRawContent = '';
     
-    let parsedJson: any;
-    try {
-      parsedJson = JSON.parse(extractedJson);
-    } catch (parseError) {
-      if (sessionId && logger) {
-        await logger('error', `JSON parse error: ${parseError}`, sessionId);
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        if (sessionId && logger) {
+          await logger('info', `Sending validation request to LLM (attempt ${attempt}/${maxAttempts})`, sessionId);
+        }
+
+        // Make API request with JSON mode
+        const response = await makeApiRequest({
+          deep_research_question: userPrompt,
+          system_prompt: SIMPLE_VALIDATION_SYSTEM_PROMPT,
+          response_format: { type: 'json_object' },
+          temperature: 0.3,
+          reasoning_effort: 'high',
+          max_returned_urls: 0, // No web search needed for code validation
+        });
+
+        if (sessionId && logger) {
+          await logger('info', `Received validation response (attempt ${attempt}/${maxAttempts})`, sessionId);
+        }
+
+        // Extract and parse JSON
+        const rawContent = response.choices?.[0]?.message?.content || '{}';
+        lastRawContent = rawContent;
+        const extractedJson = extractJson(rawContent);
+        
+        let parsedJson: any;
+        try {
+          parsedJson = JSON.parse(extractedJson);
+        } catch (parseError) {
+          if (sessionId && logger) {
+            await logger('error', `JSON parse error on attempt ${attempt}: ${parseError}`, sessionId);
+          }
+          
+          // If not last attempt, continue to retry
+          if (attempt < maxAttempts) {
+            continue;
+          }
+          
+          // Last attempt failed - return raw response as markdown
+          return {
+            content: lastRawContent,
+            structuredContent: {
+              error: true,
+              message: 'Failed to parse JSON after 3 attempts, returning raw response',
+              raw_response: lastRawContent,
+              attempts: maxAttempts,
+            },
+          };
+        }
+
+        // Validate against schema
+        const validationResult = simpleValidatorOutputSchema.safeParse(parsedJson);
+        
+        if (!validationResult.success) {
+          if (sessionId && logger) {
+            await logger('error', `Schema validation failed on attempt ${attempt}: ${validationResult.error.message}`, sessionId);
+          }
+          
+          // If not last attempt, continue to retry
+          if (attempt < maxAttempts) {
+            continue;
+          }
+          
+          // Last attempt failed - return raw response as markdown
+          return {
+            content: lastRawContent,
+            structuredContent: {
+              error: true,
+              message: 'Schema validation failed after 3 attempts, returning raw response',
+              validation_errors: validationResult.error.errors,
+              partial_data: parsedJson,
+              raw_response: lastRawContent,
+              attempts: maxAttempts,
+            },
+          };
+        }
+
+        // Success! Break out of retry loop
+        const validatedOutput = validationResult.data;
+        
+        if (sessionId && logger && attempt > 1) {
+          await logger('info', `Successfully validated on attempt ${attempt}`, sessionId);
+        }
+        
+        // Return successful result
+        const humanReadable = formatSimpleValidationResult(validatedOutput);
+
+        if (sessionId && logger) {
+          const verdict = validatedOutput.ship_it ? '✅ APPROVED' : '❌ REJECTED';
+          await logger(
+            'info',
+            `Validation complete: ${verdict} | ${validatedOutput.actual_percentage}% actual (${validatedOutput.claimed_percentage}% claimed) | Trust: ${(validatedOutput.trust_score * 100).toFixed(0)}%`,
+            sessionId
+          );
+        }
+
+        return {
+          content: humanReadable,
+          structuredContent: validatedOutput,
+        };
+      } catch (apiError) {
+        if (sessionId && logger) {
+          await logger('error', `API error on attempt ${attempt}: ${apiError}`, sessionId);
+        }
+        
+        // If not last attempt, continue to retry
+        if (attempt < maxAttempts) {
+          continue;
+        }
+        
+        // Last attempt failed - throw to outer catch
+        throw apiError;
       }
-      
-      return {
-        content: `Validation Error: LLM returned invalid JSON\n\nRaw response:\n${rawContent}`,
-        structuredContent: {
-          error: true,
-          message: 'Invalid JSON response from LLM',
-          raw_response: rawContent,
-        },
-      };
     }
 
-    // Validate against schema
-    const validationResult = simpleValidatorOutputSchema.safeParse(parsedJson);
-    
-    if (!validationResult.success) {
-      if (sessionId && logger) {
-        await logger('error', `Schema validation failed: ${validationResult.error.message}`, sessionId);
-      }
-      
-      return {
-        content: `Validation completed but schema mismatch detected:\n\n${JSON.stringify(parsedJson, null, 2)}\n\nValidation errors:\n${JSON.stringify(validationResult.error.errors, null, 2)}`,
-        structuredContent: {
-          error: true,
-          message: 'Schema validation failed',
-          validation_errors: validationResult.error.errors,
-          partial_data: parsedJson,
-        },
-      };
-    }
-
-    const validatedOutput = validationResult.data;
-
-    // Format human-readable content
-    const humanReadable = formatSimpleValidationResult(validatedOutput);
-
-    if (sessionId && logger) {
-      const verdict = validatedOutput.ship_it ? '✅ APPROVED' : '❌ REJECTED';
-      await logger(
-        'info',
-        `Validation complete: ${verdict} | ${validatedOutput.actual_percentage}% actual (${validatedOutput.claimed_percentage}% claimed) | Trust: ${(validatedOutput.trust_score * 100).toFixed(0)}%`,
-        sessionId
-      );
-    }
-
-    return {
-      content: humanReadable,
-      structuredContent: validatedOutput,
-    };
+    // This should never be reached due to retry loop logic
+    throw new Error('Unexpected: retry loop completed without returning');
   } catch (error) {
     const simpleError = createSimpleError(error);
 

@@ -8,16 +8,24 @@
 
 ## 🤔 What This Is
 
-An MCP server that provides AI-powered web research through OpenRouter, optimized for coding tasks. Uses structured templates to get better context and comprehensive answers for debugging, architecture planning, and technical research.
+An MCP server that provides AI-powered web research through OpenRouter, optimized for coding tasks. Uses structured templates to get better context and comprehensive answers for debugging, architecture planning, technical research, and production-ready code validation.
 
 **Four Specialized Tools:**
-1. **🐛 Bug Fix Research** - Deep-dive debugging with root cause analysis
-2. **🏗️ Code Planning** - Library discovery and architecture recommendations  
-3. **🧠 Expert Intelligence** - Comprehensive research on any topic
-4. **✅ Task Completion Validator** - Carmack-grade code validation before shipping
+1. **🐛 Bug Fix Research** - Deep-dive debugging with root cause analysis across Stack Overflow, GitHub issues, and official docs
+2. **🏗️ Code Planning** - Library discovery and architecture recommendations from battle-tested solutions  
+3. **🧠 Expert Intelligence** - Comprehensive multi-perspective research on any topic (technical or non-technical)
+4. **✅ Task Completion Validator** - Carmack-grade forensic code validation with 3-attempt retry logic and comprehensive analysis
+
+**Key Features:**
+- 🔄 **Intelligent Retry Logic** - Task validator automatically retries up to 3 times if JSON parsing fails, falling back to raw markdown on final failure
+- 📋 **Enhanced Input Schemas** - 100x more detailed parameter descriptions with examples and validation criteria
+- 🎯 **Production-Ready Validation** - Mars Rover standards enforcement: error handling, logging, DRY/SOLID compliance
+- 🔍 **Forensic Code Analysis** - Reads actual files from disk, verifies execution proofs, detects deception patterns
+- 📊 **Trust Scoring** - Honesty metric comparing claimed vs actual completion with fraud detection
 
 Powered by **OpenRouter** with support for models like:
 - `x-ai/grok-4.1-fast` (recommended - with web search)
+- `google/gemini-2.0-flash` (recommended for task validation)
 - `perplexity/sonar-pro` 
 - Any OpenRouter model supporting `search_parameters`
 
@@ -258,6 +266,171 @@ deep_research({
   ]
 })
 ```
+
+## ✅ Task Completion Validator
+
+The **Carmack-Grade Task Completion Validator** performs forensic code analysis before production deployment, enforcing John Carmack's Mars Rover standards where remote fixes are impossible.
+
+### What It Validates
+
+**Code Quality (Carmack's Commandments):**
+- ✅ **Error Handling is GOD**: Every I/O operation has try-catch with recovery
+- ✅ **Observability is Salvation**: Critical decisions logged with full context
+- ✅ **DRY is Divine Law**: <5% code duplication allowed
+- ✅ **SOLID is Scripture**: Single responsibility, proper abstractions maintained
+- ✅ **Honesty is Mandatory**: Claimed completion matches actual implementation
+
+**Validation Process:**
+1. Reads actual files from disk (no fake file claims)
+2. Scans for stub functions, TODOs, missing error handling
+3. Verifies execution proofs against claimed working features
+4. Calculates actual completion % from implementation
+5. Compares claimed vs actual to generate trust_score (0.0-1.0)
+6. Detects deception patterns and fraud indicators
+7. Provides complete fixes (500+ char code solutions)
+
+### Intelligent Retry System
+
+**3-Attempt Retry Logic:**
+- Attempt 1: Initial validation with helpful guidance
+- Attempt 2: Retry if JSON parsing fails or schema mismatch
+- Attempt 3: Final attempt with stern warnings
+- Fallback: Returns raw markdown if all 3 attempts fail (graceful degradation)
+
+### Required Parameters
+
+```typescript
+{
+  original_request: "Complete PRD-format requirements (hierarchical, with MUST/SHOULD/COULD priorities)",
+  claimed_percentage: 85, // Your honest assessment (0-100)
+  completion_claim: "Detailed evidence: what's implemented, tested, working vs broken",
+  working_features: ["Login with JWT", "Logout with session cleanup"] // Only list fully working features
+}
+```
+
+### Optional But Recommended
+
+```typescript
+{
+  non_working_features: ["Password reset", "Email verification"], // Honesty improves trust_score
+  full_file_content_files: [
+    { path: "src/auth.ts", description: "Authentication logic" },
+    { path: "tests/auth.test.ts", description: "Unit tests" }
+  ],
+  execution_proof: "$ npm test\n✓ All tests passed\n$ curl /api/login\n{token: 'eyJ...'}",
+  error_logs: "2024-11-20 ERROR: Connection timeout at db.ts:45", // Transparency valued
+  attempt_number: 1 // Increment on resubmission
+}
+```
+
+### Output Structure
+
+**Core Verdict:**
+- `ship_it`: boolean (true = production ready, false = needs work)
+- `severity`: COMPLETE | MINOR_INCOMPLETE | MODERATE_INCOMPLETE | MAJOR_INCOMPLETE | CRITICAL_INCOMPLETE | FRAUD_DETECTED
+- `actual_percentage`: Calculated from code analysis (0-100)
+- `trust_score`: Honesty metric (1.0=perfect, 0.0=fraud)
+
+**Detailed Analysis:**
+- `critical_issues`: Blocking problems with complete 500+ char fixes
+- `working_features_validated`: Claimed vs actually working with false claims identified
+- `code_quality_analysis`: Error handling, logging, DRY/SOLID assessment  
+- `next_priority_fix`: #1 most critical issue with ready-to-paste solution
+- `detailed_report`: 1000+ char comprehensive narrative
+
+**Carmack Metrics:**
+- `error_handling_score`: % of I/O operations with proper error handling (0-100)
+- `logging_score`: % of critical points with logging (0-100)
+- `dry_compliance`: boolean (code duplication check)
+- `solid_compliance`: boolean (architecture principles check)
+
+### Example Usage
+
+```typescript
+validate_task_completion({
+  original_request: `
+    1. User Authentication System
+       1.1 Login with email/password (MUST have: validation, hashing, sessions, rate limiting)
+       1.2 Logout (MUST have: session cleanup, token invalidation)
+       1.3 Password reset (SHOULD have: email verification, token expiry)
+    2. Dashboard
+       2.1 Display user statistics (MUST have: real-time data, error states)
+  `,
+  claimed_percentage: 80,
+  completion_claim: `
+    Implemented login (auth.ts:45-120) with bcrypt hashing and JWT generation.
+    Tested successfully - see execution_proof.
+    Logout works (auth.ts:125-145) with session cleanup.
+    Password reset partially done - email works but token expiry missing.
+    Dashboard displays stats but no error handling yet.
+  `,
+  working_features: [
+    "Login with email validation and JWT",
+    "Logout with session invalidation"
+  ],
+  non_working_features: [
+    "Password reset token expiry",
+    "Dashboard error handling"
+  ],
+  full_file_content_files: [
+    { path: "src/auth.ts", description: "Core authentication" },
+    { path: "src/dashboard.ts", description: "Dashboard component" }
+  ],
+  execution_proof: `
+    $ npm test
+    ✓ Login test passed (auth generates JWT)
+    ✓ Logout test passed (session cleared)
+    ✗ Password reset test failed (token doesn't expire)
+    
+    $ curl -X POST /api/login
+    {"status": 200, "token": "eyJhbGc..."}
+  `,
+  error_logs: `
+    2024-11-20 10:30:15 ERROR: Unhandled promise rejection
+      at dashboard.ts:67
+      TypeError: Cannot read property 'stats' of undefined
+  `
+})
+```
+
+### Trust Score Calculation
+
+```
+Start at 1.0
+If claimed > actual by:
+  >30% → ×0.2 (severe dishonesty)
+  20-30% → ×0.4 (major exaggeration)  
+  10-20% → ×0.6 (significant exaggeration)
+  5-10% → ×0.8 (minor exaggeration)
+
+Additional penalties:
+- Stub functions in working_features: ×0.5
+- Unhandled errors while claiming working: ×0.6
+- Missing error handling: ×0.5
+- False test claims: ×0.7
+
+Score interpretation:
+≥0.8 = Honest professional
+0.6-0.8 = Minor exaggeration
+0.4-0.6 = Significant honesty issues
+<0.4 = Deceptive or incompetent
+```
+
+### Deception Detection
+
+The validator identifies these red flags:
+- `FAKE_FILES`: Non-existent files listed
+- `STUB_CODE`: NotImplementedError/pass functions in "working" features
+- `FALSE_WORKING_CLAIMS`: Features claimed as working but execution shows failures
+- `NO_ERROR_HANDLING`: I/O operations without try-catch
+- `INFLATED_NUMBERS`: >20% discrepancy between claimed and actual
+- `EXECUTION_CONTRADICTS_CLAIMS`: Proof shows failures for claimed working features
+
+### Mars Rover Test
+
+**The Core Question:** "Would this code survive on Mars where remote fixes are impossible?"
+
+If NO → `ship_it: false` with specific fixes required
 
 ## 🔄 How It Works
 
