@@ -17,71 +17,24 @@ if (!SERPER_API_KEY || !REDDIT_CLIENT_ID || !REDDIT_CLIENT_SECRET) {
 const TOOLS = [
   {
     name: 'search_reddit',
-    description: `Search Reddit discussions via Google. Returns 10 results per query with title, URL, and snippet.
-
-WHEN TO USE: Finding Reddit discussions, opinions, recommendations, troubleshooting threads, or community insights on any topic.
-
-FEATURES:
-• Parallel execution: Send up to 10 queries at once
-• Auto site:reddit.com: No need to add it manually
-• Google search operators supported: intitle:, inurl:, "exact phrase", OR, -exclude
-• Date filtering: Use date_after to find recent discussions only
-
-QUERY TIPS:
-• Use intitle: for post titles → "intitle:best laptop 2024"
-• Use quotes for exact phrases → "\"react vs vue\""  
-• Combine with OR → "cursor OR windsurf AI coding"
-• Exclude terms → "python tutorial -beginner"
-• Target subreddits in query → "site:reddit.com/r/programming"`,
+    description: `Search Reddit via Google (10 results/query). MUST call get_reddit_post after. Supports: intitle:, "exact", OR, -exclude. Auto-adds site:reddit.com.`,
     inputSchema: {
       type: 'object' as const,
       properties: {
-        queries: {
-          type: 'array',
-          items: { type: 'string' },
-          description: 'Search queries (max 10). Each query returns top 10 Reddit results. Examples: ["best IDE 2024", "rust vs go performance intitle:benchmark"]',
-        },
-        date_after: {
-          type: 'string',
-          description: 'Only results after this date (YYYY-MM-DD format). Example: "2024-01-01" for 2024+ content only. Useful for finding recent discussions.',
-        },
+        queries: { type: 'array', items: { type: 'string' }, description: 'Distinct queries (max 10). Maximize count for multiple perspectives. eg: ["best IDE 2025", "best AI features on IDEs", "best IDE for Python", "top alternatives to vscode", "top alternatives to intitle:cursor -windsurf", "intitle:comparison of top IDEs","new IDEs like intitle:zed"]' },
+        date_after: { type: 'string', description: 'Filter results after date (YYYY-MM-DD). Optional.' },
       },
       required: ['queries'],
     },
   },
   {
     name: 'get_reddit_post',
-    description: `Fetch full Reddit posts with comments via official Reddit API. Returns post content and threaded comments sorted by highest upvoted.
-
-WHEN TO USE: After search_reddit finds relevant URLs, use this to get the full discussion with all valuable comments and replies.
-
-FEATURES:
-• Parallel execution: Fetch up to 5 posts simultaneously  
-• Smart sorting: Comments sorted by score (most upvoted first)
-• Full thread hierarchy: Nested replies preserved with proper indentation
-• Configurable depth: Default 100 comments, increase to 200/500/1000 for popular threads
-
-OUTPUT INCLUDES:
-• Post: title, author, subreddit, score, body content
-• Comments: author, score, [OP] tag, nested replies
-
-MAX_COMMENTS GUIDE:
-• 100 (default): Quick overview, top discussions
-• 200-500: Detailed analysis, popular threads
-• 1000: Comprehensive research, viral posts with 500+ comments`,
+    description: `Fetch full Reddit posts + threaded comments (sorted by most upvoted to least). MUST call search_reddit first. Returns: title, author, subreddit, score, body, nested replies with [OP] tags. You can post up to 5 links. Set max_comments more than 100 if you have very limited candidate URLs or want comprehensive analysis. For best results, use 200-500 for detailed analysis or 1000 for comprehensive coverage.`,
     inputSchema: {
       type: 'object' as const,
       properties: {
-        urls: {
-          type: 'array',
-          items: { type: 'string' },
-          description: 'Reddit post URLs (max 5). Supports: reddit.com, old.reddit.com, np.reddit.com formats.',
-        },
-        max_comments: {
-          type: 'number',
-          description: 'Maximum comments to fetch per post. Default: 100. For thorough research, set 200-500. For viral threads with 1000+ comments, set 1000.',
-          default: 100,
-        },
+        urls: { type: 'array', items: { type: 'string' }, description: 'Reddit URLs (max 5). Pick most relevant from search results.' },
+        max_comments: { type: 'number', description: 'Comments per post. 100=quick, 200-500=detailed, 1000=comprehensive. Default: 100', default: 100 },
       },
       required: ['urls'],
     },
