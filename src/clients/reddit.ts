@@ -1,7 +1,6 @@
 /**
  * Reddit OAuth API Client
  * Fetches posts and comments sorted by score (most upvoted first)
- * Supports batching and smart comment allocation
  */
 
 import { REDDIT } from '../config/index.js';
@@ -14,6 +13,10 @@ export interface Post {
   score: number;
   commentCount: number;
   url: string;
+  created: Date;
+  flair?: string;
+  isNsfw: boolean;
+  isPinned: boolean;
 }
 
 export interface Comment {
@@ -46,41 +49,44 @@ export interface CommentAllocation {
   redistributed: boolean;
 }
 
-/**
- * Calculate comment allocation based on post count
- */
 export function calculateCommentAllocation(postCount: number): CommentAllocation {
   const totalBudget = REDDIT.MAX_COMMENT_BUDGET;
   const perPostBase = Math.floor(totalBudget / postCount);
   const perPostCapped = Math.min(perPostBase, REDDIT.MAX_COMMENTS_PER_POST);
-
   return { totalBudget, perPostBase, perPostCapped, redistributed: false };
 }
 
 export class RedditClient {
   private token: string | null = null;
   private tokenExpiry = 0;
+  private userAgent = 'script:reddit-mcp:v3.0 (by /u/reddit-mcp-bot)';
 
   constructor(private clientId: string, private clientSecret: string) {}
 
   private async auth(): Promise<string> {
     if (this.token && Date.now() < this.tokenExpiry - 60000) return this.token;
 
+    const credentials = Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64');
+    
     const res = await fetch('https://www.reddit.com/api/v1/access_token', {
       method: 'POST',
       headers: {
-        Authorization: `Basic ${Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64')}`,
+        'Authorization': `Basic ${credentials}`,
         'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'reddit-mcp/2.0',
+        'User-Agent': this.userAgent,
       },
       body: 'grant_type=client_credentials',
     });
 
-    if (!res.ok) throw new Error(`Reddit auth failed: ${res.status}`);
-    const data = await res.json();
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      throw new Error(`Reddit auth failed: ${res.status} ${text}`);
+    }
+    
+    const data = await res.json() as { access_token: string; expires_in: number };
     this.token = data.access_token;
     this.tokenExpiry = Date.now() + data.expires_in * 1000;
-    return this.token!;
+    return this.token;
   }
 
   private parseUrl(url: string): { sub: string; id: string } | null {
@@ -88,9 +94,6 @@ export class RedditClient {
     return m ? { sub: m[1], id: m[2] } : null;
   }
 
-  /**
-   * Fetch a Reddit post with comments
-   */
   async getPost(url: string, maxComments = 100): Promise<PostResult> {
     const parsed = this.parseUrl(url);
     if (!parsed) throw new Error(`Invalid Reddit URL: ${url}`);
@@ -101,71 +104,93 @@ export class RedditClient {
     let lastError: Error | null = null;
     for (let attempt = 0; attempt < REDDIT.RETRY_COUNT; attempt++) {
       try {
-        const res = await fetch(
-          `https://oauth.reddit.com/r/${parsed.sub}/comments/${parsed.id}?sort=top&limit=${limit}&depth=10&raw_json=1`,
-          { headers: { Authorization: `Bearer ${token}`, 'User-Agent': 'reddit-mcp/2.0' } }
-        );
+        const apiUrl = `https://oauth.reddit.com/r/${parsed.sub}/comments/${parsed.id}?sort=top&limit=${limit}&depth=10&raw_json=1`;
+        
+        const res = await fetch(apiUrl, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'User-Agent': this.userAgent,
+          },
+        });
 
         if (res.status === 429) {
           const delay = REDDIT.RETRY_DELAYS[attempt] || 32000;
-          console.error(`[Reddit] Rate limited (429). Retry ${attempt + 1}/${REDDIT.RETRY_COUNT} after ${delay}ms`);
+          console.error(`[Reddit] Rate limited. Retry ${attempt + 1}/${REDDIT.RETRY_COUNT} after ${delay}ms`);
           await this.delay(delay);
           continue;
         }
 
         if (!res.ok) throw new Error(`Reddit API error: ${res.status}`);
-        const [postListing, commentListing] = await res.json();
-
+        
+        const [postListing, commentListing] = await res.json() as [any, any];
         const p = postListing?.data?.children?.[0]?.data;
         if (!p) throw new Error(`Post not found: ${url}`);
 
         const post: Post = {
           title: p.title,
-          author: p.author,
+          author: p.author || '[deleted]',
           subreddit: p.subreddit,
-          body: p.selftext || (p.is_self ? '' : `[Link: ${p.url}]`),
+          body: this.formatBody(p),
           score: p.score,
           commentCount: p.num_comments,
           url: `https://reddit.com${p.permalink}`,
+          created: new Date(p.created_utc * 1000),
+          flair: p.link_flair_text || undefined,
+          isNsfw: p.over_18 || false,
+          isPinned: p.stickied || false,
         };
 
-        const comments: Comment[] = [];
-        const extract = (children: any[], depth = 0) => {
-          const sorted = [...children].sort((a, b) => (b.data?.score || 0) - (a.data?.score || 0));
-          for (const c of sorted) {
-            if (comments.length >= maxComments) return;
-            if (c.kind !== 't1' || !c.data?.author || c.data.author === '[deleted]') continue;
-            comments.push({
-              author: c.data.author,
-              body: c.data.body || '',
-              score: c.data.score,
-              depth,
-              isOP: c.data.author === p.author,
-            });
-            if (c.data.replies?.data?.children && comments.length < maxComments) {
-              extract(c.data.replies.data.children, depth + 1);
-            }
-          }
-        };
-        if (commentListing?.data?.children) extract(commentListing.data.children);
+        const comments = this.extractComments(commentListing?.data?.children || [], maxComments, post.author);
 
         return { post, comments, allocatedComments: maxComments, actualComments: post.commentCount };
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
-        if (attempt < REDDIT.RETRY_COUNT - 1 && !lastError.message.includes('API error')) {
-          const delay = REDDIT.RETRY_DELAYS[attempt] || 32000;
-          console.error(`[Reddit] Error, retry ${attempt + 1}/${REDDIT.RETRY_COUNT} after ${delay}ms: ${lastError.message}`);
+        if (attempt < REDDIT.RETRY_COUNT - 1) {
+          const delay = REDDIT.RETRY_DELAYS[attempt] || 2000;
+          console.error(`[Reddit] Error: ${lastError.message}. Retry ${attempt + 1}/${REDDIT.RETRY_COUNT}`);
           await this.delay(delay);
         }
       }
     }
 
-    throw lastError || new Error('Reddit rate limited. Retry in 1-2 minutes.');
+    throw lastError || new Error('Failed to fetch Reddit post');
   }
 
-  /**
-   * Fetch multiple posts in parallel
-   */
+  private formatBody(p: any): string {
+    if (p.selftext?.trim()) return p.selftext;
+    if (p.is_self) return '';
+    if (p.url && !p.url.includes('reddit.com')) return `**Link:** ${p.url}`;
+    return '';
+  }
+
+  private extractComments(children: any[], maxComments: number, opAuthor: string): Comment[] {
+    const result: Comment[] = [];
+    
+    const extract = (items: any[], depth = 0) => {
+      const sorted = [...items].sort((a, b) => (b.data?.score || 0) - (a.data?.score || 0));
+      
+      for (const c of sorted) {
+        if (result.length >= maxComments) return;
+        if (c.kind !== 't1' || !c.data?.author || c.data.author === '[deleted]') continue;
+        
+        result.push({
+          author: c.data.author,
+          body: c.data.body || '',
+          score: c.data.score || 0,
+          depth,
+          isOP: c.data.author === opAuthor,
+        });
+        
+        if (c.data.replies?.data?.children && result.length < maxComments) {
+          extract(c.data.replies.data.children, depth + 1);
+        }
+      }
+    };
+
+    extract(children);
+    return result;
+  }
+
   async getPosts(urls: string[], maxComments = 100): Promise<Map<string, PostResult | Error>> {
     if (urls.length <= REDDIT.BATCH_SIZE) {
       const results = await Promise.all(
@@ -173,14 +198,9 @@ export class RedditClient {
       );
       return new Map(urls.map((u, i) => [u, results[i]]));
     }
-
-    const result = await this.batchGetPosts(urls, maxComments);
-    return result.results;
+    return (await this.batchGetPosts(urls, maxComments)).results;
   }
 
-  /**
-   * Batch fetch posts with concurrent limit
-   */
   async batchGetPosts(
     urls: string[],
     maxCommentsOverride?: number,
@@ -194,14 +214,13 @@ export class RedditClient {
     const allocation = calculateCommentAllocation(urls.length);
     const commentsPerPost = fetchComments ? (maxCommentsOverride || allocation.perPostCapped) : 0;
 
-    console.error(`[Reddit] Starting batch: ${urls.length} posts in ${totalBatches} batch(es), ${commentsPerPost} comments/post`);
+    console.error(`[Reddit] Fetching ${urls.length} posts in ${totalBatches} batch(es), ${commentsPerPost} comments/post`);
 
     for (let batchNum = 0; batchNum < totalBatches; batchNum++) {
       const startIdx = batchNum * REDDIT.BATCH_SIZE;
-      const endIdx = Math.min(startIdx + REDDIT.BATCH_SIZE, urls.length);
-      const batchUrls = urls.slice(startIdx, endIdx);
+      const batchUrls = urls.slice(startIdx, startIdx + REDDIT.BATCH_SIZE);
 
-      console.error(`[Reddit] Processing batch ${batchNum + 1}/${totalBatches} (${batchUrls.length} posts)`);
+      console.error(`[Reddit] Batch ${batchNum + 1}/${totalBatches} (${batchUrls.length} posts)`);
 
       const batchResults = await Promise.allSettled(
         batchUrls.map(url => this.getPost(url, commentsPerPost))
@@ -214,20 +233,16 @@ export class RedditClient {
         if (result.status === 'fulfilled') {
           allResults.set(url, result.value);
         } else {
-          const errorMsg = result.reason instanceof Error ? result.reason.message : String(result.reason);
-          if (errorMsg.includes('rate limited') || errorMsg.includes('429')) {
-            rateLimitHits++;
-          }
-          allResults.set(url, result.reason instanceof Error ? result.reason : new Error(errorMsg));
+          const errorMsg = result.reason?.message || String(result.reason);
+          if (errorMsg.includes('429') || errorMsg.includes('rate')) rateLimitHits++;
+          allResults.set(url, new Error(errorMsg));
         }
       }
 
       onBatchComplete?.(batchNum + 1, totalBatches, allResults.size);
-      console.error(`[Reddit] Completed batch ${batchNum + 1}/${totalBatches} (${allResults.size}/${urls.length} total)`);
+      console.error(`[Reddit] Batch ${batchNum + 1} complete (${allResults.size}/${urls.length})`);
 
-      if (batchNum < totalBatches - 1) {
-        await this.delay(500);
-      }
+      if (batchNum < totalBatches - 1) await this.delay(500);
     }
 
     return { results: allResults, batchesProcessed: totalBatches, totalPosts: urls.length, rateLimitHits, commentAllocation: allocation };
