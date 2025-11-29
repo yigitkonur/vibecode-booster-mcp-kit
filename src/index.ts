@@ -167,4 +167,4 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
 const transport = new StdioServerTransport();
 server.connect(transport);
-console.error(`${SERVER.NAME} v${SERVER.VERSION} started (5 tools: search_reddit, get_reddit_post, deep_research, scrape_links, web_search)`);
+console.error(`🚀 ${SERVER.NAME} v${SERVER.VERSION} ready`);
