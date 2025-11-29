@@ -1,7 +1,7 @@
 {
-  "name": "reddit-research-mcp",
-  "version": "2.0.0",
-  "description": "MCP server for Reddit research using Serper API and Reddit OAuth",
+  "name": "deep-research-mcp",
+  "version": "3.0.0",
+  "description": "MCP server for any kind of research, deep research (specific to Reddit tools too!), web scraping and search",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -19,12 +19,17 @@
     "serper",
     "search",
     "ai",
-    "model-context-protocol"
+    "model-context-protocol",
+    "deep-research",
+    "web-scraping"
   ],
-  "author": "",
+  "author": "Yiğit Konur <yigit35@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.0"
+    "@modelcontextprotocol/sdk": "^1.18.1",
+    "openai": "^4.77.0",
+    "zod": "^3.24.1",
+    "zod-to-json-schema": "^3.24.1"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

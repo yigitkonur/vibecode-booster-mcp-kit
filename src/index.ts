@@ -4,45 +4,45 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 
-import { searchReddit } from './tools/search-reddit.js';
-import { getRedditPosts } from './tools/get-reddit-post.js';
+import { TOOLS } from './tools/definitions.js';
+import { handleSearchReddit, handleGetRedditPosts } from './tools/reddit.js';
+import { handleDeepResearch } from './tools/research.js';
+import { handleScrapeLinks } from './tools/scrape.js';
+import { handleWebSearch } from './tools/search.js';
+import { deepResearchParamsSchema } from './schemas/deep-research.js';
+import { scrapeLinksParamsSchema } from './schemas/scrape-links.js';
+import { webSearchParamsSchema } from './schemas/web-search.js';
+import { createSimpleError } from './utils/errors.js';
+import { parseEnv, RESEARCH, SERVER } from './config/index.js';
 
-const { SERPER_API_KEY, REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET } = process.env;
+// ============================================================================
+// Environment Validation
+// ============================================================================
 
-if (!SERPER_API_KEY || !REDDIT_CLIENT_ID || !REDDIT_CLIENT_SECRET) {
-  console.error('Missing env: SERPER_API_KEY, REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET');
+const env = parseEnv();
+const missingVars: string[] = [];
+if (!env.SEARCH_API_KEY) missingVars.push('SERPER_API_KEY');
+if (!env.REDDIT_CLIENT_ID) missingVars.push('REDDIT_CLIENT_ID');
+if (!env.REDDIT_CLIENT_SECRET) missingVars.push('REDDIT_CLIENT_SECRET');
+
+if (!RESEARCH.API_KEY) {
+  console.error('Warning: OPENROUTER_API_KEY not set - deep_research tool will not work');
+}
+if (!env.SCRAPER_API_KEY) {
+  console.error('Warning: SCRAPEDO_API_KEY not set - scrape_links tool will not work');
+}
+
+if (missingVars.length > 0) {
+  console.error(`Missing required env vars: ${missingVars.join(', ')}`);
   process.exit(1);
 }
 
-const TOOLS = [
-  {
-    name: 'search_reddit',
-    description: `Search Reddit via Google (10 results/query). MUST call get_reddit_post after. Supports: intitle:, "exact", OR, -exclude. Auto-adds site:reddit.com.`,
-    inputSchema: {
-      type: 'object' as const,
-      properties: {
-        queries: { type: 'array', items: { type: 'string' }, description: 'Distinct queries (max 10). Maximize count for multiple perspectives. eg: ["best IDE 2025", "best AI features on IDEs", "best IDE for Python", "top alternatives to vscode", "top alternatives to intitle:cursor -windsurf", "intitle:comparison of top IDEs","new IDEs like intitle:zed"]' },
-        date_after: { type: 'string', description: 'Filter results after date (YYYY-MM-DD). Optional.' },
-      },
-      required: ['queries'],
-    },
-  },
-  {
-    name: 'get_reddit_post',
-    description: `Fetch full Reddit posts + threaded comments (sorted by most upvoted to least). MUST call search_reddit first. Returns: title, author, subreddit, score, body, nested replies with [OP] tags. You can post up to 5 links. Set max_comments more than 100 if you have very limited candidate URLs or want comprehensive analysis. For best results, use 200-500 for detailed analysis or 1000 for comprehensive coverage.`,
-    inputSchema: {
-      type: 'object' as const,
-      properties: {
-        urls: { type: 'array', items: { type: 'string' }, description: 'Reddit URLs (max 5). Pick most relevant from search results.' },
-        max_comments: { type: 'number', description: 'Comments per post. 100=quick, 200-500=detailed, 1000=comprehensive. Default: 100', default: 100 },
-      },
-      required: ['urls'],
-    },
-  },
-];
+// ============================================================================
+// Server Setup
+// ============================================================================
 
 const server = new Server(
-  { name: 'reddit-mcp', version: '2.0.0' },
+  { name: SERVER.NAME, version: SERVER.VERSION },
   { capabilities: { tools: {} } }
 );
 
@@ -57,26 +57,60 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       if (!Array.isArray(queries) || queries.length === 0) {
         return { content: [{ type: 'text', text: 'Error: queries must be a non-empty array of strings' }], isError: true };
       }
-      const result = await searchReddit(queries, SERPER_API_KEY!, date_after);
+      const result = await handleSearchReddit(queries, env.SEARCH_API_KEY!, date_after);
       return { content: [{ type: 'text', text: result }] };
     }
 
     if (name === 'get_reddit_post') {
-      const { urls, max_comments = 100 } = args as { urls: string[]; max_comments?: number };
+      const { urls, max_comments = 100, fetch_comments = true } = args as { urls: string[]; max_comments?: number; fetch_comments?: boolean };
       if (!Array.isArray(urls) || urls.length === 0) {
         return { content: [{ type: 'text', text: 'Error: urls must be a non-empty array of Reddit post URLs' }], isError: true };
       }
-      const result = await getRedditPosts(urls, REDDIT_CLIENT_ID!, REDDIT_CLIENT_SECRET!, max_comments);
+      const result = await handleGetRedditPosts(urls, env.REDDIT_CLIENT_ID!, env.REDDIT_CLIENT_SECRET!, max_comments, {
+        fetchComments: fetch_comments,
+        maxCommentsOverride: max_comments !== 100 ? max_comments : undefined,
+      });
       return { content: [{ type: 'text', text: result }] };
+    }
+
+    if (name === 'deep_research') {
+      const validatedParams = deepResearchParamsSchema.parse(args);
+      const { content, structuredContent } = await handleDeepResearch(validatedParams);
+      if (structuredContent && typeof structuredContent === 'object' && 'error' in structuredContent && structuredContent.error) {
+        return { content: [{ type: 'text', text: content }], isError: true };
+      }
+      return { content: [{ type: 'text', text: content }] };
+    }
+
+    if (name === 'scrape_links') {
+      const validatedParams = scrapeLinksParamsSchema.parse(args);
+      const { content, structuredContent } = await handleScrapeLinks(validatedParams);
+      if (structuredContent.metadata.failed === structuredContent.metadata.total_urls) {
+        return { content: [{ type: 'text', text: content }], isError: true };
+      }
+      return { content: [{ type: 'text', text: content }] };
+    }
+
+    if (name === 'web_search') {
+      const validatedParams = webSearchParamsSchema.parse(args);
+      const { content, structuredContent } = await handleWebSearch(validatedParams);
+      if (structuredContent.metadata.total_results === 0) {
+        return { content: [{ type: 'text', text: content }], isError: true };
+      }
+      return { content: [{ type: 'text', text: content }] };
     }
 
     return { content: [{ type: 'text', text: `Unknown tool: ${name}` }], isError: true };
   } catch (error) {
-    const msg = error instanceof Error ? error.message : String(error);
-    return { content: [{ type: 'text', text: `Error: ${msg}` }], isError: true };
+    const simpleError = createSimpleError(error);
+    return { content: [{ type: 'text', text: `Error: ${simpleError.message}` }], isError: true };
   }
 });
 
+// ============================================================================
+// Start Server
+// ============================================================================
+
 const transport = new StdioServerTransport();
 server.connect(transport);
-console.error('Reddit Research MCP Server v2.0.0 started');
+console.error(`${SERVER.NAME} v${SERVER.VERSION} started (5 tools: search_reddit, get_reddit_post, deep_research, scrape_links, web_search)`);
