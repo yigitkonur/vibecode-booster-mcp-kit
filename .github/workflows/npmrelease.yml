@@ -30,7 +30,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     # Skip if commit is from github-actions (prevents infinite loop)
-    if: github.actor != 'github-actions[bot]' && !contains(github.event.head_commit.message, 'chore: bump version')
+    if: ${{ github.actor != 'github-actions[bot]' && !startsWith(github.event.head_commit.message, 'chore:') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
