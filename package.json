@@ -1,14 +1,18 @@
 {
-  "name": "deep-research-mcp",
+  "name": "reddit-research-mcp",
   "version": "3.0.0",
-  "description": "MCP server for any kind of research, deep research (specific to Reddit tools too!), web scraping and search",
+  "description": "MCP server for Reddit research, web search with CTR aggregation, deep research, and web scraping",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "reddit-mcp": "dist/index.js"
+    "reddit-research-mcp": "dist/index.js"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
+    "prepublishOnly": "npm run build",
     "dev": "tsx src/index.ts",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit"
@@ -21,10 +25,16 @@
     "ai",
     "model-context-protocol",
     "deep-research",
-    "web-scraping"
+    "web-scraping",
+    "claude",
+    "anthropic"
   ],
   "author": "Yiğit Konur <yigit35@gmail.com>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yigitkonur/reddit-research-mcp"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.18.1",
     "openai": "^4.77.0",
