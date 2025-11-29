@@ -1,10 +1,15 @@
-import { LLMService } from './llm-service.js';
-import { createLLMConfigs, isLLMAvailable } from '../config/index.js';
+/**
+ * LLM Processor for content extraction
+ * Uses OpenRouter via OPENROUTER_API_KEY for AI-powered content filtering
+ */
+
+import OpenAI from 'openai';
+import { RESEARCH, LLM_EXTRACTION, getCapabilities } from '../config/index.js';
 
 interface ProcessingConfig {
   use_llm: boolean;
   what_to_extract: string | undefined;
-  max_tokens?: number; // Dynamic token allocation per URL
+  max_tokens?: number;
 }
 
 interface LLMResult {
@@ -13,35 +18,46 @@ interface LLMResult {
   error?: string;
 }
 
-export function createLLMProcessor(): LLMService | null {
-  if (!isLLMAvailable()) return null;
+let llmClient: OpenAI | null = null;
 
-  const configs = createLLMConfigs();
-  return configs.length > 0 ? new LLMService(configs) : null;
+export function createLLMProcessor(): OpenAI | null {
+  if (!getCapabilities().llmExtraction) return null;
+  
+  if (!llmClient) {
+    llmClient = new OpenAI({
+      baseURL: RESEARCH.BASE_URL,
+      apiKey: RESEARCH.API_KEY,
+      timeout: 120000,
+    });
+  }
+  return llmClient;
 }
 
 export async function processContentWithLLM(
   content: string,
   config: ProcessingConfig,
-  processor?: LLMService | null
+  processor?: OpenAI | null
 ): Promise<LLMResult> {
   if (!config.use_llm || !processor || !content?.trim()) {
     return { content, processed: false };
   }
 
+  const prompt = config.what_to_extract
+    ? `Extract and clean the following content. Focus on: ${config.what_to_extract}\n\nContent:\n${content}`
+    : `Clean and extract the main content from the following text, removing navigation, ads, and irrelevant elements:\n\n${content}`;
+
   try {
-    const result = await processor.processContent({
-      content,
-      instruction: config.what_to_extract,
-      maxRetries: 3,
-      timeout: 300000,
+    const response = await processor.chat.completions.create({
+      model: LLM_EXTRACTION.MODEL,
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: config.max_tokens || LLM_EXTRACTION.MAX_TOKENS,
     });
 
-    if (result.success && result.processedContent) {
-      return { content: result.processedContent, processed: true };
-    } else {
-      return { content, processed: false, error: result.error || 'Unknown error' };
+    const result = response.choices?.[0]?.message?.content;
+    if (result) {
+      return { content: result, processed: true };
     }
+    return { content, processed: false, error: 'No content in response' };
   } catch (err) {
     const error = err instanceof Error ? err.message : String(err);
     return { content, processed: false, error };

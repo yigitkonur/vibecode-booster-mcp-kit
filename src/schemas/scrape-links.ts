@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { isLLMEnabledByDefault } from '../config/index.js';
 
 // Input schema for scrape_links tool
 export const scrapeLinksParamsShape = {
@@ -16,8 +15,8 @@ export const scrapeLinksParamsShape = {
     .describe('Timeout in seconds for each URL'),
   use_llm: z
     .boolean()
-    .default(isLLMEnabledByDefault())
-    .describe('Enable AI processing for content extraction'),
+    .default(false)
+    .describe('Enable AI processing for content extraction (requires OPENROUTER_API_KEY)'),
   what_to_extract: z
     .string()
     .max(1000)

@@ -87,10 +87,6 @@ export class ResearchClient {
       requestPayload.response_format = responseFormat;
     }
 
-    if (process.env.MCP_DEBUG === 'true') {
-      console.error('[DEBUG] Research Request:', JSON.stringify(requestPayload, null, 2));
-    }
-
     try {
       const response = await this.client.chat.completions.create(requestPayload as any);
       const choice = response.choices?.[0];
