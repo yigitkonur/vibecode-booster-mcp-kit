@@ -10,7 +10,7 @@ import type { KeywordSearchResult } from '../clients/search.js';
 /**
  * Aggregated URL data structure
  */
-export interface AggregatedUrl {
+interface AggregatedUrl {
   url: string;
   title: string;
   snippet: string;
@@ -40,7 +40,7 @@ export interface RankedUrl {
 /**
  * Aggregation result containing all processed data
  */
-export interface AggregationResult {
+interface AggregationResult {
   rankedUrls: RankedUrl[];
   totalUniqueUrls: number;
   totalQueries: number;
@@ -64,7 +64,7 @@ function getCtrWeight(position: number): number {
  * Aggregate results from multiple searches
  * Flattens all results, deduplicates by URL, and tracks frequency/positions
  */
-export function aggregateResults(searches: KeywordSearchResult[]): Map<string, AggregatedUrl> {
+function aggregateResults(searches: KeywordSearchResult[]): Map<string, AggregatedUrl> {
   const urlMap = new Map<string, AggregatedUrl>();
 
   for (const search of searches) {
@@ -120,7 +120,7 @@ function normalizeUrl(url: string): string {
  * Filter URLs by minimum frequency
  * Returns URLs appearing in at least minFrequency searches
  */
-export function filterByFrequency(
+function filterByFrequency(
   urlMap: Map<string, AggregatedUrl>,
   minFrequency: number
 ): AggregatedUrl[] {
@@ -139,7 +139,7 @@ export function filterByFrequency(
  * Calculate weighted scores and normalize to 100.0
  * Returns sorted array with rank assignments
  */
-export function calculateWeightedScores(urls: AggregatedUrl[]): RankedUrl[] {
+function calculateWeightedScores(urls: AggregatedUrl[]): RankedUrl[] {
   if (urls.length === 0) return [];
 
   // Sort by total score descending
@@ -169,31 +169,6 @@ export function calculateWeightedScores(urls: AggregatedUrl[]): RankedUrl[] {
  */
 export function markConsensus(frequency: number): string {
   return frequency >= 3 ? '✓' : '✗';
-}
-
-/**
- * Generate markdown summary table for consensus URLs
- */
-export function generateSummaryTable(rankedUrls: RankedUrl[]): string {
-  if (rankedUrls.length === 0) return '';
-
-  const lines: string[] = [
-    '| Rank | URL | Score | Frequency | Best Position |',
-    '|------|-----|-------|-----------|---------------|',
-  ];
-
-  for (const url of rankedUrls) {
-    // Truncate URL for display
-    const displayUrl = url.url.length > 50 
-      ? url.url.substring(0, 47) + '...' 
-      : url.url;
-    
-    lines.push(
-      `| ${url.rank} | ${displayUrl} | ${url.score.toFixed(1)} | ${url.frequency} | ${url.bestPosition} |`
-    );
-  }
-
-  return lines.join('\n');
 }
 
 /**

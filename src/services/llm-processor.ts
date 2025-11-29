@@ -1,13 +1,13 @@
 import { LLMService } from './llm-service.js';
 import { createLLMConfigs, isLLMAvailable } from '../config/index.js';
 
-export interface ProcessingConfig {
+interface ProcessingConfig {
   use_llm: boolean;
   what_to_extract: string | undefined;
   max_tokens?: number; // Dynamic token allocation per URL
 }
 
-export interface LLMResult {
+interface LLMResult {
   content: string;
   processed: boolean;
   error?: string;
