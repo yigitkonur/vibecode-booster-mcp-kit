@@ -12,23 +12,17 @@ export const webSearchParamsShape = {
 };
 
 export const webSearchParamsSchema = z.object(webSearchParamsShape);
-
 export type WebSearchParams = z.infer<typeof webSearchParamsSchema>;
 
-// Output schema
-export const webSearchOutputShape = {
-  content: z.string().describe('Formatted markdown with aggregated summary and all search results'),
-  metadata: z.object({
-    total_keywords: z.number(),
-    total_results: z.number(),
-    execution_time_ms: z.number(),
-    // New aggregation metadata
-    total_unique_urls: z.number().optional(),
-    consensus_url_count: z.number().optional(),
-    frequency_threshold: z.number().optional(),
-  }),
-};
-
-export const webSearchOutputSchema = z.object(webSearchOutputShape);
-
-export type WebSearchOutput = z.infer<typeof webSearchOutputSchema>;
+// Output type
+export interface WebSearchOutput {
+  content: string;
+  metadata: {
+    total_keywords: number;
+    total_results: number;
+    execution_time_ms: number;
+    total_unique_urls?: number;
+    consensus_url_count?: number;
+    frequency_threshold?: number;
+  };
+}

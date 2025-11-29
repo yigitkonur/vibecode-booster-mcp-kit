@@ -26,25 +26,19 @@ export const scrapeLinksParamsShape = {
 };
 
 export const scrapeLinksParamsSchema = z.object(scrapeLinksParamsShape);
-
 export type ScrapeLinksParams = z.infer<typeof scrapeLinksParamsSchema>;
 
-// Output schema
-export const scrapeLinksOutputShape = {
-  content: z.string().describe('Formatted markdown content from all scraped URLs'),
-  metadata: z.object({
-    total_urls: z.number(),
-    successful: z.number(),
-    failed: z.number(),
-    total_credits: z.number(),
-    execution_time_ms: z.number(),
-    // Token allocation metadata
-    tokens_per_url: z.number().optional(),
-    total_token_budget: z.number().optional(),
-    batches_processed: z.number().optional(),
-  }),
-};
-
-export const scrapeLinksOutputSchema = z.object(scrapeLinksOutputShape);
-
-export type ScrapeLinksOutput = z.infer<typeof scrapeLinksOutputSchema>;
+// Output type
+export interface ScrapeLinksOutput {
+  content: string;
+  metadata: {
+    total_urls: number;
+    successful: number;
+    failed: number;
+    total_credits: number;
+    execution_time_ms: number;
+    tokens_per_url?: number;
+    total_token_budget?: number;
+    batches_processed?: number;
+  };
+}

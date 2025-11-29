@@ -223,67 +223,18 @@ export class FileAttachmentService {
     return { valid: true, start: 1, end: totalLines };
   }
 
-  /**
-   * Detect programming language from file extension
-   */
   private detectLanguage(filePath: string): string {
     const ext = extname(filePath).toLowerCase();
-
-    const languageMap: Record<string, string> = {
-      '.js': 'JavaScript',
-      '.jsx': 'JavaScript',
-      '.ts': 'TypeScript',
-      '.tsx': 'TypeScript',
-      '.mjs': 'JavaScript',
-      '.cjs': 'JavaScript',
-      '.py': 'Python',
-      '.pyw': 'Python',
-      '.pyx': 'Python',
-      '.html': 'HTML',
-      '.htm': 'HTML',
-      '.css': 'CSS',
-      '.scss': 'SCSS',
-      '.sass': 'Sass',
-      '.less': 'Less',
-      '.c': 'C',
-      '.h': 'C',
-      '.cpp': 'C++',
-      '.hpp': 'C++',
-      '.cc': 'C++',
-      '.cxx': 'C++',
-      '.java': 'Java',
-      '.kt': 'Kotlin',
-      '.kts': 'Kotlin',
-      '.go': 'Go',
-      '.rs': 'Rust',
-      '.rb': 'Ruby',
-      '.php': 'PHP',
-      '.swift': 'Swift',
-      '.sh': 'Bash',
-      '.bash': 'Bash',
-      '.zsh': 'Zsh',
-      '.json': 'JSON',
-      '.yaml': 'YAML',
-      '.yml': 'YAML',
-      '.toml': 'TOML',
-      '.xml': 'XML',
-      '.ini': 'INI',
-      '.md': 'Markdown',
-      '.mdx': 'MDX',
-      '.txt': 'Text',
-      '.sql': 'SQL',
-      '.dockerfile': 'Dockerfile',
-      '.graphql': 'GraphQL',
-      '.proto': 'Protobuf',
-      '.vue': 'Vue',
-      '.svelte': 'Svelte',
+    const map: Record<string, string> = {
+      '.js': 'javascript', '.jsx': 'javascript', '.mjs': 'javascript',
+      '.ts': 'typescript', '.tsx': 'typescript',
+      '.py': 'python', '.go': 'go', '.rs': 'rust', '.rb': 'ruby',
+      '.java': 'java', '.c': 'c', '.cpp': 'cpp', '.h': 'c',
+      '.json': 'json', '.yaml': 'yaml', '.yml': 'yaml', '.toml': 'toml',
+      '.md': 'markdown', '.html': 'html', '.css': 'css', '.sql': 'sql',
+      '.sh': 'bash', '.xml': 'xml',
     };
-
-    // Special case for Dockerfile (no extension)
-    if (filePath.endsWith('Dockerfile') || filePath.includes('Dockerfile.')) {
-      return 'Dockerfile';
-    }
-
-    return languageMap[ext] || 'Text';
+    if (filePath.endsWith('Dockerfile')) return 'dockerfile';
+    return map[ext] || 'text';
   }
 }
