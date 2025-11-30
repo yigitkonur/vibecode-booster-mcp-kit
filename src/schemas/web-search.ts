@@ -1,11 +1,24 @@
 import { z } from 'zod';
 
-// Input schema for web_search tool (renamed from search_multiple)
+// Keyword schema with validation
+const keywordSchema = z
+  .string({ required_error: 'web_search: Keyword is required' })
+  .min(1, { message: 'web_search: Keyword cannot be empty' })
+  .max(500, { message: 'web_search: Keyword too long (max 500 characters)' })
+  .refine(
+    k => k.trim().length > 0,
+    { message: 'web_search: Keyword cannot be whitespace only' }
+  );
+
+// Input schema for web_search tool
 const keywordsSchema = z
-  .array(z.string().min(1, 'Keyword cannot be empty').max(500, 'Keyword cannot exceed 500 characters'))
-  .min(1, 'At least one keyword is required')
-  .max(100, 'Cannot exceed 100 keywords per request')
-  .describe('Array of search keywords (1-100 keywords). Recommend 3-7 keywords for comprehensive research. Use specific, targeted keywords for best results. More keywords = broader coverage and diverse perspectives.');
+  .array(keywordSchema, {
+    required_error: 'web_search: Keywords array is required',
+    invalid_type_error: 'web_search: Keywords must be an array'
+  })
+  .min(1, { message: 'web_search: At least 1 keyword is required' })
+  .max(100, { message: 'web_search: Maximum 100 keywords allowed per request' })
+  .describe('Array of search keywords (1-100 keywords). Recommend 3-7 keywords for comprehensive research. Supports Google search operators (site:, -exclusion, "exact phrase", filetype:). More keywords = broader coverage and diverse perspectives.');
 
 export const webSearchParamsShape = {
   keywords: keywordsSchema,
@@ -24,5 +37,6 @@ export interface WebSearchOutput {
     total_unique_urls?: number;
     consensus_url_count?: number;
     frequency_threshold?: number;
+    errorCode?: string; // MCP error code for programmatic handling (on failure)
   };
 }

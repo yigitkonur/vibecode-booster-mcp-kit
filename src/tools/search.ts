@@ -1,5 +1,6 @@
 /**
  * Web Search Tool Handler
+ * NEVER throws - always returns structured response for graceful degradation
  */
 
 import type { WebSearchParams, WebSearchOutput } from '../schemas/web-search.js';
@@ -12,6 +13,7 @@ import {
   markConsensus,
 } from '../utils/url-aggregator.js';
 import { CTR_WEIGHTS } from '../config/index.js';
+import { classifyError, MCP_ERROR_CODES, type McpErrorCodeType } from '../utils/errors.js';
 
 interface ToolOptions {
   sessionId?: string;
@@ -150,14 +152,19 @@ export async function handleWebSearch(
 
     return { content: markdown, structuredContent: { content: markdown, metadata } };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
+    // Classify error for better reporting
+    const structuredError = classifyError(error);
+    const errorCode = structuredError.code;
 
     if (sessionId && logger) {
-      await logger('error', errorMessage, sessionId);
+      await logger('error', `web_search: ${structuredError.message}`, sessionId);
     }
 
     const executionTime = Date.now() - startTime;
-    const errorContent = `# ❌ Search Failed\n\n${errorMessage}\n\n**Tip:** Make sure SERPER_API_KEY is set in your environment variables.`;
+    const retryHint = structuredError.retryable 
+      ? '\n\n💡 This error may be temporary. Try again in a moment.' 
+      : '';
+    const errorContent = `# ❌ web_search: Search Failed\n\n**${errorCode}:** ${structuredError.message}${retryHint}\n\n**Tip:** Make sure SERPER_API_KEY is set in your environment variables.`;
 
     return {
       content: errorContent,
@@ -167,6 +174,7 @@ export async function handleWebSearch(
           total_keywords: params.keywords.length,
           total_results: 0,
           execution_time_ms: executionTime,
+          errorCode, // Include error code for programmatic handling
         },
       },
     };

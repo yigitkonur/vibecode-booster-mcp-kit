@@ -9,7 +9,7 @@ import { MarkdownCleaner } from '../services/markdown-cleaner.js';
 import { createLLMProcessor, processContentWithLLM } from '../services/llm-processor.js';
 import { removeMetaTags } from '../utils/markdown-formatter.js';
 import { SCRAPER } from '../config/index.js';
-import { classifyError, ErrorCode } from '../utils/errors.js';
+import { classifyError } from '../utils/errors.js';
 
 interface ToolOptions {
   sessionId?: string;

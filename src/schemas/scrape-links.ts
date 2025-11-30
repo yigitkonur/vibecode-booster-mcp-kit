@@ -1,25 +1,37 @@
 import { z } from 'zod';
 
+// URL schema with protocol validation
+const urlSchema = z
+  .string({ required_error: 'scrape_links: URL is required' })
+  .url({ message: 'scrape_links: Invalid URL format' })
+  .refine(
+    url => url.startsWith('http://') || url.startsWith('https://'),
+    { message: 'scrape_links: URL must use http:// or https:// protocol' }
+  );
+
 // Input schema for scrape_links tool
 export const scrapeLinksParamsShape = {
   urls: z
-    .array(z.string().url('Must be a valid HTTP or HTTPS URL'))
-    .min(1, 'At least one URL required')
-    .max(50, 'Maximum 50 URLs allowed per request')
+    .array(urlSchema, {
+      required_error: 'scrape_links: URLs array is required',
+      invalid_type_error: 'scrape_links: URLs must be an array'
+    })
+    .min(1, { message: 'scrape_links: At least 1 URL is required' })
+    .max(50, { message: 'scrape_links: Maximum 50 URLs allowed per request' })
     .describe('URLs to scrape (1-50). Recommend 3-5 URLs for balanced depth/breadth. More URLs = broader coverage but fewer tokens per URL. 3 URLs: ~10K tokens each (deep); 10 URLs: ~3K tokens each (balanced); 50 URLs: ~640 tokens each (scan).'),
   timeout: z
-    .number()
-    .min(5)
-    .max(120)
+    .number({ invalid_type_error: 'scrape_links: Timeout must be a number' })
+    .min(5, { message: 'scrape_links: Timeout must be at least 5 seconds' })
+    .max(120, { message: 'scrape_links: Timeout cannot exceed 120 seconds' })
     .default(30)
     .describe('Timeout in seconds for each URL'),
   use_llm: z
-    .boolean()
+    .boolean({ invalid_type_error: 'scrape_links: use_llm must be a boolean' })
     .default(false)
     .describe('Enable AI processing for content extraction (requires OPENROUTER_API_KEY)'),
   what_to_extract: z
     .string()
-    .max(1000)
+    .max(1000, { message: 'scrape_links: Extraction instructions too long (max 1000 characters)' })
     .optional()
     .describe('Specific content extraction instructions for AI. Will be enhanced with conciseness suffix automatically.'),
 };

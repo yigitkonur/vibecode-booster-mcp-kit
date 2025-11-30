@@ -3,6 +3,11 @@
  * 
  * This module reads the version from package.json at runtime.
  * All version references in the codebase should import from here.
+ * 
+ * Usage:
+ *   import { VERSION, PACKAGE_NAME } from './version.js';
+ * 
+ * The version is automatically synced with package.json - no manual updates needed.
  */
 
 import { createRequire } from 'module';
@@ -27,8 +32,8 @@ try {
     // Try loading from two levels up (when running from src/)
     packageJson = require(join(__dirname, '..', '..', 'package.json'));
   } catch {
-    // Fallback if package.json can't be found
-    console.error('[Version] Warning: Could not load package.json');
+    // Fallback if package.json can't be found (should never happen)
+    console.error('[Version] Warning: Could not load package.json, using fallback version');
     packageJson = {
       version: '0.0.0-unknown',
       name: 'research-powerpack-mcp',
@@ -37,19 +42,31 @@ try {
   }
 }
 
-/** Package version from package.json - single source of truth */
+/**
+ * Package version from package.json
+ * This is the single source of truth for versioning
+ */
 export const VERSION: string = packageJson.version;
 
-/** Package name from package.json */
+/**
+ * Package name from package.json
+ */
 export const PACKAGE_NAME: string = packageJson.name;
 
-/** Package description from package.json */
+/**
+ * Package description from package.json
+ */
 export const PACKAGE_DESCRIPTION: string = packageJson.description;
 
-/** Formatted version string for user agents */
+/**
+ * Formatted version string for user agents and logging
+ * Example: "research-powerpack-mcp/3.2.0"
+ */
 export const USER_AGENT_VERSION: string = `${PACKAGE_NAME}/${VERSION}`;
 
-/** Full version info object */
+/**
+ * Full version info object
+ */
 export const VERSION_INFO = {
   version: VERSION,
   name: PACKAGE_NAME,

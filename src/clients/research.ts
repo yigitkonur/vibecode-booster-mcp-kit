@@ -48,7 +48,7 @@ export interface ResearchResponse {
 // Research-specific retry configuration
 // Research requests can be long-running, so we use longer delays
 const RESEARCH_RETRY_CONFIG = {
-  maxRetries: 2, // Fewer retries since requests are expensive
+  maxRetries: 3, // 3 retries for robustness on transient failures
   baseDelayMs: 5000, // Longer base delay
   maxDelayMs: 60000,
 } as const;

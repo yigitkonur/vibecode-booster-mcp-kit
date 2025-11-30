@@ -9,6 +9,48 @@ import { VERSION, PACKAGE_NAME, PACKAGE_DESCRIPTION } from '../version.js';
 export { VERSION, PACKAGE_NAME, PACKAGE_DESCRIPTION } from '../version.js';
 
 // ============================================================================
+// Safe Integer Parsing Helper
+// ============================================================================
+
+/**
+ * Safely parse an integer from environment variable with bounds checking
+ * @param value - The string value to parse (from process.env)
+ * @param defaultVal - Default value if parsing fails or value is undefined
+ * @param min - Minimum allowed value (clamped if below)
+ * @param max - Maximum allowed value (clamped if above)
+ * @returns Parsed integer within bounds, or default value
+ */
+function safeParseInt(
+  value: string | undefined,
+  defaultVal: number,
+  min: number,
+  max: number
+): number {
+  if (!value) {
+    return defaultVal;
+  }
+  
+  const parsed = parseInt(value, 10);
+  
+  if (isNaN(parsed)) {
+    console.warn(`[Config] Invalid number "${value}", using default ${defaultVal}`);
+    return defaultVal;
+  }
+  
+  if (parsed < min) {
+    console.warn(`[Config] Value ${parsed} below minimum ${min}, clamping to ${min}`);
+    return min;
+  }
+  
+  if (parsed > max) {
+    console.warn(`[Config] Value ${parsed} above maximum ${max}, clamping to ${max}`);
+    return max;
+  }
+  
+  return parsed;
+}
+
+// ============================================================================
 // Environment Parsing
 // ============================================================================
 
@@ -34,11 +76,13 @@ export function parseEnv(): EnvConfig {
 
 export const RESEARCH = {
   BASE_URL: process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1',
-  MODEL: process.env.RESEARCH_MODEL || 'perplexity/sonar-deep-research',
+  MODEL: process.env.RESEARCH_MODEL || 'x-ai/grok-4.1-fast',
   API_KEY: process.env.OPENROUTER_API_KEY || '',
-  TIMEOUT_MS: parseInt(process.env.API_TIMEOUT_MS || '1800000', 10),
+  // Timeout: min 1s, max 1hr, default 30min
+  TIMEOUT_MS: safeParseInt(process.env.API_TIMEOUT_MS, 1800000, 1000, 3600000),
   REASONING_EFFORT: (process.env.DEFAULT_REASONING_EFFORT as 'low' | 'medium' | 'high') || 'high',
-  MAX_URLS: parseInt(process.env.DEFAULT_MAX_URLS || '100', 10),
+  // Max URLs in search results: min 10, max 200, default 100
+  MAX_URLS: safeParseInt(process.env.DEFAULT_MAX_URLS, 100, 10, 200),
 } as const;
 
 // ============================================================================

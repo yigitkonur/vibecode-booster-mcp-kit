@@ -389,7 +389,6 @@ function aggregateRedditResults(
 ): Map<string, AggregatedRedditUrl> {
   const urlMap = new Map<string, AggregatedRedditUrl>();
 
-  let queryIndex = 0;
   for (const [query, results] of searches) {
     for (let i = 0; i < results.length; i++) {
       const result = results[i];
@@ -423,7 +422,6 @@ function aggregateRedditResults(
         });
       }
     }
-    queryIndex++;
   }
 
   return urlMap;

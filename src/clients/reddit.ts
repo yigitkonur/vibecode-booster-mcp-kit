@@ -65,9 +65,17 @@ export function calculateCommentAllocation(postCount: number): CommentAllocation
   return { totalBudget, perPostBase, perPostCapped, redistributed: false };
 }
 
+// ============================================================================
+// Module-Level Token Cache (shared across all RedditClient instances)
+// ============================================================================
+let cachedToken: string | null = null;
+let cachedTokenExpiry = 0;
+
+// Token cache logging only when DEBUG env is set
+const DEBUG_TOKEN_CACHE = process.env.DEBUG_REDDIT === 'true';
+
 export class RedditClient {
-  private token: string | null = null;
-  private tokenExpiry = 0;
+  // Instance-level references (now point to module cache)
   // User agent uses centralized version from package.json - auto-synced!
   private userAgent = `script:${USER_AGENT_VERSION} (by /u/research-powerpack)`;
 
@@ -75,13 +83,17 @@ export class RedditClient {
 
   /**
    * Authenticate with Reddit API with retry logic
+   * Uses module-level token cache for sharing across instances
    * Returns null on failure instead of throwing
    */
   private async auth(): Promise<string | null> {
-    // Return cached token if still valid
-    if (this.token && Date.now() < this.tokenExpiry - 60000) {
-      return this.token;
+    // Return module-cached token if still valid (with 60s buffer)
+    if (cachedToken && Date.now() < cachedTokenExpiry - 60000) {
+      if (DEBUG_TOKEN_CACHE) console.error('[RedditClient] Token cache HIT');
+      return cachedToken;
     }
+
+    if (DEBUG_TOKEN_CACHE) console.error('[RedditClient] Token cache MISS - authenticating');
 
     const credentials = Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64');
 
@@ -102,8 +114,10 @@ export class RedditClient {
           const text = await res.text().catch(() => '');
           console.error(`[Reddit] Auth failed (${res.status}): ${text}`);
 
-          // 401/403 are not retryable
+          // 401/403 are not retryable - invalidate cache
           if (res.status === 401 || res.status === 403) {
+            cachedToken = null;
+            cachedTokenExpiry = 0;
             return null;
           }
 
@@ -122,13 +136,20 @@ export class RedditClient {
           return null;
         }
 
-        this.token = data.access_token;
-        this.tokenExpiry = Date.now() + (data.expires_in || 3600) * 1000;
-        return this.token;
+        // Update module-level cache (shared across all instances)
+        cachedToken = data.access_token;
+        cachedTokenExpiry = Date.now() + (data.expires_in || 3600) * 1000;
+        return cachedToken;
 
       } catch (error) {
         const err = classifyError(error);
         console.error(`[Reddit] Auth error (attempt ${attempt + 1}): ${err.message}`);
+
+        // Invalidate cache on auth errors
+        if (err.code === ErrorCode.AUTH_ERROR) {
+          cachedToken = null;
+          cachedTokenExpiry = 0;
+        }
 
         if (attempt < 2 && err.retryable) {
           await sleep(REDDIT.RETRY_DELAYS[attempt] || 2000);

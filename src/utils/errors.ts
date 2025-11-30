@@ -323,13 +323,115 @@ export function safeJsonParse<T>(text: string, fallback: T): { data: T; error?: 
 }
 
 // ============================================================================
-// Legacy Compatibility (for existing code)
+// MCP Tool Error Response Types (for client-facing error responses)
 // ============================================================================
 
 /**
- * @deprecated Use classifyError instead
+ * MCP-compliant error codes for tool responses
+ * These codes are exposed to clients for programmatic error handling
  */
-export function createSimpleError(error: unknown): { message: string; code: string } {
-  const structured = classifyError(error);
-  return { message: structured.message, code: structured.code };
+export const MCP_ERROR_CODES = {
+  RATE_LIMITED: 'RATE_LIMITED',
+  NETWORK_ERROR: 'NETWORK_ERROR',
+  TIMEOUT: 'TIMEOUT',
+  VALIDATION_ERROR: 'VALIDATION_ERROR',
+  AUTH_ERROR: 'AUTH_ERROR',
+  NOT_FOUND: 'NOT_FOUND',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+  SERVICE_UNAVAILABLE: 'SERVICE_UNAVAILABLE',
+} as const;
+
+export type McpErrorCodeType = typeof MCP_ERROR_CODES[keyof typeof MCP_ERROR_CODES];
+
+/**
+ * Structured response type for MCP tool errors
+ * Per MCP spec: tools return isError:true for recoverable/tool-level failures
+ * Uses index signature for SDK compatibility with additional fields
+ */
+export interface ToolErrorResponse {
+  content: Array<{ type: 'text'; text: string }>;
+  isError: true;
+  errorCode?: McpErrorCodeType;
+  retryAfter?: number; // Seconds to wait before retry (for rate limits)
+  [key: string]: unknown; // Allow additional fields for SDK compatibility
+}
+
+/**
+ * Map internal ErrorCode to client-facing MCP_ERROR_CODES
+ */
+export function mapErrorCodeToMCP(code: ErrorCodeType): McpErrorCodeType {
+  switch (code) {
+    case ErrorCode.RATE_LIMITED:
+    case ErrorCode.QUOTA_EXCEEDED:
+      return MCP_ERROR_CODES.RATE_LIMITED;
+    case ErrorCode.TIMEOUT:
+      return MCP_ERROR_CODES.TIMEOUT;
+    case ErrorCode.NETWORK_ERROR:
+      return MCP_ERROR_CODES.NETWORK_ERROR;
+    case ErrorCode.SERVICE_UNAVAILABLE:
+      return MCP_ERROR_CODES.SERVICE_UNAVAILABLE;
+    case ErrorCode.AUTH_ERROR:
+      return MCP_ERROR_CODES.AUTH_ERROR;
+    case ErrorCode.NOT_FOUND:
+      return MCP_ERROR_CODES.NOT_FOUND;
+    case ErrorCode.INVALID_INPUT:
+    case ErrorCode.PARSE_ERROR:
+      return MCP_ERROR_CODES.VALIDATION_ERROR;
+    case ErrorCode.INTERNAL_ERROR:
+    case ErrorCode.UNKNOWN_ERROR:
+    default:
+      return MCP_ERROR_CODES.INTERNAL_ERROR;
+  }
+}
+
+/**
+ * Create a standardized MCP tool error response
+ * @param message - Human-readable error message
+ * @param errorCode - Optional MCP error code for programmatic handling
+ * @param retryAfter - Optional seconds to wait before retry (for rate limits)
+ */
+export function createToolError(
+  message: string,
+  errorCode?: McpErrorCodeType,
+  retryAfter?: number
+): ToolErrorResponse {
+  const response: ToolErrorResponse = {
+    content: [{ type: 'text', text: message }],
+    isError: true,
+  };
+  
+  if (errorCode) {
+    response.errorCode = errorCode;
+  }
+  
+  if (retryAfter !== undefined && retryAfter > 0) {
+    response.retryAfter = retryAfter;
+  }
+  
+  return response;
+}
+
+/**
+ * Create a tool error response from a StructuredError
+ * Automatically maps error codes and calculates retryAfter for rate limits
+ */
+export function createToolErrorFromStructured(
+  structuredError: StructuredError,
+  attempt: number = 0
+): ToolErrorResponse {
+  const errorCode = mapErrorCodeToMCP(structuredError.code);
+  
+  // Calculate retryAfter for rate-limited errors
+  let retryAfter: number | undefined;
+  if (structuredError.retryable && errorCode === MCP_ERROR_CODES.RATE_LIMITED) {
+    retryAfter = Math.ceil(calculateBackoff(attempt, DEFAULT_RETRY_OPTIONS) / 1000);
+  }
+  
+  // Format user-friendly error message
+  const retryHint = structuredError.retryable 
+    ? '\n\n💡 This error may be temporary. Try again in a moment.' 
+    : '';
+  const errorText = `## ❌ Error\n\n**${structuredError.code}:** ${structuredError.message}${retryHint}\n\nPlease check your input parameters and try again.`;
+  
+  return createToolError(errorText, errorCode, retryAfter);
 }

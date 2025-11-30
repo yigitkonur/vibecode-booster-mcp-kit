@@ -7,7 +7,7 @@
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import { CallToolRequestSchema, ListToolsRequestSchema, McpError, ErrorCode as McpErrorCode } from '@modelcontextprotocol/sdk/types.js';
 
 import { TOOLS } from './tools/definitions.js';
 import { handleSearchReddit, handleGetRedditPosts } from './tools/reddit.js';
@@ -17,8 +17,8 @@ import { handleWebSearch } from './tools/search.js';
 import { deepResearchParamsSchema } from './schemas/deep-research.js';
 import { scrapeLinksParamsSchema } from './schemas/scrape-links.js';
 import { webSearchParamsSchema } from './schemas/web-search.js';
-import { classifyError, ErrorCode, type StructuredError } from './utils/errors.js';
-import { parseEnv, RESEARCH, SERVER, getCapabilities, getMissingEnvMessage } from './config/index.js';
+import { classifyError, createToolErrorFromStructured } from './utils/errors.js';
+import { parseEnv, SERVER, getCapabilities, getMissingEnvMessage } from './config/index.js';
 
 // ============================================================================
 // Capability Detection (no ENV required - tools fail gracefully when called)
@@ -157,8 +157,21 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       return { content: [{ type: 'text', text: content }] };
     }
 
-    return { content: [{ type: 'text', text: `⚠️ **Unknown tool:** \`${name}\`\n\nAvailable tools: search_reddit, get_reddit_post, deep_research, scrape_links, web_search` }], isError: true };
+    /**
+     * Protocol Error: Unknown tool requested
+     * Per MCP spec, use McpError for protocol-level errors (tool not found, invalid params)
+     * vs isError:true for tool execution failures (network, API, timeout)
+     */
+    throw new McpError(
+      McpErrorCode.MethodNotFound,
+      `Method not found: ${name}. Available tools: search_reddit, get_reddit_post, deep_research, scrape_links, web_search`
+    );
   } catch (error) {
+    // McpError should propagate to client as protocol error
+    if (error instanceof McpError) {
+      throw error;
+    }
+    
     // Classify the error for helpful messaging
     const structuredError = classifyError(error);
 
@@ -169,42 +182,67 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       retryable: structuredError.retryable,
     });
 
-    // Format user-friendly error message
-    const retryHint = structuredError.retryable ? '\n\n💡 This error may be temporary. Try again in a moment.' : '';
-    const errorText = `## ❌ Error\n\n**${structuredError.code}:** ${structuredError.message}${retryHint}\n\nPlease check your input parameters and try again.`;
-
-    // ALWAYS return a valid response - never let the server crash
-    return { content: [{ type: 'text', text: errorText }], isError: true };
+    // Create standardized error response with errorCode for client programmatic handling
+    // This response includes: content (markdown), isError: true, errorCode, and retryAfter (for rate limits)
+    return createToolErrorFromStructured(structuredError);
   }
 });
 
 // ============================================================================
-// Global Error Handlers - Prevent server crashes
+// Global Error Handlers - MUST EXIT on fatal errors per Node.js best practices
+// See: https://nodejs.org/api/process.html#warning-using-uncaughtexception-correctly
 // ============================================================================
 
-// Handle uncaught exceptions
+// Track shutdown state to prevent double shutdown
+let isShuttingDown = false;
+
+/**
+ * Graceful shutdown handler - closes server and exits
+ * @param exitCode - Exit code (0 for clean shutdown, 1 for error)
+ */
+async function gracefulShutdown(exitCode: number): Promise<void> {
+  if (isShuttingDown) return;
+  isShuttingDown = true;
+  
+  try {
+    await server.close();
+    console.error(`[MCP Server] Server closed at ${new Date().toISOString()}`);
+  } catch (closeError) {
+    console.error('[MCP Server] Error closing server:', closeError);
+  } finally {
+    process.exit(exitCode);
+  }
+}
+
+// Handle uncaught exceptions - MUST EXIT per Node.js docs
+// The VM is in an unstable state after uncaught exception
 process.on('uncaughtException', (error: Error) => {
-  console.error('[MCP Server] Uncaught exception (server continues):', error.message);
-  // Don't exit - the server should continue running
+  console.error(`[MCP Server] FATAL uncaughtException at ${new Date().toISOString()}:`);
+  console.error(`  Message: ${error.message}`);
+  console.error(`  Stack: ${error.stack}`);
+  gracefulShutdown(1);
 });
 
-// Handle unhandled promise rejections
+// Handle unhandled promise rejections - MUST EXIT (Node v15+ behavior)
+// Suppressing this risks memory leaks and corrupted state
 process.on('unhandledRejection', (reason: unknown) => {
   const error = classifyError(reason);
-  console.error('[MCP Server] Unhandled rejection (server continues):', error.message);
-  // Don't exit - the server should continue running
+  console.error(`[MCP Server] FATAL unhandledRejection at ${new Date().toISOString()}:`);
+  console.error(`  Message: ${error.message}`);
+  console.error(`  Code: ${error.code}`);
+  gracefulShutdown(1);
 });
 
-// Handle SIGTERM gracefully
+// Handle SIGTERM gracefully (Docker/Kubernetes stop signal)
 process.on('SIGTERM', () => {
-  console.error('[MCP Server] Received SIGTERM, shutting down gracefully');
-  process.exit(0);
+  console.error(`[MCP Server] Received SIGTERM at ${new Date().toISOString()}, shutting down gracefully`);
+  gracefulShutdown(0);
 });
 
-// Handle SIGINT gracefully (Ctrl+C)
-process.on('SIGINT', () => {
-  console.error('[MCP Server] Received SIGINT, shutting down gracefully');
-  process.exit(0);
+// Handle SIGINT gracefully (Ctrl+C) - use once() to prevent double-fire
+process.once('SIGINT', () => {
+  console.error(`[MCP Server] Received SIGINT at ${new Date().toISOString()}, shutting down gracefully`);
+  gracefulShutdown(0);
 });
 
 // ============================================================================

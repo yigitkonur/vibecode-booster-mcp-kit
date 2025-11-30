@@ -1,11 +1,13 @@
 /**
  * Reddit Tools - Search and Fetch
+ * NEVER throws - always returns structured response for graceful degradation
  */
 
 import { SearchClient } from '../clients/search.js';
 import { RedditClient, calculateCommentAllocation, type PostResult, type Comment } from '../clients/reddit.js';
 import { aggregateAndRankReddit, generateRedditEnhancedOutput } from '../utils/url-aggregator.js';
 import { REDDIT } from '../config/index.js';
+import { classifyError } from '../utils/errors.js';
 
 // ============================================================================
 // Formatters
@@ -53,25 +55,33 @@ export async function handleSearchReddit(
   apiKey: string,
   dateAfter?: string
 ): Promise<string> {
-  const limited = queries.slice(0, 10);
-  const client = new SearchClient(apiKey);
-  const results = await client.searchRedditMultiple(limited, dateAfter);
+  try {
+    const limited = queries.slice(0, 10);
+    const client = new SearchClient(apiKey);
+    const results = await client.searchRedditMultiple(limited, dateAfter);
 
-  // Check if any results were found
-  let totalResults = 0;
-  for (const items of results.values()) {
-    totalResults += items.length;
+    // Check if any results were found
+    let totalResults = 0;
+    for (const items of results.values()) {
+      totalResults += items.length;
+    }
+
+    if (totalResults === 0) {
+      return `# 🔍 Reddit Search Results\n\n_No results found for any of the ${limited.length} queries._`;
+    }
+
+    // Aggregate and rank results by CTR
+    const aggregation = aggregateAndRankReddit(results, 3);
+
+    // Generate enhanced output with consensus highlighting
+    return generateRedditEnhancedOutput(aggregation, limited);
+  } catch (error) {
+    const structuredError = classifyError(error);
+    const retryHint = structuredError.retryable 
+      ? '\n\n💡 This error may be temporary. Try again in a moment.' 
+      : '';
+    return `# ❌ search_reddit: Search Failed\n\n**${structuredError.code}:** ${structuredError.message}${retryHint}\n\n**Tip:** Make sure SERPER_API_KEY is set in your environment variables.`;
   }
-
-  if (totalResults === 0) {
-    return `# 🔍 Reddit Search Results\n\n_No results found for any of the ${limited.length} queries._`;
-  }
-
-  // Aggregate and rank results by CTR
-  const aggregation = aggregateAndRankReddit(results, 3);
-
-  // Generate enhanced output with consensus highlighting
-  return generateRedditEnhancedOutput(aggregation, limited);
 }
 
 // ============================================================================
@@ -90,51 +100,59 @@ export async function handleGetRedditPosts(
   maxComments = 100,
   options: GetRedditPostsOptions = {}
 ): Promise<string> {
-  const { fetchComments = true, maxCommentsOverride } = options;
+  try {
+    const { fetchComments = true, maxCommentsOverride } = options;
 
-  if (urls.length < REDDIT.MIN_POSTS) {
-    return `# ❌ Error\n\nMinimum ${REDDIT.MIN_POSTS} Reddit posts required. Received: ${urls.length}`;
-  }
-  if (urls.length > REDDIT.MAX_POSTS) {
-    return `# ❌ Error\n\nMaximum ${REDDIT.MAX_POSTS} Reddit posts allowed. Received: ${urls.length}. Please remove ${urls.length - REDDIT.MAX_POSTS} URL(s) and retry.`;
-  }
-
-  const allocation = calculateCommentAllocation(urls.length);
-  const commentsPerPost = fetchComments ? (maxCommentsOverride || allocation.perPostCapped) : 0;
-  const totalBatches = Math.ceil(urls.length / REDDIT.BATCH_SIZE);
-
-  const client = new RedditClient(clientId, clientSecret);
-  const batchResult = await client.batchGetPosts(urls, commentsPerPost, fetchComments);
-  const results = batchResult.results;
-
-  let md = `# Reddit Posts (${urls.length} posts)\n\n`;
-
-  if (fetchComments) {
-    md += `**Comment Allocation:** ${commentsPerPost} comments/post (${urls.length} posts, ${REDDIT.MAX_COMMENT_BUDGET} total budget)\n`;
-  } else {
-    md += `**Comments:** Not fetched (fetch_comments=false)\n`;
-  }
-  md += `**Status:** 📦 ${totalBatches} batch(es) processed\n\n`;
-  md += `---\n\n`;
-
-  let successful = 0;
-  let failed = 0;
-
-  for (const [url, result] of results) {
-    if (result instanceof Error) {
-      failed++;
-      md += `## ❌ Failed: ${url}\n\n_${result.message}_\n\n---\n\n`;
-    } else {
-      successful++;
-      md += formatPost(result, fetchComments);
-      md += '\n---\n\n';
+    if (urls.length < REDDIT.MIN_POSTS) {
+      return `# ❌ get_reddit_post: Validation Error\n\nMinimum ${REDDIT.MIN_POSTS} Reddit posts required. Received: ${urls.length}`;
     }
-  }
+    if (urls.length > REDDIT.MAX_POSTS) {
+      return `# ❌ get_reddit_post: Validation Error\n\nMaximum ${REDDIT.MAX_POSTS} Reddit posts allowed. Received: ${urls.length}. Please remove ${urls.length - REDDIT.MAX_POSTS} URL(s) and retry.`;
+    }
 
-  md += `\n**Summary:** ✅ ${successful} successful | ❌ ${failed} failed`;
-  if (batchResult.rateLimitHits > 0) {
-    md += ` | ⚠️ ${batchResult.rateLimitHits} rate limit retries`;
-  }
+    const allocation = calculateCommentAllocation(urls.length);
+    const commentsPerPost = fetchComments ? (maxCommentsOverride || allocation.perPostCapped) : 0;
+    const totalBatches = Math.ceil(urls.length / REDDIT.BATCH_SIZE);
 
-  return md.trim();
+    const client = new RedditClient(clientId, clientSecret);
+    const batchResult = await client.batchGetPosts(urls, commentsPerPost, fetchComments);
+    const results = batchResult.results;
+
+    let md = `# Reddit Posts (${urls.length} posts)\n\n`;
+
+    if (fetchComments) {
+      md += `**Comment Allocation:** ${commentsPerPost} comments/post (${urls.length} posts, ${REDDIT.MAX_COMMENT_BUDGET} total budget)\n`;
+    } else {
+      md += `**Comments:** Not fetched (fetch_comments=false)\n`;
+    }
+    md += `**Status:** 📦 ${totalBatches} batch(es) processed\n\n`;
+    md += `---\n\n`;
+
+    let successful = 0;
+    let failed = 0;
+
+    for (const [url, result] of results) {
+      if (result instanceof Error) {
+        failed++;
+        md += `## ❌ Failed: ${url}\n\n_${result.message}_\n\n---\n\n`;
+      } else {
+        successful++;
+        md += formatPost(result, fetchComments);
+        md += '\n---\n\n';
+      }
+    }
+
+    md += `\n**Summary:** ✅ ${successful} successful | ❌ ${failed} failed`;
+    if (batchResult.rateLimitHits > 0) {
+      md += ` | ⚠️ ${batchResult.rateLimitHits} rate limit retries`;
+    }
+
+    return md.trim();
+  } catch (error) {
+    const structuredError = classifyError(error);
+    const retryHint = structuredError.retryable 
+      ? '\n\n💡 This error may be temporary. Try again in a moment.' 
+      : '';
+    return `# ❌ get_reddit_post: Operation Failed\n\n**${structuredError.code}:** ${structuredError.message}${retryHint}\n\n**Tip:** Make sure REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET are set in your environment variables.`;
+  }
 }
